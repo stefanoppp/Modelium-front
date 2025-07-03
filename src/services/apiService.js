@@ -1,6 +1,7 @@
 import axios from 'axios'
+import { config } from '@/config'
 
-const API_BASE_URL = 'http://localhost:8000/api'
+const API_BASE_URL = config.api.baseURL
 
 // Crear instancia de axios
 const apiClient = axios.create({
@@ -21,7 +22,7 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error)
-  }
+  },
 )
 
 // Interceptor para manejar responses y refresh token
@@ -29,20 +30,20 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
-    
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
-      
+
       const refreshToken = localStorage.getItem('refresh_token')
       if (refreshToken) {
         try {
           const response = await axios.post(`${API_BASE_URL}/users/token/refresh/`, {
-            refresh: refreshToken
+            refresh: refreshToken,
           })
-          
+
           const newAccessToken = response.data.access
           localStorage.setItem('access_token', newAccessToken)
-          
+
           // Retry original request with new token
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
           return apiClient(originalRequest)
@@ -56,9 +57,9 @@ apiClient.interceptors.response.use(
         }
       }
     }
-    
+
     return Promise.reject(error)
-  }
+  },
 )
 
 export default apiClient

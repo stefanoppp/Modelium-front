@@ -26,14 +26,22 @@ export const useAuthStore = defineStore('auth', () => {
   const register = async (userData) => {
     isLoading.value = true
     error.value = null
-    
+
     try {
       const result = await authService.register(userData)
       if (result.success) {
-        return { success: true, message: result.message }
+        return {
+          success: true,
+          message: result.message,
+          needsVerification: result.needsVerification || true,
+        }
       } else {
         error.value = result.error
-        return { success: false, error: result.error }
+        return {
+          success: false,
+          error: result.error,
+          needsVerification: result.needsVerification,
+        }
       }
     } catch (err) {
       error.value = 'Error de conexión'
@@ -46,17 +54,17 @@ export const useAuthStore = defineStore('auth', () => {
   const verifyToken = async (username, token) => {
     isLoading.value = true
     error.value = null
-    
+
     try {
       const result = await authService.verifyToken(username, token)
       if (result.success) {
         return { success: true, message: result.message }
       } else {
         error.value = result.error
-        return { 
-          success: false, 
+        return {
+          success: false,
           error: result.error,
-          attemptsLeft: result.attemptsLeft 
+          attemptsLeft: result.attemptsLeft,
         }
       }
     } catch (err) {
@@ -70,7 +78,7 @@ export const useAuthStore = defineStore('auth', () => {
   const login = async (credentials) => {
     isLoading.value = true
     error.value = null
-    
+
     try {
       const result = await authService.login(credentials)
       if (result.success) {
@@ -78,10 +86,10 @@ export const useAuthStore = defineStore('auth', () => {
         return { success: true }
       } else {
         error.value = result.error
-        return { 
-          success: false, 
+        return {
+          success: false,
           error: result.error,
-          needsVerification: result.needsVerification 
+          needsVerification: result.needsVerification,
         }
       }
     } catch (err) {
@@ -116,6 +124,6 @@ export const useAuthStore = defineStore('auth', () => {
     verifyToken,
     login,
     logout,
-    clearError
+    clearError,
   }
 })

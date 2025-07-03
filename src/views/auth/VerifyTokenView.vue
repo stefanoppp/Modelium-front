@@ -1,120 +1,77 @@
 <template>
   <div class="auth-container">
-    <!-- Fondo tecnológico animado -->
-    <div class="auth-background">
-      <div class="grid-pattern"></div>
-      <div class="floating-elements">
-        <div class="floating-element" v-for="i in 6" :key="i"></div>
-      </div>
-      <div class="verification-waves">
-        <div class="wave" v-for="i in 3" :key="`wave-${i}`"></div>
-      </div>
+    <!-- Background animado -->
+    <div class="background-grid"></div>
+    <div class="floating-elements">
+      <div class="floating-element" v-for="n in 15" :key="n"></div>
+    </div>
+    <div class="grid-lines">
+      <div class="grid-line horizontal" v-for="n in 8" :key="'h' + n"></div>
+      <div class="grid-line vertical" v-for="n in 12" :key="'v' + n"></div>
     </div>
 
-    <!-- Logo/Brand -->
-    <div class="brand-header">
-      <router-link to="/" class="brand-link">
-        <div class="brand-logo">
-          <span class="brand-text">Modelium</span>
-          <span class="brand-subtitle">AI Platform</span>
-        </div>
-      </router-link>
-    </div>
+    <div class="auth-card">
+      <div class="verification-icon">
+        <i class="pi pi-shield"></i>
+      </div>
+      <h2>Verificar tu Cuenta</h2>
+      <p class="verification-subtitle">Ingresa el código de verificación enviado a tu correo</p>
+      
+      <div class="username-display">
+        <i class="pi pi-user"></i>
+        <span>{{ username }}</span>
+      </div>
 
-    <!-- Contenedor principal del formulario -->
-    <div class="auth-wrapper">
-      <div class="auth-card">
-        <div class="auth-header">
-          <div class="verification-icon">
-            <i class="pi pi-shield"></i>
-          </div>
-          <h1 class="auth-title">
-            <span class="title-main">Verificar</span>
-            <span class="title-accent">tu Cuenta</span>
-          </h1>
-          <p class="auth-subtitle">Ingresa el código de verificación enviado a tu correo</p>
-          <div class="username-display">
-            <i class="pi pi-user"></i>
-            <span>{{ username }}</span>
-          </div>
-        </div>
-
-        <form @submit.prevent="handleVerify" class="auth-form">
-          <div class="form-group">
-            <label for="token" class="form-label">
-              <i class="pi pi-key"></i>
-              Código de Verificación
-            </label>
-            <div class="input-wrapper">
-              <InputText
-                id="token"
-                v-model="form.token"
-                :invalid="!!errors.token"
-                placeholder="000000"
-                maxlength="6"
-                class="auth-input token-input"
-                @input="formatToken"
-              />
-            </div>
-            <small v-if="errors.token" class="error-text">
-              <i class="pi pi-exclamation-circle"></i>
-              {{ errors.token }}
-            </small>
-          </div>
-
-          <div v-if="authError" class="error-message">
-            <i class="pi pi-exclamation-triangle"></i>
-            <div class="error-content">
-              <div>{{ authError }}</div>
-              <div v-if="attemptsLeft !== null" class="attempts-left">
-                <i class="pi pi-clock"></i>
-                Intentos restantes: {{ attemptsLeft }}
-              </div>
-            </div>
-          </div>
-
-          <div v-if="successMessage" class="success-message">
-            <i class="pi pi-check-circle"></i>
-            <span>{{ successMessage }}</span>
-          </div>
-
-          <TechButton
-            type="submit"
-            label="Verificar Cuenta"
-            icon="pi pi-verified"
-            :loading="isLoading"
-            class="auth-button"
-            size="large"
+      <form @submit.prevent="handleVerify">
+        <div class="form-group">
+          <label for="token">Código de Verificación</label>
+          <input
+            id="token"
+            v-model="form.token"
+            type="text"
+            placeholder="000000"
+            maxlength="6"
+            required
+            @input="formatToken"
           />
+        </div>
 
-          <div class="resend-section">
-            <p class="resend-text">¿No recibiste el código?</p>
-            <TechButton
-              type="button"
-              :label="resendCooldown > 0 ? `Reenviar en ${resendCooldown}s` : 'Reenviar Código'"
-              icon="pi pi-refresh"
-              severity="secondary"
-              outlined
-              :disabled="resendCooldown > 0"
-              @click="resendCode"
-              size="small"
-            />
+        <div v-if="authError" class="error-message">
+          <i class="pi pi-exclamation-triangle"></i>
+          <div class="error-content">
+            <div>{{ authError }}</div>
+            <div v-if="attemptsLeft !== null" class="attempts-left">
+              Intentos restantes: {{ attemptsLeft }}
+            </div>
           </div>
-        </form>
+        </div>
 
-        <div class="auth-footer">
-          <div class="footer-content">
-            <p class="footer-text">¿Correo incorrecto?</p>
-            <router-link to="/auth/register" class="auth-link">
-              <TechButton
-                label="Regístrate de nuevo"
-                icon="pi pi-user-plus"
-                severity="secondary"
-                outlined
-                size="small"
-              />
-            </router-link>
-          </div>
+        <div v-if="successMessage" class="success-message">
+          <i class="pi pi-check-circle"></i>
+          <span>{{ successMessage }}</span>
+        </div>
+
+        <button type="submit" :disabled="isLoading">
+          {{ isLoading ? 'Verificando...' : 'Verificar Cuenta' }}
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <div class="footer-divider"></div>
+        <div class="footer-content">
+          <span class="footer-text">¿No recibiste el código?</span>
+          <button
+            type="button"
+            class="resend-button"
+            :disabled="resendCooldown > 0"
+            @click="resendCode"
+          >
+            {{ resendCooldown > 0 ? `Reenviar en ${resendCooldown}s` : 'Reenviar Código' }}
+          </button>
+        </div>
+        <div class="footer-brand">
+          <router-link to="/" class="brand-name">Modelium</router-link>
+          <span class="brand-tagline">Potenciando el futuro del desarrollo de IA</span>
         </div>
       </div>
     </div>
@@ -125,8 +82,6 @@
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
-import InputText from 'primevue/inputtext'
-import TechButton from '@/components/ui/TechButton.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -164,20 +119,11 @@ const formatToken = (event) => {
   form.token = value
 }
 
-const validateForm = () => {
-  errors.value = {}
-
-  if (!form.token) {
-    errors.value.token = 'El código de verificación es obligatorio'
-  } else if (form.token.length !== 6) {
-    errors.value.token = 'El código de verificación debe tener 6 dígitos'
-  }
-
-  return Object.keys(errors.value).length === 0
-}
-
 const handleVerify = async () => {
-  if (!validateForm()) return
+  if (!form.token || form.token.length !== 6) {
+    authError.value = 'El código de verificación debe tener 6 dígitos'
+    return
+  }
 
   isLoading.value = true
   authError.value = ''
@@ -187,32 +133,13 @@ const handleVerify = async () => {
   const result = await authStore.verifyToken(username.value, form.token)
 
   if (result.success) {
-    successMessage.value = '¡Cuenta verificada exitosamente! Iniciando sesión...'
-
-    // Auto-login después de verificación exitosa
-    setTimeout(async () => {
-      const password = sessionStorage.getItem('temp_password')
-      if (password) {
-        const loginResult = await authStore.login({
-          username: username.value,
-          password: password,
-        })
-
-        sessionStorage.removeItem('temp_password')
-
-        if (loginResult.success) {
-          router.push({ path: '/dashboard', query: { welcome: 'true' } })
-        } else {
-          // Si el auto-login falla, redirigir a login manual
-          router.push('/auth/login')
-        }
-      } else {
-        // No hay password temporal, redirigir a login
-        router.push('/auth/login')
-      }
+    successMessage.value = '¡Cuenta verificada exitosamente! Redirigiendo...'
+    
+    setTimeout(() => {
+      router.push('/dashboard?verified=true')
     }, 1500)
   } else {
-    authError.value = result.error
+    authError.value = result.error || 'Error al verificar el código'
     attemptsLeft.value = result.attemptsLeft
     form.token = '' // Limpiar token incorrecto
   }
@@ -239,343 +166,347 @@ const resendCode = () => {
 
 <style scoped>
 .auth-container {
-  min-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   display: flex;
-  flex-direction: column;
-  position: relative;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
   overflow: hidden;
+  padding: 1rem;
 }
 
-/* Fondo tecnológico específico para verificación */
-.auth-background {
+/* Background Grid */
+.background-grid {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 20%, #16213e 60%, #0f3460 100%);
-}
-
-.grid-pattern {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
   background-image:
-    linear-gradient(rgba(0, 212, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.08) 1px, transparent 1px);
-  background-size: 30px 30px;
-  opacity: 0.4;
-  animation: gridMove 20s linear infinite;
+    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: gridPulse 4s ease-in-out infinite;
 }
 
+/* Floating Elements (estrellitas) */
 .floating-elements {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 .floating-element {
   position: absolute;
-  width: 4px;
-  height: 4px;
-  background: var(--accent-color);
+  width: 3px;
+  height: 3px;
+  background: #00d4ff;
   border-radius: 50%;
-  animation: float 10s ease-in-out infinite;
-  box-shadow: 0 0 12px var(--accent-color);
+  animation: float 8s ease-in-out infinite;
+  box-shadow: 0 0 6px #00d4ff;
 }
 
 .floating-element:nth-child(1) {
-  top: 20%;
+  top: 10%;
   left: 15%;
-  animation-delay: 0s;
+  animation-delay: -2s;
 }
 .floating-element:nth-child(2) {
-  top: 60%;
+  top: 20%;
   left: 85%;
-  animation-delay: 2s;
+  animation-delay: -5s;
 }
 .floating-element:nth-child(3) {
-  top: 40%;
+  top: 70%;
   left: 10%;
-  animation-delay: 4s;
+  animation-delay: -1s;
 }
 .floating-element:nth-child(4) {
-  top: 80%;
-  left: 70%;
-  animation-delay: 1s;
+  top: 40%;
+  left: 90%;
+  animation-delay: -7s;
 }
 .floating-element:nth-child(5) {
-  top: 30%;
-  left: 90%;
-  animation-delay: 3s;
+  top: 80%;
+  left: 75%;
+  animation-delay: -3s;
 }
 .floating-element:nth-child(6) {
-  top: 70%;
+  top: 30%;
   left: 25%;
-  animation-delay: 5s;
+  animation-delay: -6s;
 }
-
-.verification-waves {
-  position: absolute;
-  top: 50%;
+.floating-element:nth-child(7) {
+  top: 60%;
+  left: 60%;
+  animation-delay: -4s;
+}
+.floating-element:nth-child(8) {
+  top: 15%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  animation-delay: -8s;
+}
+.floating-element:nth-child(9) {
+  top: 85%;
+  left: 40%;
+  animation-delay: -2.5s;
+}
+.floating-element:nth-child(10) {
+  top: 50%;
+  left: 80%;
+  animation-delay: -4.5s;
+}
+.floating-element:nth-child(11) {
+  top: 25%;
+  left: 70%;
+  animation-delay: -1.5s;
+}
+.floating-element:nth-child(12) {
+  top: 75%;
+  left: 20%;
+  animation-delay: -6.5s;
+}
+.floating-element:nth-child(13) {
+  top: 45%;
+  left: 35%;
+  animation-delay: -3.5s;
+}
+.floating-element:nth-child(14) {
+  top: 65%;
+  left: 85%;
+  animation-delay: -7.5s;
+}
+.floating-element:nth-child(15) {
+  top: 35%;
+  left: 5%;
+  animation-delay: -4.5s;
 }
 
-.wave {
-  position: absolute;
-  border: 2px solid rgba(0, 212, 255, 0.3);
-  border-radius: 50%;
-  animation: waveExpand 4s ease-out infinite;
-}
-
-.wave:nth-child(1) {
-  width: 100px;
-  height: 100px;
-  margin: -50px;
-  animation-delay: 0s;
-}
-
-.wave:nth-child(2) {
-  width: 200px;
-  height: 200px;
-  margin: -100px;
-  animation-delay: 1.5s;
-}
-
-.wave:nth-child(3) {
-  width: 300px;
-  height: 300px;
-  margin: -150px;
-  animation-delay: 3s;
-}
-
-/* Brand Header */
-.brand-header {
-  position: relative;
-  z-index: 3;
-  padding: 1.5rem 2rem;
-}
-
-.brand-link {
-  text-decoration: none;
-  display: inline-block;
-}
-
-.brand-logo {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.brand-text {
-  font-size: 1.8rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--primary-500), var(--accent-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 0.2rem;
-}
-
-.brand-subtitle {
-  font-size: 0.85rem;
-  color: #94a3b8;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
-/* Wrapper principal */
-.auth-wrapper {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  padding: 2rem;
-  min-height: 0;
-}
-
-.auth-card {
-  width: 100%;
-  max-width: 450px;
-  background: rgba(26, 26, 46, 0.95);
-  backdrop-filter: blur(25px);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 1.5rem;
-  padding: 2.5rem;
-  box-shadow:
-    0 25px 50px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  position: relative;
-  overflow: hidden;
-}
-
-.auth-card::before {
-  content: '';
+/* Grid Lines que se encienden */
+.grid-lines {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--primary-500),
-    var(--accent-color),
-    transparent
-  );
-  opacity: 0.8;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
-.auth-header {
+.grid-line {
+  position: absolute;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.4), transparent);
+  animation: lineGlow 6s ease-in-out infinite;
+}
+
+.grid-line.horizontal {
+  width: 100%;
+  height: 1px;
+  left: 0;
+}
+
+.grid-line.vertical {
+  width: 1px;
+  height: 100%;
+  top: 0;
+  background: linear-gradient(180deg, transparent, rgba(0, 212, 255, 0.4), transparent);
+}
+
+.grid-line:nth-child(1) { top: 10%; animation-delay: -2s; }
+.grid-line:nth-child(2) { top: 25%; animation-delay: -4s; }
+.grid-line:nth-child(3) { top: 40%; animation-delay: -1s; }
+.grid-line:nth-child(4) { top: 55%; animation-delay: -5s; }
+.grid-line:nth-child(5) { top: 70%; animation-delay: -3s; }
+.grid-line:nth-child(6) { top: 85%; animation-delay: -6s; }
+.grid-line:nth-child(7) { top: 95%; animation-delay: -1.5s; }
+.grid-line:nth-child(8) { top: 5%; animation-delay: -4.5s; }
+.grid-line:nth-child(9) { left: 10%; animation-delay: -2.5s; }
+.grid-line:nth-child(10) { left: 25%; animation-delay: -5.5s; }
+.grid-line:nth-child(11) { left: 40%; animation-delay: -1.2s; }
+.grid-line:nth-child(12) { left: 55%; animation-delay: -4.2s; }
+.grid-line:nth-child(13) { left: 70%; animation-delay: -3.2s; }
+.grid-line:nth-child(14) { left: 85%; animation-delay: -6.2s; }
+.grid-line:nth-child(15) { left: 95%; animation-delay: -2.8s; }
+.grid-line:nth-child(16) { left: 5%; animation-delay: -5.8s; }
+.grid-line:nth-child(17) { left: 30%; animation-delay: -1.8s; }
+.grid-line:nth-child(18) { left: 60%; animation-delay: -4.8s; }
+.grid-line:nth-child(19) { left: 80%; animation-delay: -3.8s; }
+.grid-line:nth-child(20) { left: 15%; animation-delay: -6.8s; }
+
+.auth-card {
+  background: rgba(26, 26, 46, 0.9);
+  border: 2px solid rgba(0, 212, 255, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 40px rgba(0, 212, 255, 0.15);
+  width: 100%;
+  max-width: 400px;
+  color: #ffffff;
+  position: relative;
+  z-index: 10;
   text-align: center;
-  margin-bottom: 2.5rem;
+}
+
+/* Animaciones */
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) scale(1); opacity: 0.7; }
+  25% { transform: translateY(-10px) scale(1.1); opacity: 0.9; }
+  50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+  75% { transform: translateY(-10px) scale(1.1); opacity: 0.9; }
+  100% { transform: translateY(0px) scale(1); opacity: 0.7; }
+}
+
+@keyframes lineGlow {
+  0% { opacity: 0.2; }
+  25% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+  75% { opacity: 0.4; }
+  100% { opacity: 0.2; }
 }
 
 .verification-icon {
-  width: 60px;
-  height: 60px;
-  margin: 0 auto 1.5rem;
-  background: rgba(0, 212, 255, 0.1);
-  border: 2px solid var(--primary-500);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  color: var(--primary-500);
-  animation: iconGlow 3s ease-in-out infinite;
-}
-
-.auth-title {
-  font-size: 2.2rem;
-  font-weight: 700;
+  font-size: 3rem;
+  color: #00d4ff;
   margin-bottom: 1rem;
-  line-height: 1.2;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
 }
 
-.title-main {
-  color: white;
+h2 {
+  color: #00d4ff;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
 }
 
-.title-accent {
-  background: linear-gradient(135deg, var(--primary-500), var(--accent-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-size: 0.9em;
-}
-
-.auth-subtitle {
+.verification-subtitle {
   color: #94a3b8;
-  font-size: 1rem;
-  margin: 0 0 1.5rem 0;
-  font-weight: 400;
-  line-height: 1.4;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
 }
 
 .username-display {
+  background: rgba(42, 42, 58, 0.6);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: rgba(0, 212, 255, 0.1);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 0.75rem;
-  padding: 0.8rem 1.2rem;
-  color: var(--primary-500);
-  font-weight: 600;
-  font-size: 1rem;
+  color: #00d4ff;
+  font-weight: 500;
 }
 
-.auth-form {
-  margin-bottom: 2rem;
+.username-display i {
+  font-size: 1.1rem;
 }
 
 .form-group {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+  text-align: left;
 }
 
-.form-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.8rem;
-  font-weight: 600;
-  color: var(--primary-500);
-  font-size: 0.95rem;
-  justify-content: center;
-}
-
-.input-wrapper {
-  position: relative;
-}
-
-.auth-input {
-  width: 100%;
-  background: rgba(42, 42, 60, 0.6);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 0.75rem;
-  padding: 1rem 1.2rem;
-  font-size: 1rem;
-  color: white;
-  transition: all 0.3s ease;
-}
-
-.token-input {
-  text-align: center;
-  font-size: 1.8rem;
-  font-weight: 700;
-  letter-spacing: 0.8rem;
-  padding: 1.2rem;
-  border: 2px solid rgba(0, 212, 255, 0.4);
-}
-
-.token-input:focus {
-  border-color: var(--primary-500);
-  box-shadow:
-    0 0 0 4px rgba(0, 212, 255, 0.15),
-    0 0 30px rgba(0, 212, 255, 0.3);
-  background: rgba(42, 42, 60, 0.9);
-}
-
-.token-input::placeholder {
-  color: #475569;
-  letter-spacing: 0.5rem;
-}
-
-.error-text {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  color: #ef4444;
-  margin-top: 0.6rem;
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #ffffff;
   font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+input {
+  width: 100%;
+  padding: 0.75rem;
+  box-sizing: border-box;
+  background: rgba(42, 42, 58, 0.8);
+  border: 1.5px solid rgba(0, 212, 255, 0.2);
+  color: #ffffff;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-size: 1.1rem;
+  text-align: center;
+  letter-spacing: 0.5rem;
+  font-weight: bold;
+}
+
+input:focus {
+  outline: none;
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.2rem;
+}
+
+button {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  background: linear-gradient(135deg, #00d4ff, #8b5cf6);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.resend-button {
+  background: rgba(42, 42, 58, 0.6);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  color: #00d4ff;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.resend-button:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.5);
+}
+
+.resend-button:disabled {
+  opacity: 0.5;
+  color: #64748b;
 }
 
 .error-message {
+  color: #ef4444;
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 0.75rem;
-  padding: 1.2rem;
-  margin-bottom: 1.5rem;
-  color: #ef4444;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
   display: flex;
-  align-items: flex-start;
-  gap: 0.8rem;
-  font-size: 0.95rem;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .error-content {
@@ -583,174 +514,149 @@ const resendCode = () => {
 }
 
 .attempts-left {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
   font-size: 0.85rem;
-  margin-top: 0.5rem;
-  font-weight: 600;
-  color: #f97316;
+  color: #f59e0b;
+  margin-top: 0.25rem;
 }
 
 .success-message {
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  border-radius: 0.75rem;
-  padding: 1.2rem;
-  margin-bottom: 1.5rem;
-  color: #22c55e;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  font-size: 0.95rem;
-}
-
-.auth-button {
-  width: 100%;
-  margin-bottom: 2rem;
-}
-
-.resend-section {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  padding: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
-  background: rgba(42, 42, 60, 0.3);
-}
-
-.resend-text {
-  color: #94a3b8;
-  margin: 0 0 1rem 0;
-  font-size: 0.95rem;
+  gap: 0.5rem;
 }
 
 .auth-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 1.5rem;
   padding-top: 1.5rem;
+  position: relative;
+}
+
+.footer-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.4), transparent);
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.footer-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  background: #00d4ff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #00d4ff;
 }
 
 .footer-content {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .footer-text {
   color: #94a3b8;
-  margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
-.auth-link {
+.footer-brand {
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1.5rem;
+}
+
+.brand-name {
+  display: block;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #00d4ff;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+  margin-bottom: 0.5rem;
   text-decoration: none;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: pointer;
+  position: relative;
+  letter-spacing: 0.5px;
 }
 
-/* Animaciones */
-@keyframes gridMove {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(30px, 30px);
-  }
+.brand-name::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+  transform: translateX(-50%);
+  transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(0deg);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translateY(-20px) rotate(180deg);
-    opacity: 1;
-  }
+.brand-name:hover {
+  color: #ffffff;
+  text-shadow:
+    0 0 20px rgba(0, 212, 255, 0.8),
+    0 0 30px rgba(0, 212, 255, 0.4);
+  transform: translateY(-1px);
+  letter-spacing: 1px;
 }
 
-@keyframes waveExpand {
-  0% {
-    opacity: 0.8;
-    transform: scale(0.1);
-  }
-  70% {
-    opacity: 0.2;
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1);
-  }
+.brand-name:hover::before {
+  width: 100%;
 }
 
-@keyframes iconGlow {
-  0%,
-  100% {
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-    border-color: var(--primary-500);
-  }
-  50% {
-    box-shadow:
-      0 0 30px rgba(0, 212, 255, 0.6),
-      0 0 40px rgba(124, 58, 237, 0.3);
-    border-color: var(--accent-color);
-  }
+.brand-tagline {
+  display: block;
+  font-size: 0.8rem;
+  color: #64748b;
+  font-style: italic;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .brand-header {
-    padding: 1.2rem 1.5rem;
-  }
-
-  .brand-text {
-    font-size: 1.5rem;
-  }
-
-  .auth-wrapper {
-    padding: 1rem;
-  }
-
-  .auth-card {
-    padding: 2rem;
-    max-width: 100%;
-    border-radius: 1.2rem;
-  }
-
-  .auth-title {
-    font-size: 1.8rem;
-  }
-
-  .token-input {
-    font-size: 1.5rem;
-    letter-spacing: 0.6rem;
-  }
-
-  .verification-icon {
-    width: 50px;
-    height: 50px;
-    font-size: 1.2rem;
-  }
+/* Responsive vertical - pantallas pequeñas */
+@media (max-height: 700px) {
+  .auth-container { padding: 0.5rem; }
+  .auth-card { padding: 1rem; max-height: 98vh; overflow-y: auto; }
+  .auth-card h2 { font-size: 1.3rem; margin-bottom: 1rem; }
+  .verification-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+  .verification-subtitle { font-size: 0.85rem; margin-bottom: 1rem; }
+  .username-display { padding: 0.5rem; margin-bottom: 1rem; }
+  .form-group { margin-bottom: 0.8rem; }
+  .form-group label { font-size: 0.8rem; margin-bottom: 0.3rem; }
+  .form-group input { padding: 0.5rem; font-size: 0.9rem; }
+  button { padding: 0.5rem; font-size: 0.9rem; }
+  .auth-footer { margin-top: 1rem; padding-top: 1rem; }
+  .footer-brand { padding-top: 1rem; }
+  .brand-name { font-size: 1.1rem; margin-bottom: 0.4rem; }
+  .brand-tagline { font-size: 0.75rem; }
 }
 
-@media (max-width: 480px) {
-  .auth-card {
-    padding: 1.5rem;
-    margin: 0.5rem;
-  }
-
-  .auth-title {
-    font-size: 1.5rem;
-  }
-
-  .token-input {
-    font-size: 1.3rem;
-    letter-spacing: 0.4rem;
-    padding: 1rem;
-  }
-
-  .resend-section {
-    padding: 1.2rem;
-  }
+/* Responsive vertical - pantallas muy pequeñas */
+@media (max-height: 600px) {
+  .auth-card { padding: 0.8rem; }
+  .auth-card h2 { font-size: 1.2rem; margin-bottom: 0.8rem; }
+  .verification-icon { font-size: 2rem; margin-bottom: 0.6rem; }
+  .verification-subtitle { font-size: 0.8rem; margin-bottom: 0.8rem; }
+  .username-display { padding: 0.4rem; margin-bottom: 0.8rem; }
+  .form-group { margin-bottom: 0.6rem; }
+  .form-group label { font-size: 0.75rem; margin-bottom: 0.2rem; }
+  .form-group input { padding: 0.4rem; font-size: 0.85rem; }
+  button { padding: 0.4rem; font-size: 0.85rem; }
+  .auth-footer { margin-top: 0.8rem; padding-top: 0.8rem; }
+  .footer-content { font-size: 0.8rem; }
+  .footer-brand { padding-top: 0.8rem; }
+  .brand-name { font-size: 1rem; margin-bottom: 0.3rem; }
+  .brand-tagline { font-size: 0.7rem; }
 }
 </style>
