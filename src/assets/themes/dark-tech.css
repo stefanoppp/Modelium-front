@@ -42,6 +42,32 @@ body {
   padding: 0 2rem;
 }
 
+/* Estilos para iconos PrimeIcons */
+.pi {
+  font-family: 'primeicons' !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  line-height: 1 !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+.pi::before {
+  font-family: 'primeicons' !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  text-decoration: none !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+
+/* Asegurar que no se aplique Inter a los iconos */
+.pi, [class*="pi-"] {
+  font-family: 'primeicons' !important;
+}
+
 /* PrimeVue theme overrides */
 .p-button {
   font-weight: 600;

@@ -1,0 +1,100 @@
+/* 
+  Layout base para todas las vistas con NavBar
+  Incluye el espaciado necesario para el NavBar fijo
+*/
+
+/* Contenedor principal para vistas con NavBar */
+.view-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  color: white;
+}
+
+/* Header de vista - espaciado estándar para NavBar */
+.view-header {
+  padding: 7rem 0 4rem; /* 7rem top para NavBar + espacio extra */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Content de vista - espaciado estándar para NavBar */
+.view-content {
+  padding-top: 7rem; /* Espaciado para NavBar */
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* Header con efectos de fondo tecnológico */
+.view-header-tech {
+  padding: 7rem 0 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.view-header-tech::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: 0.3;
+}
+
+/* Container responsivo */
+.view-container-responsive {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 3%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .view-header {
+    padding: 6rem 0 3rem;
+  }
+  
+  .view-content {
+    padding-top: 6rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .view-header-tech {
+    padding: 6rem 0 3rem;
+  }
+  
+  .view-container-responsive {
+    padding: 0 1rem;
+  }
+}
+
+/* Alturas específicas para diferentes tipos de contenido */
+.view-header-large {
+  padding: 8rem 0 4rem;
+}
+
+.view-header-medium {
+  padding: 7rem 0 3rem;
+}
+
+.view-header-small {
+  padding: 6rem 0 2rem;
+}
+
+/* Utilidades de espaciado para NavBar */
+.navbar-spacing-top {
+  padding-top: 5rem; /* Altura exacta del NavBar */
+}
+
+.navbar-spacing-margin {
+  margin-top: 5rem; /* Altura exacta del NavBar */
+}
+
+.navbar-spacing-content {
+  padding-top: 7rem; /* NavBar + espacio extra */
+}

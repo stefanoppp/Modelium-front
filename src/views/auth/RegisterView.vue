@@ -1,5 +1,6 @@
 <template>
   <div class="auth-container">
+    <NavBar />
     <!-- Background animado -->
     <div class="background-grid"></div>
     <div class="floating-elements">
@@ -64,6 +65,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import NavBar from '@/components/layout/NavBar.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -114,16 +116,17 @@ const handleRegister = async () => {
 <style scoped>
 .auth-container {
   position: fixed;
-  top: 0;
+  top: 5rem; /* Comienza debajo del NavBar */
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 5rem); /* Altura disponible sin el NavBar */
   display: flex;
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
   overflow: hidden;
   padding: 1rem;
+  box-sizing: border-box;
 }
 
 /* Background Grid */
@@ -351,11 +354,11 @@ const handleRegister = async () => {
   background: rgba(26, 26, 46, 0.9);
   border: 2px solid rgba(0, 212, 255, 0.3);
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 1rem;
   backdrop-filter: blur(20px);
   box-shadow: 0 8px 40px rgba(0, 212, 255, 0.15);
   width: 100%;
-  max-width: 380px;
+  max-width: 350px;
   color: #ffffff;
   position: relative;
   z-index: 10;
@@ -415,30 +418,30 @@ const handleRegister = async () => {
 
 h2 {
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
   color: #00d4ff;
   text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-  font-size: 1.3rem;
+  font-size: 1.2rem;
 }
 .form-group {
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
 }
 label {
   display: block;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
   color: #ffffff;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 input {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.3rem;
   box-sizing: border-box;
   background: rgba(42, 42, 58, 0.8);
   border: 1.5px solid rgba(0, 212, 255, 0.2);
   color: #ffffff;
   border-radius: 8px;
   transition: all 0.3s ease;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 input:focus {
   outline: none;
@@ -450,7 +453,7 @@ input::placeholder {
 }
 button {
   width: 100%;
-  padding: 0.6rem;
+  padding: 0.4rem;
   border: none;
   background: linear-gradient(135deg, #00d4ff, #8b5cf6);
   color: white;
@@ -458,8 +461,8 @@ button {
   cursor: pointer;
   font-weight: bold;
   transition: all 0.3s ease;
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
+  margin-top: 0.3rem;
+  font-size: 0.85rem;
 }
 button:hover {
   transform: translateY(-2px);
@@ -470,8 +473,8 @@ button:disabled {
   cursor: not-allowed;
 }
 .auth-footer {
-  margin-top: 1rem;
-  padding-top: 1rem;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
   position: relative;
 }
 
@@ -479,7 +482,7 @@ button:disabled {
   width: 100%;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.4), transparent);
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
   position: relative;
 }
 
@@ -617,6 +620,39 @@ button:disabled {
   font-size: 0.85rem;
 }
 
+/* Desktop optimización */
+@media (min-width: 1024px) {
+  .auth-card {
+    max-width: 340px;
+    padding: 1.1rem;
+  }
+  
+  h2 {
+    font-size: 1.15rem;
+    margin-bottom: 0.7rem;
+  }
+  
+  .form-group {
+    margin-bottom: 0.45rem;
+  }
+  
+  label {
+    font-size: 0.75rem;
+    margin-bottom: 0.15rem;
+  }
+  
+  input {
+    padding: 0.35rem;
+    font-size: 0.8rem;
+  }
+  
+  button {
+    padding: 0.45rem;
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+  }
+}
+
 /* Responsive vertical - pantallas pequeñas */
 @media (max-height: 700px) {
   .auth-container {
@@ -625,7 +661,7 @@ button:disabled {
 
   .auth-card {
     padding: 1rem;
-    max-height: 98vh;
+    max-height: 90vh;
     overflow-y: auto;
   }
 

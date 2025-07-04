@@ -44,7 +44,15 @@ export const authService = {
   // Login de usuario
   async login(credentials) {
     try {
+      // Limpiar tokens existentes antes del login para evitar conflictos
+      this.logout()
+      
       const response = await apiClient.post('/users/login/', credentials)
+
+      // Verificar que la respuesta contiene los tokens necesarios
+      if (!response.data.access || !response.data.refresh) {
+        throw new Error('Respuesta de login inválida')
+      }
 
       // Almacenar tokens
       localStorage.setItem('access_token', response.data.access)
@@ -75,7 +83,10 @@ export const authService = {
         },
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.error
+      // Limpiar cualquier token corrupto o expirado en caso de error
+      this.logout()
+      
+      const errorMessage = error.response?.data?.error || error.message
       return {
         success: false,
         error: errorMessage || 'Error en el login',
@@ -96,25 +107,88 @@ export const authService = {
     const token = localStorage.getItem('access_token')
     const user = localStorage.getItem('user')
 
-    if (!token || !user) return false
+    if (!token || !user) {
+      // Si no hay token o usuario, limpiar todo y retornar false
+      this.logout()
+      return false
+    }
 
     try {
       const userInfo = JSON.parse(user)
+      
+      // Verificar que el userInfo tiene la estructura esperada
+      if (!userInfo || !userInfo.exp || typeof userInfo.exp !== 'number') {
+        this.logout()
+        return false
+      }
+      
       const currentTime = Date.now() / 1000
-      return userInfo.exp > currentTime
-    } catch {
+      
+      // Si el token expiró, limpiar todo y retornar false
+      if (userInfo.exp <= currentTime) {
+        this.logout()
+        return false
+      }
+
+      // Verificar que el token JWT es válido
+      const tokenParts = token.split('.')
+      if (tokenParts.length !== 3) {
+        this.logout()
+        return false
+      }
+
+      // Intentar decodificar el payload del token
+      try {
+        const payload = JSON.parse(atob(tokenParts[1]))
+        if (!payload || !payload.exp || payload.exp <= currentTime) {
+          this.logout()
+          return false
+        }
+      } catch (tokenError) {
+        this.logout()
+        return false
+      }
+      
+      return true
+    } catch (error) {
+      // Si hay error al parsear, limpiar todo y retornar false
+      this.logout()
       return false
     }
   },
 
   // Obtener usuario actual
   getCurrentUser() {
-    const user = localStorage.getItem('user')
-    return user ? JSON.parse(user) : null
+    try {
+      const user = localStorage.getItem('user')
+      if (!user) return null
+      
+      const userInfo = JSON.parse(user)
+      const currentTime = Date.now() / 1000
+      
+      // Verificar si el token no ha expirado
+      if (userInfo.exp <= currentTime) {
+        this.logout()
+        return null
+      }
+      
+      return userInfo
+    } catch (error) {
+      this.logout()
+      return null
+    }
   },
 
   // Obtener token
   getToken() {
-    return localStorage.getItem('access_token')
+    const token = localStorage.getItem('access_token')
+    if (!token) return null
+    
+    // Verificar si el token no ha expirado antes de devolverlo
+    if (!this.isAuthenticated()) {
+      return null
+    }
+    
+    return token
   },
 }

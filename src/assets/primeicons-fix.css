@@ -1,0 +1,58 @@
+/* Fix para iconos PrimeIcons */
+@import url('primeicons/primeicons.css');
+
+/* Asegurar que los iconos usen la fuente correcta */
+.pi {
+  font-family: 'primeicons' !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  line-height: 1 !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  display: inline-block !important;
+  text-decoration: inherit !important;
+  vertical-align: middle !important;
+}
+
+/* Asegurar que ::before use la fuente correcta */
+.pi::before {
+  font-family: 'primeicons' !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  text-decoration: none !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+
+/* Clases específicas para iconos comunes */
+[class*="pi-"] {
+  font-family: 'primeicons' !important;
+}
+
+/* Overrides específicos para evitar conflictos */
+* .pi,
+* [class*="pi-"] {
+  font-family: 'primeicons' !important;
+}
+
+/* Estilos específicos para los iconos en el contexto de la aplicación */
+.model-detail-view .pi,
+.model-detail-view [class*="pi-"] {
+  font-family: 'primeicons' !important;
+}
+
+/* Asegurar que no se aplique Inter a los iconos */
+.pi, [class*="pi-"] {
+  font-family: 'primeicons' !important;
+}
+
+/* Fix para iconos que no se muestran */
+.pi:not(:empty)::before {
+  display: none !important;
+}
+
+.pi:empty::before {
+  display: inline-block !important;
+}

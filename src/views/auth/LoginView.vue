@@ -1,5 +1,6 @@
 <template>
   <div class="auth-container">
+    <NavBar />
     <!-- Background animado -->
     <div class="background-grid"></div>
     <div class="floating-elements">
@@ -48,6 +49,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import NavBar from '@/components/layout/NavBar.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -79,16 +81,17 @@ const handleLogin = async () => {
 <style scoped>
 .auth-container {
   position: fixed;
-  top: 0;
+  top: 5rem; /* Comienza debajo del NavBar */
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 5rem); /* Altura disponible sin el NavBar */
   display: flex;
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
   overflow: hidden;
   padding: 1rem;
+  box-sizing: border-box;
 }
 
 /* Background Grid */
@@ -586,7 +589,7 @@ button:disabled {
 
   .auth-card {
     padding: 1rem;
-    max-height: 98vh;
+    max-height: 90vh;
     overflow-y: auto;
   }
 
@@ -635,8 +638,13 @@ button:disabled {
 
 /* Responsive vertical - pantallas muy pequeñas */
 @media (max-height: 600px) {
+  .auth-container {
+    padding-top: 5rem; /* Mantener espacio del NavBar */
+  }
+  
   .auth-card {
     padding: 0.8rem;
+    transform: translateY(-0.5rem); /* Mínimo desplazamiento en pantallas muy pequeñas */
   }
 
   .auth-card h2 {

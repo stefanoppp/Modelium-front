@@ -1,5 +1,6 @@
 <template>
   <div class="auth-container">
+    <NavBar />
     <!-- Background animado -->
     <div class="background-grid"></div>
     <div class="floating-elements">
@@ -82,6 +83,7 @@
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import NavBar from '@/components/layout/NavBar.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -167,16 +169,17 @@ const resendCode = () => {
 <style scoped>
 .auth-container {
   position: fixed;
-  top: 0;
+  top: 5rem; /* Comienza debajo del NavBar */
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 5rem); /* Altura disponible sin el NavBar */
   display: flex;
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
   overflow: hidden;
   padding: 1rem;
+  box-sizing: border-box;
 }
 
 /* Background Grid */
@@ -343,15 +346,18 @@ const resendCode = () => {
   background: rgba(26, 26, 46, 0.9);
   border: 2px solid rgba(0, 212, 255, 0.3);
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 1.2rem; /* Reducido de 1.5rem */
   backdrop-filter: blur(20px);
   box-shadow: 0 8px 40px rgba(0, 212, 255, 0.15);
   width: 100%;
-  max-width: 400px;
+  max-width: 380px; /* Reducido de 400px */
   color: #ffffff;
   position: relative;
   z-index: 10;
   text-align: center;
+  /* Asegurar que quepa en el viewport */
+  max-height: calc(100vh - 7rem); /* Altura máxima considerando NavBar + padding */
+  overflow-y: auto; /* Solo en caso extremo */
 }
 
 /* Animaciones */
@@ -377,31 +383,31 @@ const resendCode = () => {
 }
 
 .verification-icon {
-  font-size: 3rem;
+  font-size: 2.5rem; /* Reducido de 3rem */
   color: #00d4ff;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem; /* Reducido de 1rem */
   text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
 }
 
 h2 {
   color: #00d4ff;
   text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-  font-size: 1.4rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.3rem; /* Reducido de 1.4rem */
+  margin-bottom: 0.4rem; /* Reducido de 0.5rem */
 }
 
 .verification-subtitle {
   color: #94a3b8;
-  font-size: 0.9rem;
-  margin-bottom: 1.5rem;
+  font-size: 0.85rem; /* Reducido de 0.9rem */
+  margin-bottom: 1.2rem; /* Reducido de 1.5rem */
 }
 
 .username-display {
   background: rgba(42, 42, 58, 0.6);
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 8px;
-  padding: 0.75rem;
-  margin-bottom: 1.5rem;
+  padding: 0.6rem; /* Reducido de 0.75rem */
+  margin-bottom: 1.2rem; /* Reducido de 1.5rem */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -415,13 +421,13 @@ h2 {
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem; /* Reducido de 1rem */
   text-align: left;
 }
 
 label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem; /* Reducido de 0.5rem */
   color: #ffffff;
   font-size: 0.9rem;
   font-weight: 500;
@@ -532,8 +538,8 @@ button:disabled {
 }
 
 .auth-footer {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
+  margin-top: 1rem; /* Reducido de 1.5rem */
+  padding-top: 1rem; /* Reducido de 1.5rem */
   position: relative;
 }
 
@@ -541,7 +547,7 @@ button:disabled {
   width: 100%;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.4), transparent);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem; /* Reducido de 1.5rem */
   position: relative;
 }
 
@@ -563,7 +569,7 @@ button:disabled {
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem; /* Reducido de 1.5rem */
 }
 
 .footer-text {
@@ -574,7 +580,7 @@ button:disabled {
 .footer-brand {
   text-align: center;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 1.5rem;
+  padding-top: 1rem; /* Reducido de 1.5rem */
 }
 
 .brand-name {
@@ -626,8 +632,14 @@ button:disabled {
 
 /* Responsive vertical - pantallas pequeñas */
 @media (max-height: 700px) {
-  .auth-container { padding: 0.5rem; }
-  .auth-card { padding: 1rem; max-height: 98vh; overflow-y: auto; }
+  .auth-container { 
+    padding: 0.5rem; 
+  }
+  .auth-card { 
+    padding: 1rem; 
+    max-height: 90vh; 
+    overflow-y: auto;
+  }
   .auth-card h2 { font-size: 1.3rem; margin-bottom: 1rem; }
   .verification-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
   .verification-subtitle { font-size: 0.85rem; margin-bottom: 1rem; }
@@ -644,7 +656,9 @@ button:disabled {
 
 /* Responsive vertical - pantallas muy pequeñas */
 @media (max-height: 600px) {
-  .auth-card { padding: 0.8rem; }
+  .auth-card {
+    padding: 0.8rem;
+  }
   .auth-card h2 { font-size: 1.2rem; margin-bottom: 0.8rem; }
   .verification-icon { font-size: 2rem; margin-bottom: 0.6rem; }
   .verification-subtitle { font-size: 0.8rem; margin-bottom: 0.8rem; }

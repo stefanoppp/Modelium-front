@@ -1,5 +1,6 @@
 <template>
   <div class="dashboard-container">
+    <NavBar />
     <!-- Background animado tecnológico -->
     <div class="tech-background">
       <div class="background-grid"></div>
@@ -106,7 +107,7 @@
         </div>
 
         <div class="stats-grid">
-          <div class="stat-card">
+          <div class="stat-card clickable-card" @click="navigateToModels">
             <div class="stat-icon-container">
               <i class="pi pi-cog stat-icon"></i>
             </div>
@@ -268,6 +269,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { modelService } from '@/services/modelService'
 import Card from 'primevue/card'
 import TechButton from '@/components/ui/TechButton.vue'
+import NavBar from '@/components/layout/NavBar.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -400,6 +402,10 @@ onMounted(async () => {
 const handleLogout = () => {
   authStore.logout()
   router.push('/')
+}
+
+const navigateToModels = () => {
+  router.push('/models')
 }
 </script>
 
@@ -647,8 +653,10 @@ const handleLogout = () => {
   backdrop-filter: blur(10px);
   background: rgba(26, 26, 46, 0.3);
   border-radius: 20px;
+  margin-top: 7rem; /* Ajustado para NavBar */
   border: 1px solid rgba(0, 212, 255, 0.1);
   margin: 2rem;
+  margin-top: 7rem; /* Espaciado específico para el NavBar */
 }
 
 .header-brand {
@@ -901,6 +909,16 @@ const handleLogout = () => {
   transform: translateY(-5px);
   border-color: rgba(0, 212, 255, 0.4);
   box-shadow: 0 10px 40px rgba(0, 212, 255, 0.2);
+}
+
+.clickable-card {
+  cursor: pointer;
+}
+
+.clickable-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(0, 212, 255, 0.6);
+  box-shadow: 0 15px 50px rgba(0, 212, 255, 0.3);
 }
 
 .stat-icon-container {

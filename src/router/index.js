@@ -35,6 +35,24 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/models',
+      name: 'models',
+      component: () => import('../views/ModelsView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/models/:id',
+      name: 'model-detail',
+      component: () => import('../views/ModelDetailView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/create-model',
+      name: 'create-model',
+      component: () => import('../views/DashboardView.vue'), // Temporal - redirige al dashboard
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/about',
       name: 'about',
       component: () => import('../views/AboutView.vue'),
@@ -47,7 +65,7 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   
   // Initialize auth store if not already done
-  if (!authStore.user && authStore.isAuthenticated) {
+  if (!authStore.user) {
     authStore.initAuth()
   }
   

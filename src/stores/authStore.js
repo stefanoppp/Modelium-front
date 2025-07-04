@@ -17,9 +17,20 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Actions
   const initAuth = () => {
-    const userData = authService.getCurrentUser()
-    if (userData && authService.isAuthenticated()) {
-      user.value = userData
+    try {
+      // Limpiar cualquier token expirado al inicializar
+      const userData = authService.getCurrentUser()
+      if (userData && authService.isAuthenticated()) {
+        user.value = userData
+      } else {
+        // Si los tokens están expirados o corruptos, limpiar todo
+        authService.logout()
+        user.value = null
+      }
+    } catch (error) {
+      // En caso de error, limpiar todo
+      authService.logout()
+      user.value = null
     }
   }
 
@@ -78,6 +89,9 @@ export const useAuthStore = defineStore('auth', () => {
   const login = async (credentials) => {
     isLoading.value = true
     error.value = null
+    
+    // Limpiar estado previo antes del login
+    user.value = null
 
     try {
       const result = await authService.login(credentials)
@@ -110,6 +124,10 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
   }
 
+  const getToken = () => {
+    return authService.getToken()
+  }
+
   return {
     // State
     user,
@@ -125,5 +143,6 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     logout,
     clearError,
+    getToken,
   }
 })
