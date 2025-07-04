@@ -949,7 +949,7 @@ onMounted(() => {
 .feature-chip {
   background: rgba(138, 43, 226, 0.2);
   border: 1px solid rgba(138, 43, 226, 0.3);
-  color: #8a2be2;
+  color: #ffffff;
   padding: 0.5rem 1rem;
   border-radius: 20px;
   font-size: 0.85rem;
@@ -958,7 +958,8 @@ onMounted(() => {
 }
 
 .feature-chip:hover {
-  background: rgba(138, 43, 226, 0.3);
+  background: rgba(138, 43, 226, 0.4);
+  border-color: rgba(138, 43, 226, 0.6);
   transform: translateY(-2px);
 }
 
