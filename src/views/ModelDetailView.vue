@@ -116,9 +116,9 @@
                   </span>
                   <div class="progress-container">
                     <div class="progress-bar">
-                      <div class="progress-fill" :style="{ width: modelStatus.progress + '%' }"></div>
+                      <div class="progress-fill" :style="{ width: displayedProgress + '%' }"></div>
                     </div>
-                    <span class="progress-text">{{ modelStatus.progress }}%</span>
+                    <span class="progress-text">{{ displayedProgress }}%</span>
                   </div>
                 </div>
                 <div class="info-item">
@@ -322,7 +322,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import NavBar from '@/components/layout/NavBar.vue'
@@ -336,6 +336,11 @@ const modelStatus = ref(null)
 const modelInfo = ref(null)
 const isLoading = ref(true)
 const error = ref(null)
+
+// Variables para animación de progreso
+const displayedProgress = ref(0)
+const progressAnimationId = ref(null)
+const updateInterval = ref(null)
 
 // Methods
 const loadModelDetails = async () => {
@@ -382,11 +387,115 @@ const loadModelDetails = async () => {
       }
     }
     
+    // Inicializar progreso animado
+    displayedProgress.value = modelStatus.value?.progress || 0
+    
+    // Iniciar actualización automática si está entrenando
+    startAutoUpdate()
+    
   } catch (err) {
     error.value = err.message || 'Error al cargar los detalles del modelo'
     console.error('Error loading model details:', err)
   } finally {
     isLoading.value = false
+  }
+}
+
+// Función para animar gradualmente el progreso
+const animateProgress = (targetProgress) => {
+  if (progressAnimationId.value) {
+    cancelAnimationFrame(progressAnimationId.value)
+  }
+  
+  const startProgress = displayedProgress.value
+  const progressDiff = targetProgress - startProgress
+  const duration = 1000 // 1 segundo para la animación
+  const startTime = performance.now()
+  
+  const animate = (currentTime) => {
+    const elapsed = currentTime - startTime
+    const progress = Math.min(elapsed / duration, 1)
+    
+    // Usar easing para una animación más suave
+    const easeOutQuart = 1 - Math.pow(1 - progress, 4)
+    displayedProgress.value = Math.round(startProgress + (progressDiff * easeOutQuart))
+    
+    if (progress < 1) {
+      progressAnimationId.value = requestAnimationFrame(animate)
+    }
+  }
+  
+  progressAnimationId.value = requestAnimationFrame(animate)
+}
+
+// Función para cargar solo el estado del modelo (para actualizaciones)
+const loadModelStatus = async () => {
+  try {
+    const modelId = route.params.id
+    const token = authStore.getToken?.() || localStorage.getItem('access_token')
+    
+    if (!token) return
+    
+    const statusResponse = await fetch(`http://localhost:8000/api/models/status/${modelId}/`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    if (statusResponse.ok) {
+      const newStatus = await statusResponse.json()
+      const oldProgress = modelStatus.value?.progress || 0
+      const newProgress = newStatus.progress || 0
+      
+      modelStatus.value = newStatus
+      
+      // Animar el progreso si ha cambiado
+      if (newProgress !== oldProgress) {
+        animateProgress(newProgress)
+      }
+      
+      // Detener actualización automática si el modelo ya no está entrenando
+      if (newStatus.status !== 'training') {
+        stopAutoUpdate()
+      }
+      
+      // Si el modelo se completó, cargar las métricas
+      if (newStatus.status === 'completed' && !modelInfo.value) {
+        try {
+          const infoResponse = await fetch(`http://localhost:8000/api/models/info/${modelId}/`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          })
+          
+          if (infoResponse.ok) {
+            modelInfo.value = await infoResponse.json()
+          }
+        } catch (infoError) {
+          console.warn('No se pudieron cargar las métricas del modelo:', infoError)
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Error actualizando estado del modelo:', err)
+  }
+}
+
+// Función para iniciar la actualización automática
+const startAutoUpdate = () => {
+  // Solo actualizar si el modelo está entrenando
+  if (modelStatus.value?.status === 'training') {
+    updateInterval.value = setInterval(loadModelStatus, 2000) // Cada 2 segundos
+  }
+}
+
+// Función para detener la actualización automática
+const stopAutoUpdate = () => {
+  if (updateInterval.value) {
+    clearInterval(updateInterval.value)
+    updateInterval.value = null
   }
 }
 
@@ -492,6 +601,13 @@ const formatInterpretationLabel = (key) => {
 // Lifecycle
 onMounted(() => {
   loadModelDetails()
+})
+
+onUnmounted(() => {
+  stopAutoUpdate()
+  if (progressAnimationId.value) {
+    cancelAnimationFrame(progressAnimationId.value)
+  }
 })
 </script>
 
@@ -713,9 +829,7 @@ onMounted(() => {
 }
 
 .status-training {
-  background: rgba(251, 191, 36, 0.2);
   color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.3);
 }
 
 .status-failed {
@@ -906,7 +1020,25 @@ onMounted(() => {
 .progress-fill {
   height: 100%;
   background: linear-gradient(90deg, #00d4ff, #22c55e);
-  transition: width 0.3s ease;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+  animation: progressShine 2s ease-in-out infinite;
+}
+
+@keyframes progressShine {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 .progress-text {
@@ -914,6 +1046,8 @@ onMounted(() => {
   font-weight: 600;
   font-size: 0.9rem;
   min-width: 40px;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
 }
 
 .metrics-section {

@@ -49,7 +49,13 @@ const router = createRouter({
     {
       path: '/create-model',
       name: 'create-model',
-      component: () => import('../views/DashboardView.vue'), // Temporal - redirige al dashboard
+      component: () => import('../views/CreateModelView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/predictions',
+      name: 'predictions',
+      component: () => import('../views/PredictionsView.vue'),
       meta: { requiresAuth: true }
     },
     {

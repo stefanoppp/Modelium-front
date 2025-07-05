@@ -1,10 +1,25 @@
 <template>
   <section class="hero-section">
     <div class="hero-background">
+      <div class="galaxy-background">
+        <div class="nebula nebula-1"></div>
+        <div class="nebula nebula-2"></div>
+        <div class="nebula nebula-3"></div>
+        <div class="cosmic-dust"></div>
+      </div>
+      <div class="starfield">
+        <div 
+          class="star" 
+          v-for="i in 150" 
+          :key="i"
+          :style="getStarStyle(i)"
+        ></div>
+      </div>
       <div class="grid-pattern"></div>
       <div class="floating-elements">
-        <div class="floating-element" v-for="i in 10" :key="i"></div>
+        <div class="floating-element" v-for="i in 15" :key="i"></div>
       </div>
+
     </div>
     
     <div class="container">
@@ -83,11 +98,7 @@
                 </div>
               </div>
               
-              <div class="data-streams">
-                <div class="stream stream-1"></div>
-                <div class="stream stream-2"></div>
-                <div class="stream stream-3"></div>
-              </div>
+
             </div>
           </div>
         </div>
@@ -105,6 +116,22 @@ const router = useRouter()
 const navigateToAuth = () => {
   router.push('/auth/login')
 }
+
+const getStarStyle = (index) => {
+  // Generar posiciones pseudo-aleatorias basadas en el índice
+  const x = (index * 37) % 100
+  const y = (index * 73) % 100
+  const size = (index % 3) + 1
+  const animationDelay = (index * 0.1) % 5
+  
+  return {
+    left: `${x}%`,
+    top: `${y}%`,
+    width: `${size}px`,
+    height: `${size}px`,
+    animationDelay: `${animationDelay}s`
+  }
+}
 </script>
 
 <style scoped>
@@ -115,6 +142,7 @@ const navigateToAuth = () => {
   align-items: center;
   position: relative;
   overflow: hidden;
+  background: radial-gradient(ellipse at top, #0a0a0a 0%, #1a0a2e 30%, #0f0f23 70%, #000000 100%);
 }
 
 .hero-background {
@@ -126,6 +154,96 @@ const navigateToAuth = () => {
   z-index: 1;
 }
 
+.galaxy-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.nebula {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.15;
+  animation: nebulaFloat 30s ease-in-out infinite;
+}
+
+.nebula-1 {
+  width: 800px;
+  height: 600px;
+  top: -200px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, rgba(139, 92, 246, 0.1) 50%, transparent 100%);
+  animation-delay: 0s;
+}
+
+.nebula-2 {
+  width: 600px;
+  height: 500px;
+  top: 30%;
+  right: -150px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.3) 0%, rgba(0, 212, 255, 0.1) 50%, transparent 100%);
+  animation-delay: 10s;
+}
+
+.nebula-3 {
+  width: 700px;
+  height: 400px;
+  bottom: -100px;
+  left: 20%;
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.25) 0%, rgba(236, 72, 153, 0.1) 50%, transparent 100%);
+  animation-delay: 20s;
+}
+
+.cosmic-dust {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(2px 2px at 20% 30%, #fff, transparent),
+    radial-gradient(2px 2px at 40% 70%, rgba(139, 92, 246, 0.8), transparent),
+    radial-gradient(1px 1px at 90% 40%, rgba(0, 212, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 10% 80%, rgba(236, 72, 153, 0.8), transparent);
+  background-size: 300px 300px, 400px 400px, 200px 200px, 350px 350px;
+  animation: cosmicDrift 60s linear infinite;
+  opacity: 0.6;
+}
+
+.starfield {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  animation: starTwinkle 3s ease-in-out infinite;
+}
+
+.star:nth-child(odd) {
+  animation-delay: 0s;
+  box-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+}
+
+.star:nth-child(even) {
+  animation-delay: 1.5s;
+  box-shadow: 0 0 3px rgba(139, 92, 246, 0.6);
+}
+
+.star:nth-child(3n) {
+  animation-delay: 3s;
+  box-shadow: 0 0 2px rgba(0, 212, 255, 0.7);
+}
+
 .grid-pattern {
   position: absolute;
   top: 0;
@@ -133,11 +251,11 @@ const navigateToAuth = () => {
   right: 0;
   bottom: 0;
   background-image: 
-    linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
-  background-size: 50px 50px;
-  opacity: 0.3;
-  animation: gridMove 20s linear infinite;
+    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.4;
+  animation: gridMove 25s linear infinite;
 }
 
 .floating-elements {
@@ -150,12 +268,15 @@ const navigateToAuth = () => {
 
 .floating-element {
   position: absolute;
-  width: 4px;
-  height: 4px;
+  width: 3px;
+  height: 3px;
   background: var(--accent-color);
   border-radius: 50%;
-  animation: float 8s ease-in-out infinite;
-  box-shadow: 0 0 10px var(--accent-color);
+  animation: galaxyFloat 12s ease-in-out infinite;
+  box-shadow: 
+    0 0 6px var(--accent-color),
+    0 0 12px rgba(139, 92, 246, 0.5),
+    0 0 18px rgba(0, 212, 255, 0.3);
 }
 
 .floating-element:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
@@ -168,6 +289,13 @@ const navigateToAuth = () => {
 .floating-element:nth-child(8) { top: 90%; left: 15%; animation-delay: 7s; }
 .floating-element:nth-child(9) { top: 15%; left: 85%; animation-delay: 2.5s; }
 .floating-element:nth-child(10) { top: 55%; left: 90%; animation-delay: 4.5s; }
+.floating-element:nth-child(11) { top: 25%; left: 5%; animation-delay: 8s; }
+.floating-element:nth-child(12) { top: 65%; left: 25%; animation-delay: 9s; }
+.floating-element:nth-child(13) { top: 45%; left: 75%; animation-delay: 10s; }
+.floating-element:nth-child(14) { top: 85%; left: 45%; animation-delay: 11s; }
+.floating-element:nth-child(15) { top: 5%; left: 95%; animation-delay: 12s; }
+
+
 
 .container {
   position: relative;
@@ -336,8 +464,8 @@ const navigateToAuth = () => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 110px;
-  height: 110px;
+  width: 120px;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -349,16 +477,38 @@ const navigateToAuth = () => {
   inset: 0;
   border: 3px solid var(--primary-500);
   border-radius: 50%;
-  background: rgba(0, 212, 255, 0.1);
-  animation: coreGlow 3s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, rgba(139, 92, 246, 0.1) 50%, transparent 100%);
+  box-shadow: 
+    0 0 20px var(--primary-500),
+    0 0 40px rgba(139, 92, 246, 0.5),
+    inset 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+.core-ring::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 50%;
+}
+
+.core-ring::after {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 50%;
 }
 
 .core-center {
-  font-size: 1.9rem;
+  font-size: 2rem;
   font-weight: 700;
   color: white;
   z-index: 2;
-  text-shadow: 0 0 20px var(--primary-500);
+  text-shadow: 
+    0 0 10px var(--primary-500),
+    0 0 20px rgba(139, 92, 246, 0.8),
+    0 0 30px rgba(0, 212, 255, 0.6);
 }
 
 .orbital-elements {
@@ -369,36 +519,42 @@ const navigateToAuth = () => {
 
 .orbit {
   position: absolute;
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  border: 1px solid rgba(139, 92, 246, 0.4);
   border-radius: 50%;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  box-shadow: 
+    0 0 20px rgba(139, 92, 246, 0.2),
+    inset 0 0 20px rgba(0, 212, 255, 0.1);
 }
 
 .orbit-1 {
-  width: 240px;
-  height: 240px;
-  animation: rotate 20s linear infinite;
+  width: 260px;
+  height: 260px;
+  animation: galaxyOrbit 25s linear infinite;
+  border-color: rgba(139, 92, 246, 0.5);
 }
 
 .orbit-2 {
-  width: 360px;
-  height: 360px;
-  animation: rotate 30s linear infinite reverse;
+  width: 380px;
+  height: 380px;
+  animation: galaxyOrbit 35s linear infinite reverse;
+  border-color: rgba(0, 212, 255, 0.4);
 }
 
 .orbit-3 {
-  width: 480px;
-  height: 480px;
-  animation: rotate 40s linear infinite;
+  width: 500px;
+  height: 500px;
+  animation: galaxyOrbit 45s linear infinite;
+  border-color: rgba(236, 72, 153, 0.3);
 }
 
 .orbit-node {
   position: absolute;
-  width: 55px;
-  height: 55px;
-  background: rgba(42, 42, 60, 0.9);
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, rgba(42, 42, 60, 0.95) 0%, rgba(20, 20, 40, 0.9) 100%);
   border: 2px solid #8B5CF6;
   border-radius: 50% !important;
   display: flex;
@@ -406,99 +562,119 @@ const navigateToAuth = () => {
   justify-content: center;
   font-weight: 600;
   color: #8B5CF6;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   backdrop-filter: blur(10px);
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.5), 0 0 5px rgba(0, 212, 255, 0.3);
+  box-shadow: 
+    0 0 15px rgba(139, 92, 246, 0.6),
+    0 0 30px rgba(0, 212, 255, 0.4),
+    inset 0 0 15px rgba(139, 92, 246, 0.2);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   box-sizing: border-box;
 }
 
+.orbit-node::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+}
+
 .node-1 {
-  top: -28px;
+  top: -30px;
   left: 50%;
   transform: translateX(-50%);
+  animation-delay: 0s;
 }
 
 .node-2 {
   top: 50%;
-  right: -28px;
+  right: -30px;
   transform: translateY(-50%);
+  animation-delay: 1s;
 }
 
 .node-3 {
-  bottom: -28px;
+  bottom: -30px;
   left: 50%;
   transform: translateX(-50%);
+  animation-delay: 2s;
 }
 
-.data-streams {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
 
-.stream {
-  position: absolute;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #00D4FF, #8B5CF6, transparent);
-  animation: streamFlow 4s ease-in-out infinite;
-}
 
-.stream-1 {
-  top: 30%;
-  left: 0;
-  right: 0;
-  animation-delay: 0s;
-}
-
-.stream-2 {
-  top: 50%;
-  left: 0;
-  right: 0;
-  animation-delay: 1.5s;
-}
-
-.stream-3 {
-  top: 70%;
-  left: 0;
-  right: 0;
-  animation-delay: 3s;
-}
-
-/* Animations */
-@keyframes gridMove {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(50px, 50px); }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(180deg); }
-}
-
-@keyframes coreGlow {
+/* Galactic Animations */
+@keyframes nebulaFloat {
   0%, 100% { 
-    box-shadow: 0 0 20px var(--primary-500);
-    border-color: var(--primary-500);
+    transform: translateY(0px) rotate(0deg) scale(1);
+    opacity: 0.15;
+  }
+  25% { 
+    transform: translateY(-20px) rotate(90deg) scale(1.05);
+    opacity: 0.2;
   }
   50% { 
-    box-shadow: 0 0 40px var(--primary-500), 0 0 20px var(--accent-color);
-    border-color: var(--accent-color);
+    transform: translateY(0px) rotate(180deg) scale(1.1);
+    opacity: 0.25;
+  }
+  75% { 
+    transform: translateY(20px) rotate(270deg) scale(1.05);
+    opacity: 0.2;
   }
 }
 
-@keyframes rotate {
+@keyframes cosmicDrift {
+  0% { transform: translateX(0px) translateY(0px); }
+  25% { transform: translateX(-20px) translateY(-10px); }
+  50% { transform: translateX(20px) translateY(10px); }
+  75% { transform: translateX(-10px) translateY(-20px); }
+  100% { transform: translateX(0px) translateY(0px); }
+}
+
+@keyframes starTwinkle {
+  0%, 100% { 
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes galaxyFloat {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg) scale(1);
+    opacity: 0.8;
+  }
+  25% { 
+    transform: translateY(-30px) rotate(90deg) scale(1.2);
+    opacity: 1;
+  }
+  50% { 
+    transform: translateY(0px) rotate(180deg) scale(1.1);
+    opacity: 0.9;
+  }
+  75% { 
+    transform: translateY(30px) rotate(270deg) scale(1.2);
+    opacity: 1;
+  }
+}
+
+
+
+@keyframes gridMove {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(80px, 80px); }
+}
+
+@keyframes galaxyOrbit {
   from { transform: translate(-50%, -50%) rotate(0deg); }
   to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-@keyframes streamFlow {
-  0% { opacity: 0; }
-  50% { opacity: 0.8; }
-  100% { opacity: 0; }
-}
+
 
 @keyframes shimmer {
   0% { left: -100%; }
@@ -522,18 +698,33 @@ const navigateToAuth = () => {
   }
   
   .orbit-1 {
-    width: 200px;
-    height: 200px;
+    width: 220px;
+    height: 220px;
   }
   
   .orbit-2 {
-    width: 300px;
-    height: 300px;
+    width: 320px;
+    height: 320px;
   }
   
   .orbit-3 {
-    width: 400px;
+    width: 410px;
+    height: 410px;
+  }
+  
+  .nebula-1 {
+    width: 600px;
+    height: 450px;
+  }
+  
+  .nebula-2 {
+    width: 450px;
     height: 400px;
+  }
+  
+  .nebula-3 {
+    width: 550px;
+    height: 350px;
   }
 }
 
@@ -577,13 +768,13 @@ const navigateToAuth = () => {
   }
   
   .orbit-1 {
-    width: 160px;
-    height: 160px;
+    width: 180px;
+    height: 180px;
   }
   
   .orbit-2 {
-    width: 240px;
-    height: 240px;
+    width: 260px;
+    height: 260px;
   }
   
   .orbit-3 {
@@ -592,9 +783,151 @@ const navigateToAuth = () => {
   }
   
   .orbit-node {
-    width: 44px;
-    height: 44px;
+    width: 50px;
+    height: 50px;
     font-size: 0.75rem;
+  }
+  
+  .node-1 {
+    top: -25px;
+  }
+  
+  .node-2 {
+    right: -25px;
+  }
+  
+  .node-3 {
+    bottom: -25px;
+  }
+  
+  .central-core {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .core-center {
+    font-size: 1.6rem;
+  }
+  
+  .nebula-1 {
+    width: 400px;
+    height: 300px;
+  }
+  
+  .nebula-2 {
+    width: 350px;
+    height: 250px;
+  }
+  
+  .nebula-3 {
+    width: 400px;
+    height: 200px;
+  }
+  
+  .floating-element {
+    width: 2px;
+    height: 2px;
+  }
+  
+  .data-streams {
+    left: 0;
+    right: 0;
+  }
+  
+  .stream {
+    opacity: 0.2;
+    height: 1px;
+  }
+  
+  .breath-line {
+    height: 0.8px;
+    opacity: 0.6;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.2rem;
+  }
+  
+  .hero-description {
+    font-size: 1rem;
+  }
+  
+  .visual-container {
+    width: 280px;
+    height: 280px;
+  }
+  
+  .orbit-1 {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .orbit-2 {
+    width: 210px;
+    height: 210px;
+  }
+  
+  .orbit-3 {
+    width: 270px;
+    height: 270px;
+  }
+  
+  .orbit-node {
+    width: 40px;
+    height: 40px;
+    font-size: 0.65rem;
+  }
+  
+  .node-1 {
+    top: -20px;
+  }
+  
+  .node-2 {
+    right: -20px;
+  }
+  
+  .node-3 {
+    bottom: -20px;
+  }
+  
+  .central-core {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .core-center {
+    font-size: 1.3rem;
+  }
+  
+  .hero-stats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .hero-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .data-streams {
+    left: 0;
+    right: 0;
+  }
+  
+  .stream {
+    opacity: 0.15;
+    height: 1px;
+  }
+  
+  .breath-line {
+    height: 0.5px;
+    opacity: 0.4;
   }
 }
 </style>
