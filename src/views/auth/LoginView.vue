@@ -49,7 +49,7 @@
             <i class="pi pi-exclamation-circle"></i>
             {{ error }}
           </div>
-          
+        
           <button type="submit" :disabled="isLoading" class="auth-button">
             <i class="pi pi-sign-in" v-if="!isLoading"></i>
             <i class="pi pi-spin pi-spinner" v-else></i>
@@ -62,7 +62,7 @@
           <div class="footer-content">
             <span class="footer-text">¿No tienes cuenta?</span>
             <router-link to="/auth/register" class="footer-link">
-              <span class="link-text">Crear Cuenta</span>
+              <span class="link-text">Regístrate</span>
               <div class="link-glow"></div>
             </router-link>
           </div>
@@ -115,11 +115,6 @@ const handleLogin = async () => {
   box-sizing: border-box;
 }
 
-html, body {
-  overflow-x: hidden;
-  max-width: 100vw;
-}
-
 /* Page wrapper - contenedor principal sin scroll interno */
 .page-wrapper {
   min-height: 100vh;
@@ -138,13 +133,20 @@ html, body {
 
 /* Auth container - sin position fixed ni height restrictions */
 .auth-container {
-  padding: 7rem 1rem 3rem 1rem;
+  padding: 6rem 1rem 4rem 1rem;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   box-sizing: border-box;
+}
+
+/* Para pantallas muy altas, asegurar que siempre haya margen */
+@media (min-height: 900px) {
+  .auth-container {
+    padding: 10rem 1rem 6rem 1rem;
+  }
 }
 
 /* Galaxy background */
@@ -211,6 +213,28 @@ html, body {
   background: rgba(75, 0, 130, 0.7);
   box-shadow: 0 0 4px rgba(75, 0, 130, 0.5);
 }
+
+/* Posiciones aleatorias para las estrellas */
+.star:nth-child(1) { top: 10%; left: 20%; }
+.star:nth-child(2) { top: 25%; left: 70%; }
+.star:nth-child(3) { top: 35%; left: 15%; }
+.star:nth-child(4) { top: 50%; left: 85%; }
+.star:nth-child(5) { top: 65%; left: 45%; }
+.star:nth-child(6) { top: 80%; left: 25%; }
+.star:nth-child(7) { top: 15%; left: 60%; }
+.star:nth-child(8) { top: 40%; left: 90%; }
+.star:nth-child(9) { top: 75%; left: 80%; }
+.star:nth-child(10) { top: 20%; left: 35%; }
+.star:nth-child(11) { top: 55%; left: 5%; }
+.star:nth-child(12) { top: 90%; left: 55%; }
+.star:nth-child(13) { top: 30%; left: 75%; }
+.star:nth-child(14) { top: 70%; left: 10%; }
+.star:nth-child(15) { top: 5%; left: 50%; }
+.star:nth-child(16) { top: 45%; left: 30%; }
+.star:nth-child(17) { top: 60%; left: 95%; }
+.star:nth-child(18) { top: 85%; left: 40%; }
+.star:nth-child(19) { top: 12%; left: 80%; }
+.star:nth-child(20) { top: 38%; left: 65%; }
 
 @keyframes starTwinkle {
   0%, 100% { 
@@ -286,8 +310,8 @@ html, body {
   background: rgba(30, 30, 50, 0.9);
   border: 1px solid rgba(138, 43, 226, 0.3);
   border-radius: 20px;
-  padding: 2rem;
-  max-width: 400px;
+  padding: 3rem;
+  max-width: 450px;
   width: 100%;
   backdrop-filter: blur(20px);
   position: relative;
@@ -295,7 +319,7 @@ html, body {
   box-shadow: 
     0 25px 50px rgba(0, 0, 0, 0.5),
     0 0 40px rgba(138, 43, 226, 0.1);
-  box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
 .auth-card::before {
@@ -310,15 +334,17 @@ html, body {
   pointer-events: none;
 }
 
+/* Efecto hover eliminado para mejorar la experiencia del usuario */
+
 .card-header {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
   position: relative;
   z-index: 2;
 }
 
 .auth-title {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 300;
   margin-bottom: 0.5rem;
   background: linear-gradient(135deg, #4B0082 0%, #8A2BE2 25%, #9400D3 50%, #8B5CF6 75%, #EC4899 100%);
@@ -340,7 +366,7 @@ html, body {
 
 .auth-subtitle {
   color: rgba(200, 200, 220, 0.8);
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 300;
   margin: 0;
 }
@@ -352,36 +378,32 @@ html, body {
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1.25rem;
-  box-sizing: border-box;
+  margin-bottom: 1.5rem;
 }
 
 .form-label {
+  display: block;
   color: #8A2BE2;
   font-weight: 600;
-  margin-bottom: 0.4rem;
-  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
 }
 
 .form-input {
-  padding: 0.75rem;
+  width: 100%;
+  padding: 1rem;
   background: 
     linear-gradient(135deg, rgba(20, 20, 35, 0.9), rgba(30, 30, 50, 0.8)),
     radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.1) 0%, transparent 50%);
   border: 1px solid rgba(138, 43, 226, 0.4);
   border-radius: 12px;
   color: #fff;
-  font-size: 0.9rem;
+  font-size: 1rem;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   box-shadow: 
     0 4px 15px rgba(138, 43, 226, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  width: 100%;
-  box-sizing: border-box;
-  min-width: 0;
 }
 
 .form-input:focus {
@@ -405,10 +427,10 @@ html, body {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 8px;
-  padding: 0.6rem 0.8rem;
+  padding: 0.75rem 1rem;
   color: #ef4444;
-  font-size: 0.85rem;
-  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -416,12 +438,12 @@ html, body {
 
 .auth-button {
   width: 100%;
-  padding: 0.875rem 1.5rem;
+  padding: 1rem 2rem;
   background: linear-gradient(135deg, rgba(138, 43, 226, 0.8), rgba(75, 0, 130, 0.6));
   border: 1px solid rgba(138, 43, 226, 0.5);
   border-radius: 12px;
   color: white;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -453,13 +475,13 @@ html, body {
 .auth-footer {
   position: relative;
   z-index: 2;
-  margin-top: 1.25rem;
+  margin-top: 2rem;
 }
 
 .footer-divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(138, 43, 226, 0.3), transparent);
-  margin: 1.25rem 0;
+  margin: 2rem 0;
 }
 
 .footer-content {
@@ -467,12 +489,12 @@ html, body {
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .footer-text {
   color: rgba(200, 200, 220, 0.7);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 .footer-link {
@@ -481,7 +503,6 @@ html, body {
   color: #8A2BE2;
   font-weight: 600;
   transition: color 0.3s ease;
-  font-size: 0.85rem;
 }
 
 .footer-link:hover {
@@ -510,10 +531,10 @@ html, body {
 .brand-name {
   display: block;
   color: #8A2BE2;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   text-decoration: none;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.25rem;
   transition: color 0.3s ease;
 }
 
@@ -523,104 +544,46 @@ html, body {
 
 .brand-tagline {
   color: rgba(200, 200, 220, 0.6);
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-style: italic;
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (min-width: 1200px) {
   .auth-container {
-    padding: 6rem 0.75rem 3rem 0.75rem;
-    align-items: flex-start;
+    padding: 8rem 2rem 6rem 2rem;
   }
   
   .auth-card {
+    max-width: 500px;
+    padding: 3.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .auth-card {
+    padding: 2rem;
+    margin: 1rem;
+  }
+  
+  .auth-title {
+    font-size: 2rem;
+  }
+  
+  .auth-subtitle {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
     padding: 1.5rem;
-    margin: 1.5rem 0;
-    max-width: 100%;
+    margin: 0.5rem;
   }
   
   .auth-title {
     font-size: 1.8rem;
   }
-  
-  .auth-subtitle {
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .auth-container {
-    padding: 6rem 0.5rem 2rem 0.5rem;
-  }
-  
-  .auth-card {
-    padding: 1.25rem;
-    margin: 1rem 0;
-    border-radius: 16px;
-  }
-  
-  .auth-title {
-    font-size: 1.6rem;
-  }
-  
-  .auth-subtitle {
-    font-size: 0.8rem;
-  }
-  
-  .form-input {
-    padding: 0.65rem;
-    font-size: 0.85rem;
-  }
-  
-  .form-label {
-    font-size: 0.8rem;
-    margin-bottom: 0.3rem;
-  }
-  
-  .auth-button {
-    padding: 0.75rem 1.25rem;
-    font-size: 0.95rem;
-  }
-  
-  .card-header {
-    margin-bottom: 1rem;
-  }
-  
-  .footer-brand .brand-name {
-    font-size: 1.1rem;
-  }
-  
-  .footer-brand .brand-tagline {
-    font-size: 0.65rem;
-  }
-  
-  .footer-text, .footer-link {
-    font-size: 0.8rem;
-  }
-}
-
-@media (max-width: 360px) {
-  .auth-container {
-    padding: 5.5rem 0.25rem 1.5rem 0.25rem;
-  }
-  
-  .auth-card {
-    padding: 1rem;
-    margin: 0.5rem 0;
-  }
-  
-  .auth-title {
-    font-size: 1.4rem;
-  }
-  
-  .form-input {
-    padding: 0.6rem;
-    font-size: 0.8rem;
-  }
-  
-  .form-label {
-    font-size: 0.75rem;
-  }
 }
 </style>
+

@@ -107,6 +107,16 @@
               <p>Utiliza tus modelos entrenados para realizar predicciones</p>
             </div>
           </div>
+
+          <div class="action-card" @click="navigateToCompareModels">
+            <div class="action-icon">
+              <i class="pi pi-chart-bar"></i>
+            </div>
+            <div class="action-content">
+              <h3>Comparar Modelos</h3>
+              <p>Analiza y compara el rendimiento de tus modelos</p>
+            </div>
+          </div>
         </div>
 
         <!-- Modelos recientes (si los hay) -->
@@ -241,6 +251,10 @@ const navigateToCreateModel = () => {
 
 const navigateToPredictions = () => {
   router.push('/predictions')
+}
+
+const navigateToCompareModels = () => {
+  router.push('/compare-models')
 }
 
 const navigateToModel = (modelId) => {

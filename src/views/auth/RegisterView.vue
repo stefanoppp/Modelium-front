@@ -207,13 +207,20 @@ html, body {
 
 /* Auth container - sin position fixed ni height restrictions */
 .auth-container {
-  padding: 7rem 1rem 3rem 1rem;
+  padding: 6rem 1rem 4rem 1rem;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   box-sizing: border-box;
+}
+
+/* Para pantallas muy altas, asegurar que siempre haya margen */
+@media (min-height: 900px) {
+  .auth-container {
+    padding: 10rem 1rem 6rem 1rem;
+  }
 }
 
 /* Galaxy background */
@@ -632,6 +639,17 @@ html, body {
 }
 
 /* Responsive */
+@media (min-width: 1200px) {
+  .auth-container {
+    padding: 8rem 2rem 6rem 2rem;
+  }
+  
+  .auth-card {
+    max-width: 550px;
+    padding: 3.5rem;
+  }
+}
+
 @media (max-width: 768px) {
   .auth-container {
     padding: 6rem 0.75rem 3rem 0.75rem;
