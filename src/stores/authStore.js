@@ -7,6 +7,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
   const isLoading = ref(false)
   const error = ref(null)
+  const sessionExpired = ref(false)
 
   // Getters
   const isAuthenticated = computed(() => {
@@ -22,16 +23,24 @@ export const useAuthStore = defineStore('auth', () => {
       const userData = authService.getCurrentUser()
       if (userData && authService.isAuthenticated()) {
         user.value = userData
+        sessionExpired.value = false
       } else {
         // Si los tokens están expirados o corruptos, limpiar todo
         authService.logout()
         user.value = null
+        sessionExpired.value = false
       }
     } catch (error) {
       // En caso de error, limpiar todo
       authService.logout()
       user.value = null
+      sessionExpired.value = false
     }
+  }
+
+  const markSessionExpired = () => {
+    sessionExpired.value = true
+    user.value = null
   }
 
   const register = async (userData) => {
@@ -118,6 +127,7 @@ export const useAuthStore = defineStore('auth', () => {
     authService.logout()
     user.value = null
     error.value = null
+    sessionExpired.value = false
   }
 
   const clearError = () => {
@@ -128,21 +138,28 @@ export const useAuthStore = defineStore('auth', () => {
     return authService.getToken()
   }
 
+  const resetSessionExpired = () => {
+    sessionExpired.value = false
+  }
+
   return {
     // State
     user,
     isLoading,
     error,
+    sessionExpired,
     // Getters
     isAuthenticated,
     currentUser,
     // Actions
     initAuth,
+    markSessionExpired,
     register,
     verifyToken,
     login,
     logout,
     clearError,
     getToken,
+    resetSessionExpired,
   }
 })

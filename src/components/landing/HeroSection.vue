@@ -51,7 +51,7 @@
               </div>
               <div class="stat-item">
                 <span class="stat-number">99.5%</span>
-                <span class="stat-label">Precisión</span>
+                <span class="stat-label">Exactitud</span>
               </div>
               <div class="stat-item">
                 <span class="stat-number">5min</span>

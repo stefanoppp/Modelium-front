@@ -10,6 +10,9 @@ import router from './router'
 import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
 
+// Importar el tester para desarrollo
+import './utils/sessionExpiredTester.js'
+
 const app = createApp(App)
 const pinia = createPinia()
 

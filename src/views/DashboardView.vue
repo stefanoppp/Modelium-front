@@ -171,6 +171,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import { testSessionExpiredGlobal } from '@/stores/sessionExpiredStore'
 import { modelService } from '@/services/modelService'
 import TechButton from '@/components/ui/TechButton.vue'
 import NavBar from '@/components/layout/NavBar.vue'
@@ -182,6 +183,9 @@ const authStore = useAuthStore()
 const currentUser = computed(() => authStore.currentUser)
 const models = ref([])
 const isLoadingModels = ref(false)
+
+// Verificar si estamos en desarrollo
+const isDevelopment = computed(() => import.meta.env.DEV)
 
 const greeting = computed(() => {
   const hour = new Date().getHours()
@@ -259,6 +263,11 @@ const navigateToCompareModels = () => {
 
 const navigateToModel = (modelId) => {
   router.push(`/models/${modelId}`)
+}
+
+// Funciones de prueba (solo en desarrollo)
+const testSessionExpired = () => {
+  testSessionExpiredGlobal()
 }
 
 // Utilidades
@@ -945,6 +954,62 @@ onMounted(async () => {
   color: #b1b8d4;
   font-size: 0.9rem;
   line-height: 1.5;
+}
+
+/* Sección de pruebas (solo desarrollo) */
+.test-section {
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: rgba(255, 100, 100, 0.05);
+  border: 1px solid rgba(255, 100, 100, 0.2);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.test-card {
+  text-align: center;
+}
+
+.test-header h3 {
+  color: #ff6464;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.test-header p {
+  color: #b1b8d4;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.test-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.test-button {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  min-width: 200px;
+}
+
+.test-button.danger {
+  background: rgba(255, 100, 100, 0.2);
+  color: #ff6464;
+  border: 1px solid rgba(255, 100, 100, 0.3);
+}
+
+.test-button.danger:hover {
+  background: rgba(255, 100, 100, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 100, 100, 0.2);
 }
 
 /* Modelos recientes */

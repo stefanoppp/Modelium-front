@@ -192,7 +192,7 @@
                       <i class="pi pi-check-circle"></i>
                     </div>
                     <div class="metric-content">
-                      <span class="metric-label">Precisión (Accuracy)</span>
+                      <span class="metric-label">Exactitud (Accuracy)</span>
                       <span class="metric-value">{{ (model.metrics.accuracy * 100).toFixed(1) }}%</span>
                     </div>
                   </div>
@@ -333,12 +333,14 @@
 import { computed, onMounted, ref, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import { useAuthGuard } from '@/composables/useAuthGuard'
 import TechButton from '@/components/ui/TechButton.vue'
 import NavBar from '@/components/layout/NavBar.vue'
 import apiClient from '@/services/apiService'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { safeApiCall } = useAuthGuard()
 
 // Estado reactivo
 const models = ref([])
@@ -360,8 +362,11 @@ const uniqueAuthors = computed(() => {
 const loadPublicModels = async () => {
   isLoading.value = true
   try {
-    const response = await apiClient.get('/models/public/')
-    if (response.data) {
+    const response = await safeApiCall(
+      () => apiClient.get('/models/public/'),
+      'carga de modelos públicos'
+    )
+    if (response && response.data) {
       models.value = response.data.public_models || []
       filteredModels.value = [...models.value]
       sortModels()

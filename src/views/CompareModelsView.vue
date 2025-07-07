@@ -82,7 +82,7 @@
                 <div class="model-details">
                   <span class="model-date">{{ formatDate(model.created_at) }}</span>
                   <span class="model-accuracy" v-if="getMetricValue(model, 'accuracy') !== null">
-                    Accuracy: {{ (getMetricValue(model, 'accuracy') * 100).toFixed(1) }}%
+                    Exactitud: {{ (getMetricValue(model, 'accuracy') * 100).toFixed(1) }}%
                   </span>
                 </div>
               </div>
@@ -151,10 +151,10 @@
                   <th>Modelo</th>
                   <th>Fecha</th>
                   <th>Estado</th>
-                  <th v-if="selectedType === 'classification'">Accuracy</th>
-                  <th v-if="selectedType === 'classification'">Precision</th>
-                  <th v-if="selectedType === 'classification'">Recall</th>
-                  <th v-if="selectedType === 'classification'">F1-Score</th>
+                  <th v-if="selectedType === 'classification'">Exactitud</th>
+                  <th v-if="selectedType === 'classification'">Precisión</th>
+                  <th v-if="selectedType === 'classification'">Sensibilidad</th>
+                  <th v-if="selectedType === 'classification'">Puntuación F1</th>
                   <th v-if="selectedType === 'classification'">AUC</th>
                   <th v-if="selectedType === 'classification'">Kappa</th>
                   <th v-if="selectedType === 'regression'">mae</th>
@@ -220,19 +220,19 @@
               <h4>{{ model.name }}</h4>
               <div class="metric-values">
                 <div class="metric-item" v-if="getMetricValue(model, 'accuracy') !== null">
-                  <span class="metric-label">Accuracy</span>
+                  <span class="metric-label">Exactitud</span>
                   <span class="metric-value">{{ getFormattedMetricValue(model, 'accuracy') }}</span>
                 </div>
                 <div class="metric-item" v-if="getMetricValue(model, 'precision') !== null">
-                  <span class="metric-label">Precision</span>
+                  <span class="metric-label">Precisión</span>
                   <span class="metric-value">{{ getFormattedMetricValue(model, 'precision') }}</span>
                 </div>
                 <div class="metric-item" v-if="getMetricValue(model, 'recall') !== null">
-                  <span class="metric-label">Recall</span>
+                  <span class="metric-label">Sensibilidad</span>
                   <span class="metric-value">{{ getFormattedMetricValue(model, 'recall') }}</span>
                 </div>
                 <div class="metric-item" v-if="getMetricValue(model, 'f1_score') !== null">
-                  <span class="metric-label">F1-Score</span>
+                  <span class="metric-label">Puntuación F1</span>
                   <span class="metric-value">{{ getFormattedMetricValue(model, 'f1_score') }}</span>
                 </div>
                 <div class="metric-item" v-if="getMetricValue(model, 'auc') !== null">
@@ -664,10 +664,10 @@ const createBarChart = () => {
   if (selectedType.value === 'classification') {
     // Métricas para clasificación
     const metrics = [
-      { key: 'accuracy', label: 'Accuracy', color: '#4ECDC4' },
-      { key: 'precision', label: 'Precision', color: '#FF6B6B' },
-      { key: 'recall', label: 'Recall', color: '#45B7D1' },
-      { key: 'f1_score', label: 'F1-Score', color: '#96CEB4' },
+      { key: 'accuracy', label: 'Exactitud', color: '#4ECDC4' },
+      { key: 'precision', label: 'Precisión', color: '#FF6B6B' },
+      { key: 'recall', label: 'Sensibilidad', color: '#45B7D1' },
+      { key: 'f1_score', label: 'Puntuación F1', color: '#96CEB4' },
       { key: 'auc', label: 'AUC', color: '#FFEAA7' },
       { key: 'kappa', label: 'Kappa', color: '#FD79A8' }
     ]
@@ -887,10 +887,10 @@ const createRadarChart = () => {
   const metricLabels = []
   
   const metrics = [
-    { key: 'accuracy', label: 'Accuracy' },
-    { key: 'precision', label: 'Precision' },
-    { key: 'recall', label: 'Recall' },
-    { key: 'f1_score', label: 'F1-Score' },
+    { key: 'accuracy', label: 'Exactitud' },
+    { key: 'precision', label: 'Precisión' },
+    { key: 'recall', label: 'Sensibilidad' },
+    { key: 'f1_score', label: 'Puntuación F1' },
     { key: 'auc', label: 'AUC' },
     { key: 'kappa', label: 'Kappa' }
   ]
@@ -1005,10 +1005,10 @@ const createRadarChart = () => {
                 if (context.length > 0) {
                   const metric = context[0].label.toLowerCase()
                   const descriptions = {
-                    'accuracy': 'Proporción de predicciones correctas',
+                    'accuracy': 'Proporción de predicciones correctas (exactitud)',
                     'precision': 'Proporción de positivos predichos que son correctos',
-                    'recall': 'Proporción de positivos reales detectados',
-                    'f1-score': 'Media armónica entre precision y recall',
+                    'recall': 'Proporción de positivos reales detectados (sensibilidad)',
+                    'f1-score': 'Media armónica entre precisión y sensibilidad',
                     'auc': 'Área bajo la curva ROC',
                     'kappa': 'Medida de concordancia ajustada por azar'
                   }

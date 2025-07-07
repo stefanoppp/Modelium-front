@@ -207,28 +207,28 @@
                 <!-- Métricas de Clasificación -->
                 <div v-if="modelInfo.task_type === 'classification'" class="metrics-grid">
                   <div class="metric-item">
-                    <div class="metric-label">Accuracy</div>
+                    <div class="metric-label">Exactitud</div>
                     <div class="metric-value">{{ formatMetric(modelInfo.metrics.accuracy) }}</div>
                     <div class="metric-bar">
                       <div class="metric-fill" :style="{ width: (modelInfo.metrics.accuracy * 100) + '%' }"></div>
                     </div>
                   </div>
                   <div class="metric-item">
-                    <div class="metric-label">Precision</div>
+                    <div class="metric-label">Precisión</div>
                     <div class="metric-value">{{ formatMetric(modelInfo.metrics.precision) }}</div>
                     <div class="metric-bar">
                       <div class="metric-fill" :style="{ width: (modelInfo.metrics.precision * 100) + '%' }"></div>
                     </div>
                   </div>
                   <div class="metric-item">
-                    <div class="metric-label">Recall</div>
+                    <div class="metric-label">Sensibilidad</div>
                     <div class="metric-value">{{ formatMetric(modelInfo.metrics.recall) }}</div>
                     <div class="metric-bar">
                       <div class="metric-fill" :style="{ width: (modelInfo.metrics.recall * 100) + '%' }"></div>
                     </div>
                   </div>
                   <div class="metric-item">
-                    <div class="metric-label">F1 Score</div>
+                    <div class="metric-label">Puntuación F1</div>
                     <div class="metric-value">{{ formatMetric(modelInfo.metrics.f1_score) }}</div>
                     <div class="metric-bar">
                       <div class="metric-fill" :style="{ width: (modelInfo.metrics.f1_score * 100) + '%' }"></div>
@@ -588,12 +588,12 @@ const formatTime = (seconds) => {
 
 const formatInterpretationLabel = (key) => {
   const labels = {
-    'accuracy_level': 'Nivel de Precisión',
+    'accuracy_level': 'Nivel de Exactitud',
     'model_quality': 'Calidad del Modelo',
     'reliability': 'Confiabilidad',
     'fit_quality': 'Calidad del Ajuste',
     'variance_explained': 'Varianza Explicada',
-    'prediction_accuracy': 'Precisión de Predicción'
+    'prediction_accuracy': 'Exactitud de Predicción'
   }
   return labels[key] || key
 }

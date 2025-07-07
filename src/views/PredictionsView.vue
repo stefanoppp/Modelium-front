@@ -307,11 +307,14 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import { useAuthGuard } from '@/composables/useAuthGuard'
 import NavBar from '@/components/layout/NavBar.vue'
+import apiClient from '@/services/apiService'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const { safeApiCall } = useAuthGuard()
 
 // Reactive data
 const availableModels = ref([])
@@ -341,36 +344,27 @@ const checkPublicModelRoute = () => {
 const loadAvailableModels = async () => {
   try {
     isLoadingModels.value = true
-    const token = authStore.getToken?.() || localStorage.getItem('access_token')
     
-    if (!token) {
-      throw new Error('No se encontró token de autenticación')
-    }
-
     let response
     if (isPublicModel.value) {
       // Cargar modelo público específico
-      response = await fetch('http://localhost:8000/api/models/public/', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+      response = await safeApiCall(
+        () => apiClient.get('/models/public/'),
+        'carga de modelos públicos'
+      )
     } else {
       // Cargar modelos propios
-      response = await fetch('http://localhost:8000/api/models/my_models/', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+      response = await safeApiCall(
+        () => apiClient.get('/models/my_models/'),
+        'carga de modelos propios'
+      )
     }
 
-    if (!response.ok) {
-      throw new Error(`Error al cargar modelos: ${response.status}`)
+    if (!response) {
+      throw new Error('No se pudo cargar la respuesta')
     }
 
-    const data = await response.json()
+    const data = response.data
     
     if (isPublicModel.value) {
       // Filtrar el modelo público específico
@@ -422,17 +416,14 @@ const onModelChange = async () => {
 const loadModelFeatures = async () => {
   try {
     console.log('Loading features for model ID:', selectedModelId.value)
-    const token = authStore.getToken?.() || localStorage.getItem('access_token')
     
-    const response = await fetch(`http://localhost:8000/api/models/info/${selectedModelId.value}/`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
+    const response = await safeApiCall(
+      () => apiClient.get(`/models/info/${selectedModelId.value}/`),
+      'carga de información del modelo'
+    )
 
-    if (response.ok) {
-      const modelInfo = await response.json()
+    if (response) {
+      const modelInfo = response.data
       console.log('Model info received:', modelInfo)
       
       // Limpiar completamente inputData
@@ -454,7 +445,7 @@ const loadModelFeatures = async () => {
       inputData.value = newInputData
       console.log('Input data updated:', inputData.value)
     } else {
-      console.error('Failed to load model info:', response.status)
+      console.error('Failed to load model info')
     }
   } catch (err) {
     console.error('Error loading model features:', err)
@@ -467,33 +458,20 @@ const makePrediction = async () => {
     isPredicting.value = true
     predictionError.value = null
     
-    const token = authStore.getToken?.() || localStorage.getItem('access_token')
-    
-    if (!token) {
-      throw new Error('No se encontró token de autenticación')
-    }
-
     // El endpoint es el mismo para modelos propios y públicos
     // El backend detecta automáticamente si es público o propio
-    const endpoint = `http://localhost:8000/api/models/predict/${selectedModelId.value}/`
-
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+    const response = await safeApiCall(
+      () => apiClient.post(`/models/predict/${selectedModelId.value}/`, {
         input_data: inputData.value
-      })
-    })
+      }),
+      'predicción del modelo'
+    )
 
-    if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(errorData.detail || `Error en la predicción: ${response.status}`)
+    if (response) {
+      predictionResult.value = response.data
+    } else {
+      throw new Error('Error al realizar la predicción')
     }
-
-    predictionResult.value = await response.json()
     
   } catch (err) {
     console.error('Error making prediction:', err)
