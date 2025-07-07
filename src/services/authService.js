@@ -46,7 +46,7 @@ export const authService = {
     try {
       // Limpiar tokens existentes antes del login para evitar conflictos
       this.logout()
-      
+
       const response = await apiClient.post('/users/login/', credentials)
 
       // Verificar que la respuesta contiene los tokens necesarios
@@ -85,7 +85,7 @@ export const authService = {
     } catch (error) {
       // Limpiar cualquier token corrupto o expirado en caso de error
       this.logout()
-      
+
       const errorMessage = error.response?.data?.error || error.message
       return {
         success: false,
@@ -115,15 +115,15 @@ export const authService = {
 
     try {
       const userInfo = JSON.parse(user)
-      
+
       // Verificar que el userInfo tiene la estructura esperada
       if (!userInfo || !userInfo.exp || typeof userInfo.exp !== 'number') {
         this.logout()
         return false
       }
-      
+
       const currentTime = Date.now() / 1000
-      
+
       // Si el token expiró, limpiar todo y retornar false
       if (userInfo.exp <= currentTime) {
         this.logout()
@@ -148,7 +148,7 @@ export const authService = {
         this.logout()
         return false
       }
-      
+
       return true
     } catch (error) {
       // Si hay error al parsear, limpiar todo y retornar false
@@ -162,16 +162,16 @@ export const authService = {
     try {
       const user = localStorage.getItem('user')
       if (!user) return null
-      
+
       const userInfo = JSON.parse(user)
       const currentTime = Date.now() / 1000
-      
+
       // Verificar si el token no ha expirado
       if (userInfo.exp <= currentTime) {
         this.logout()
         return null
       }
-      
+
       return userInfo
     } catch (error) {
       this.logout()
@@ -183,12 +183,143 @@ export const authService = {
   getToken() {
     const token = localStorage.getItem('access_token')
     if (!token) return null
-    
+
     // Verificar si el token no ha expirado antes de devolverlo
     if (!this.isAuthenticated()) {
       return null
     }
-    
+
     return token
+  },
+
+  // Obtener refresh token
+  getRefreshToken() {
+    return localStorage.getItem('refresh_token')
+  },
+
+  // Renovar token de acceso
+  async refreshToken() {
+    try {
+      const refreshToken = this.getRefreshToken()
+      if (!refreshToken) {
+        throw new Error('No hay refresh token disponible')
+      }
+
+      const response = await apiClient.post('/users/token/refresh/', {
+        refresh: refreshToken,
+      })
+
+      if (response.data.access) {
+        // Guardar nuevo access token
+        localStorage.setItem('access_token', response.data.access)
+
+        // Si viene un nuevo refresh token, guardarlo también
+        if (response.data.refresh) {
+          localStorage.setItem('refresh_token', response.data.refresh)
+        }
+
+        console.log('🔄 Token renovado exitosamente')
+        return {
+          success: true,
+          access: response.data.access,
+          refresh: response.data.refresh,
+        }
+      }
+
+      throw new Error('No se recibió nuevo token')
+    } catch (error) {
+      console.error('❌ Error renovando token:', error)
+
+      // Si no se puede renovar, hacer logout
+      this.logout()
+
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Error renovando token',
+      }
+    }
+  },
+
+  // Extender sesión basada en actividad
+  async extendSession() {
+    try {
+      const token = this.getToken()
+      if (!token) {
+        throw new Error('No hay token de acceso')
+      }
+
+      const response = await apiClient.post(
+        '/users/session/extend/',
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+
+      if (response.data.access) {
+        localStorage.setItem('access_token', response.data.access)
+        console.log('⏰ Sesión extendida exitosamente')
+        return {
+          success: true,
+          access: response.data.access,
+        }
+      }
+
+      return { success: true, message: 'Sesión ya activa' }
+    } catch (error) {
+      console.error('❌ Error extendiendo sesión:', error)
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Error extendiendo sesión',
+      }
+    }
+  },
+
+  // Verificar estado de sesión
+  async checkSessionStatus() {
+    try {
+      const token = this.getToken()
+      if (!token) {
+        return { active: false, reason: 'No token' }
+      }
+
+      const response = await apiClient.get('/users/session/status/', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      return {
+        active: response.data.session_active,
+        lastActivity: response.data.last_activity,
+        timeSinceActivity: response.data.time_since_activity_seconds,
+        user: response.data.user,
+      }
+    } catch (error) {
+      console.error('❌ Error verificando estado de sesión:', error)
+      return {
+        active: false,
+        error: error.response?.data?.error || 'Error verificando sesión',
+      }
+    }
+  },
+
+  // Método para manejar respuestas 401 automáticamente
+  async handleUnauthorized() {
+    console.log('🔄 Intentando renovar token por respuesta 401...')
+    const refreshResult = await this.refreshToken()
+
+    if (refreshResult.success) {
+      return true // Token renovado exitosamente
+    } else {
+      // No se pudo renovar, redirigir al login
+      this.logout()
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth/login?reason=expired'
+      }
+      return false
+    }
   },
 }
