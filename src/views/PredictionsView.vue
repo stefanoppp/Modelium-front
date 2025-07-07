@@ -1,7 +1,7 @@
 <template>
   <div class="predictions-view">
     <NavBar />
-    
+
     <!-- Header -->
     <div class="predictions-header">
       <div class="header-background">
@@ -14,7 +14,7 @@
           <div class="star" v-for="i in 100" :key="'star-' + i"></div>
         </div>
       </div>
-      
+
       <div class="container">
         <div class="header-content">
           <div class="back-button">
@@ -23,15 +23,16 @@
               <span>{{ isPublicModel ? 'Volver al Repositorio' : 'Volver al Dashboard' }}</span>
             </button>
           </div>
-          
+
           <div class="predictions-title-section">
             <h1 class="predictions-title">
               {{ isPublicModel ? 'Usar Modelo Público' : 'Predicciones' }}
             </h1>
             <p class="predictions-description">
-              {{ isPublicModel 
-                ? 'Realiza predicciones con este modelo público de la comunidad' 
-                : 'Realiza predicciones con tus modelos entrenados de forma intuitiva' 
+              {{
+                isPublicModel
+                  ? 'Realiza predicciones con este modelo público de la comunidad'
+                  : 'Realiza predicciones con tus modelos entrenados de forma intuitiva'
               }}
             </p>
           </div>
@@ -70,7 +71,9 @@
               </div>
               <div class="info-item">
                 <span class="info-label">Predicciones realizadas:</span>
-                <span class="info-value">{{ selectedModel.statistics?.total_predictions || 0 }}</span>
+                <span class="info-value">{{
+                  selectedModel.statistics?.total_predictions || 0
+                }}</span>
               </div>
             </div>
           </div>
@@ -87,18 +90,14 @@
           <div class="card-content">
             <div class="model-selector">
               <label class="form-label">Modelo para Predicción:</label>
-              <select 
-                v-model="selectedModelId" 
+              <select
+                v-model="selectedModelId"
                 @change="onModelChange"
                 class="form-select"
                 :disabled="isLoadingModels"
               >
                 <option value="">Selecciona un modelo...</option>
-                <option 
-                  v-for="model in availableModels" 
-                  :key="model.id" 
-                  :value="model.id"
-                >
+                <option v-for="model in availableModels" :key="model.id" :value="model.id">
                   {{ model.name }} ({{ getTaskTypeLabel(model.task_type) }})
                 </option>
               </select>
@@ -121,29 +120,103 @@
           <div class="card-content">
             <form @submit.prevent="makePrediction" class="prediction-form">
               <div class="form-grid">
-                <div 
-                  v-for="(value, feature) in inputData" 
-                  :key="feature"
-                  class="form-group"
-                >
-                  <label class="form-label">{{ formatFeatureName(feature) }}</label>
-                  <input
-                    v-model.number="inputData[feature]"
-                    type="number"
-                    step="any"
-                    class="form-input"
-                    :placeholder="`Ingresa ${formatFeatureName(feature).toLowerCase()}`"
-                    required
-                  />
+                <div v-for="(value, feature) in inputData" :key="feature" class="form-group">
+                  <label class="form-label">
+                    {{ formatFeatureName(feature) }}
+                    <span class="variable-type-badge" :class="getVariableTypeClass(feature)">
+                      {{ getVariableTypeLabel(feature) }}
+                    </span>
+                  </label>
+
+                  <!-- Input para texto -->
+                  <div v-if="getVariableType(feature) === 'text'" class="input-wrapper">
+                    <input
+                      v-model="inputData[feature]"
+                      type="text"
+                      class="form-input"
+                      :placeholder="`Ingresa ${formatFeatureName(feature).toLowerCase()}`"
+                      required
+                      @input="validateTextInput(feature, $event)"
+                    />
+                    <div class="input-hint">
+                      <i class="pi pi-info-circle"></i>
+                      <span>Texto libre (letras, números, espacios)</span>
+                    </div>
+                  </div>
+
+                  <!-- Input para números -->
+                  <div v-else-if="getVariableType(feature) === 'numeric'" class="input-wrapper">
+                    <input
+                      v-model.number="inputData[feature]"
+                      type="number"
+                      step="any"
+                      class="form-input"
+                      :placeholder="`Ingresa ${formatFeatureName(feature).toLowerCase()}`"
+                      required
+                      @input="validateNumericInput(feature, $event)"
+                    />
+                    <div class="input-hint">
+                      <i class="pi pi-calculator"></i>
+                      <span>Valor numérico (entero o decimal)</span>
+                    </div>
+                  </div>
+
+                  <!-- Input para fechas -->
+                  <div v-else-if="getVariableType(feature) === 'date'" class="input-wrapper">
+                    <input
+                      v-model="inputData[feature]"
+                      type="date"
+                      class="form-input"
+                      required
+                      @input="validateDateInput(feature, $event)"
+                    />
+                    <div class="input-hint">
+                      <i class="pi pi-calendar"></i>
+                      <span>Fecha en formato DD/MM/YYYY</span>
+                    </div>
+                  </div>
+
+                  <!-- Input para fecha y hora -->
+                  <div v-else-if="getVariableType(feature) === 'datetime'" class="input-wrapper">
+                    <input
+                      v-model="inputData[feature]"
+                      type="datetime-local"
+                      class="form-input"
+                      required
+                      @input="validateDateTimeInput(feature, $event)"
+                    />
+                    <div class="input-hint">
+                      <i class="pi pi-clock"></i>
+                      <span>Fecha y hora completa</span>
+                    </div>
+                  </div>
+
+                  <!-- Input por defecto (numérico) -->
+                  <div v-else class="input-wrapper">
+                    <input
+                      v-model.number="inputData[feature]"
+                      type="number"
+                      step="any"
+                      class="form-input"
+                      :placeholder="`Ingresa ${formatFeatureName(feature).toLowerCase()}`"
+                      required
+                    />
+                    <div class="input-hint">
+                      <i class="pi pi-calculator"></i>
+                      <span>Valor numérico</span>
+                    </div>
+                  </div>
+
+                  <!-- Mensaje de validación -->
+                  <div v-if="validationErrors[feature]" class="validation-error">
+                    <i class="pi pi-exclamation-triangle"></i>
+                    <span>{{ validationErrors[feature] }}</span>
+                  </div>
                 </div>
               </div>
-              
+
               <div class="form-actions">
-                <button 
-                  type="submit" 
-                  class="tech-button predict-btn"
-                  :disabled="isPredicting"
-                >
+                <button type="submit" class="tech-button predict-btn" :disabled="isPredicting">
                   <i class="pi pi-play" v-if="!isPredicting"></i>
                   <i class="pi pi-spin pi-spinner" v-else></i>
                   <span>{{ isPredicting ? 'Prediciendo...' : 'Realizar Predicción' }}</span>
@@ -172,13 +245,16 @@
                 <div class="prediction-details">
                   <div class="prediction-main">
                     <!-- Resultado para Clasificación -->
-                    <div v-if="predictionResult.task_type === 'classification'" class="predicted-class">
+                    <div
+                      v-if="predictionResult.task_type === 'classification'"
+                      class="predicted-class"
+                    >
                       <span class="prediction-label">Resultado de predicción:</span>
                       <span class="prediction-value main-prediction">
                         {{ formatPredictionClass(predictionResult.prediction.predicted_class) }}
                       </span>
                     </div>
-                    
+
                     <!-- Resultado para Regresión -->
                     <div v-if="predictionResult.task_type === 'regression'" class="predicted-value">
                       <span class="prediction-label">Valor Predicho:</span>
@@ -186,36 +262,46 @@
                         {{ formatPredictionValue(predictionResult.prediction.predicted_value) }}
                       </span>
                     </div>
-                    
+
                     <div v-if="predictionResult.prediction.confidence" class="confidence">
                       <span class="prediction-label">Confianza:</span>
                       <div class="confidence-container">
-                        <span class="confidence-value">{{ (predictionResult.prediction.confidence * 100).toFixed(2) }}%</span>
+                        <span class="confidence-value"
+                          >{{ (predictionResult.prediction.confidence * 100).toFixed(2) }}%</span
+                        >
                         <div class="confidence-bar">
-                          <div 
-                            class="confidence-fill" 
-                            :style="{ width: (predictionResult.prediction.confidence * 100) + '%' }"
+                          <div
+                            class="confidence-fill"
+                            :style="{ width: predictionResult.prediction.confidence * 100 + '%' }"
                           ></div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div v-if="predictionResult.prediction.probabilities && predictionResult.task_type === 'classification'" class="probabilities">
+                  <div
+                    v-if="
+                      predictionResult.prediction.probabilities &&
+                      predictionResult.task_type === 'classification'
+                    "
+                    class="probabilities"
+                  >
                     <span class="prediction-label">Probabilidades:</span>
                     <div class="probabilities-grid">
-                      <div 
-                        v-for="(prob, className) in predictionResult.prediction.probabilities" 
+                      <div
+                        v-for="(prob, className) in predictionResult.prediction.probabilities"
                         :key="className"
                         class="probability-item"
                       >
-                        <span class="probability-class">{{ formatPredictionClass(className) }}</span>
+                        <span class="probability-class">{{
+                          formatPredictionClass(className)
+                        }}</span>
                         <div class="probability-container">
                           <span class="probability-value">{{ (prob * 100).toFixed(2) }}%</span>
                           <div class="probability-bar">
-                            <div 
-                              class="probability-fill" 
-                              :style="{ width: (prob * 100) + '%' }"
+                            <div
+                              class="probability-fill"
+                              :style="{ width: prob * 100 + '%' }"
                             ></div>
                           </div>
                         </div>
@@ -234,7 +320,9 @@
                 <div class="info-items">
                   <div class="info-item">
                     <span class="info-label">ID de Predicción:</span>
-                    <span class="info-value prediction-id">{{ predictionResult.prediction_id }}</span>
+                    <span class="info-value prediction-id">{{
+                      predictionResult.prediction_id
+                    }}</span>
                   </div>
                   <div class="info-item">
                     <span class="info-label">Modelo:</span>
@@ -246,15 +334,24 @@
                   </div>
                   <div class="info-item">
                     <span class="info-label">Tipo de Tarea:</span>
-                    <span class="info-value">{{ getTaskTypeLabel(predictionResult.task_type) }}</span>
+                    <span class="info-value">{{
+                      getTaskTypeLabel(predictionResult.task_type)
+                    }}</span>
                   </div>
-                  <div v-if="predictionResult.remaining_predictions !== undefined" class="info-item">
+                  <div
+                    v-if="predictionResult.remaining_predictions !== undefined"
+                    class="info-item"
+                  >
                     <span class="info-label">Predicciones Restantes:</span>
-                    <span class="info-value remaining-predictions">{{ predictionResult.remaining_predictions }}</span>
+                    <span class="info-value remaining-predictions">{{
+                      predictionResult.remaining_predictions
+                    }}</span>
                   </div>
                   <div class="info-item">
                     <span class="info-label">Visibilidad:</span>
-                    <span class="info-value">{{ predictionResult.is_public ? 'Público' : 'Privado' }}</span>
+                    <span class="info-value">{{
+                      predictionResult.is_public ? 'Público' : 'Privado'
+                    }}</span>
                   </div>
                 </div>
               </div>
@@ -266,8 +363,8 @@
                   Datos de Entrada
                 </h4>
                 <div class="input-data-grid">
-                  <div 
-                    v-for="(value, key) in predictionResult.input_data" 
+                  <div
+                    v-for="(value, key) in predictionResult.input_data"
                     :key="key"
                     class="input-data-item"
                   >
@@ -327,6 +424,8 @@ const isLoadingModels = ref(false)
 const isPredicting = ref(false)
 const isPublicModel = ref(false)
 const publicModelId = ref(null)
+const modelFeatures = ref([])
+const validationErrors = ref({})
 
 // Computed
 const currentUser = computed(() => authStore.currentUser)
@@ -344,19 +443,19 @@ const checkPublicModelRoute = () => {
 const loadAvailableModels = async () => {
   try {
     isLoadingModels.value = true
-    
+
     let response
     if (isPublicModel.value) {
       // Cargar modelo público específico
       response = await safeApiCall(
         () => apiClient.get('/models/public/'),
-        'carga de modelos públicos'
+        'carga de modelos públicos',
       )
     } else {
       // Cargar modelos propios
       response = await safeApiCall(
         () => apiClient.get('/models/my_models/'),
-        'carga de modelos propios'
+        'carga de modelos propios',
       )
     }
 
@@ -365,12 +464,12 @@ const loadAvailableModels = async () => {
     }
 
     const data = response.data
-    
+
     if (isPublicModel.value) {
       // Filtrar el modelo público específico
       const publicModels = data.public_models || []
-      const targetModel = publicModels.find(model => model.id.toString() === publicModelId.value)
-      
+      const targetModel = publicModels.find((model) => model.id.toString() === publicModelId.value)
+
       if (targetModel) {
         availableModels.value = [targetModel]
         // Auto-seleccionar el modelo público
@@ -380,9 +479,8 @@ const loadAvailableModels = async () => {
       }
     } else {
       // Solo modelos completados pueden hacer predicciones
-      availableModels.value = data.models?.filter(model => model.status === 'completed') || []
+      availableModels.value = data.models?.filter((model) => model.status === 'completed') || []
     }
-    
   } catch (err) {
     console.error('Error loading models:', err)
     predictionError.value = 'Error al cargar los modelos disponibles'
@@ -393,19 +491,21 @@ const loadAvailableModels = async () => {
 
 const onModelChange = async () => {
   console.log('Model changed to:', selectedModelId.value)
-  
+
   // Limpiar todo primero
   inputData.value = {}
   predictionResult.value = null
   predictionError.value = null
-  
+  validationErrors.value = {}
+  modelFeatures.value = []
+
   if (!selectedModelId.value) {
     selectedModel.value = null
     return
   }
 
-  selectedModel.value = availableModels.value.find(model => model.id === selectedModelId.value)
-  
+  selectedModel.value = availableModels.value.find((model) => model.id === selectedModelId.value)
+
   if (selectedModel.value) {
     console.log('Loading features for model:', selectedModel.value.name)
     // Cargar las features requeridas del modelo
@@ -416,40 +516,53 @@ const onModelChange = async () => {
 const loadModelFeatures = async () => {
   try {
     console.log('Loading features for model ID:', selectedModelId.value)
-    
+
     const response = await safeApiCall(
       () => apiClient.get(`/models/info/${selectedModelId.value}/`),
-      'carga de información del modelo'
+      'carga de información del modelo',
     )
 
     if (response) {
       const modelInfo = response.data
       console.log('Model info received:', modelInfo)
-      
-      // Limpiar completamente inputData
+
+      // Limpiar completamente inputData y validationErrors
       inputData.value = {}
-      
+      validationErrors.value = {}
+
       // Esperar un tick para asegurar que Vue procese el cambio
-      await new Promise(resolve => setTimeout(resolve, 0))
-      
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
       // Crear nuevo objeto con las features requeridas
       const newInputData = {}
       if (modelInfo.required_features && modelInfo.required_features.length > 0) {
         console.log('Required features:', modelInfo.required_features)
-        modelInfo.required_features.forEach(feature => {
+
+        // Guardar información sobre las features
+        modelFeatures.value = modelInfo.required_features.map((feature) => ({
+          name: feature,
+          type: detectVariableType(feature),
+          // Si el backend proporciona información sobre tipos, usarla
+          actualType: modelInfo.feature_types?.[feature] || detectVariableType(feature),
+        }))
+
+        modelInfo.required_features.forEach((feature) => {
           newInputData[feature] = ''
         })
       }
-      
+
       // Asignar el nuevo objeto para forzar reactividad
       inputData.value = newInputData
       console.log('Input data updated:', inputData.value)
+      console.log('Model features:', modelFeatures.value)
     } else {
       console.error('Failed to load model info')
     }
   } catch (err) {
     console.error('Error loading model features:', err)
     inputData.value = {} // Limpiar en caso de error
+    modelFeatures.value = []
+    validationErrors.value = {}
   }
 }
 
@@ -457,14 +570,45 @@ const makePrediction = async () => {
   try {
     isPredicting.value = true
     predictionError.value = null
-    
+
+    // Validar que no haya errores de validación
+    if (hasValidationErrors()) {
+      predictionError.value = 'Por favor, corrige los errores en el formulario antes de continuar'
+      return
+    }
+
+    // Validar que todos los campos estén llenos
+    const emptyFields = Object.entries(inputData.value).filter(
+      ([key, value]) => value === '' || value === null || value === undefined,
+    )
+
+    if (emptyFields.length > 0) {
+      predictionError.value = 'Por favor, completa todos los campos requeridos'
+      return
+    }
+
+    // Preparar los datos para el envío
+    const processedData = {}
+    Object.entries(inputData.value).forEach(([key, value]) => {
+      const type = getVariableType(key)
+
+      if (type === 'numeric') {
+        processedData[key] = Number(value)
+      } else if (type === 'date' || type === 'datetime') {
+        processedData[key] = value
+      } else {
+        processedData[key] = String(value)
+      }
+    })
+
     // El endpoint es el mismo para modelos propios y públicos
     // El backend detecta automáticamente si es público o propio
     const response = await safeApiCall(
-      () => apiClient.post(`/models/predict/${selectedModelId.value}/`, {
-        input_data: inputData.value
-      }),
-      'predicción del modelo'
+      () =>
+        apiClient.post(`/models/predict/${selectedModelId.value}/`, {
+          input_data: processedData,
+        }),
+      'predicción del modelo',
     )
 
     if (response) {
@@ -472,7 +616,6 @@ const makePrediction = async () => {
     } else {
       throw new Error('Error al realizar la predicción')
     }
-    
   } catch (err) {
     console.error('Error making prediction:', err)
     predictionError.value = err.message || 'Error al realizar la predicción'
@@ -496,18 +639,19 @@ const clearError = () => {
 
 const getTaskTypeLabel = (taskType) => {
   const labels = {
-    'classification': 'Clasificación',
-    'regression': 'Regresión',
-    'clustering': 'Clustering'
+    classification: 'Clasificación',
+    regression: 'Regresión',
+    clustering: 'Clustering',
   }
   return labels[taskType] || taskType
 }
 
 const formatFeatureName = (feature) => {
   // Convertir nombres de features a formato más legible
-  return feature.replace(/([A-Z])/g, ' $1')
-                .replace(/^./, str => str.toUpperCase())
-                .trim()
+  return feature
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, (str) => str.toUpperCase())
+    .trim()
 }
 
 const formatPredictionClass = (className) => {
@@ -525,6 +669,117 @@ const formatPredictionValue = (value) => {
   return value
 }
 
+// Métodos para detección de tipos de variables
+const detectVariableType = (featureName) => {
+  const name = featureName.toLowerCase()
+
+  // Detectar fechas
+  if (
+    name.includes('date') ||
+    name.includes('fecha') ||
+    name.includes('time') ||
+    name.includes('hora')
+  ) {
+    if (name.includes('time') || name.includes('hora') || name.includes('datetime')) {
+      return 'datetime'
+    }
+    return 'date'
+  }
+
+  // Detectar texto
+  if (
+    name.includes('name') ||
+    name.includes('nombre') ||
+    name.includes('text') ||
+    name.includes('texto') ||
+    name.includes('description') ||
+    name.includes('descripcion') ||
+    name.includes('comment') ||
+    name.includes('comentario') ||
+    name.includes('category') ||
+    name.includes('categoria') ||
+    name.includes('type') ||
+    name.includes('tipo')
+  ) {
+    return 'text'
+  }
+
+  // Por defecto, numérico
+  return 'numeric'
+}
+
+const getVariableType = (featureName) => {
+  const feature = modelFeatures.value.find((f) => f.name === featureName)
+  return feature?.actualType || feature?.type || 'numeric'
+}
+
+const getVariableTypeLabel = (featureName) => {
+  const type = getVariableType(featureName)
+  const labels = {
+    text: 'Texto',
+    numeric: 'Numérico',
+    date: 'Fecha',
+    datetime: 'Fecha y Hora',
+  }
+  return labels[type] || 'Numérico'
+}
+
+const getVariableTypeClass = (featureName) => {
+  const type = getVariableType(featureName)
+  return `type-${type}`
+}
+
+// Métodos de validación
+const validateTextInput = (featureName, event) => {
+  const value = event.target.value
+  validationErrors.value[featureName] = null
+
+  if (value && value.length > 500) {
+    validationErrors.value[featureName] = 'El texto no puede exceder los 500 caracteres'
+  }
+}
+
+const validateNumericInput = (featureName, event) => {
+  const value = event.target.value
+  validationErrors.value[featureName] = null
+
+  if (value && isNaN(Number(value))) {
+    validationErrors.value[featureName] = 'Debe ser un valor numérico válido'
+  }
+}
+
+const validateDateInput = (featureName, event) => {
+  const value = event.target.value
+  validationErrors.value[featureName] = null
+
+  if (value && !isValidDate(value)) {
+    validationErrors.value[featureName] = 'Debe ser una fecha válida'
+  }
+}
+
+const validateDateTimeInput = (featureName, event) => {
+  const value = event.target.value
+  validationErrors.value[featureName] = null
+
+  if (value && !isValidDateTime(value)) {
+    validationErrors.value[featureName] = 'Debe ser una fecha y hora válida'
+  }
+}
+
+const isValidDate = (dateString) => {
+  const date = new Date(dateString)
+  return date instanceof Date && !isNaN(date)
+}
+
+const isValidDateTime = (dateTimeString) => {
+  const date = new Date(dateTimeString)
+  return date instanceof Date && !isNaN(date)
+}
+
+const hasValidationErrors = () => {
+  return Object.values(validationErrors.value).some((error) => error !== null)
+}
+
 // Lifecycle
 onMounted(() => {
   checkPublicModelRoute()
@@ -538,15 +793,24 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   overflow-x: hidden;
   max-width: 100vw;
 }
 
 .predictions-view {
   min-height: 100vh;
-  background: 
-    linear-gradient(135deg, #000000 0%, #0a0a0f 20%, #0f0f1a 40%, #1a1a2e 60%, #16213e 80%, #0e1a2e 100%),
+  background:
+    linear-gradient(
+      135deg,
+      #000000 0%,
+      #0a0a0f 20%,
+      #0f0f1a 40%,
+      #1a1a2e 60%,
+      #16213e 80%,
+      #0e1a2e 100%
+    ),
     radial-gradient(circle at 15% 25%, rgba(75, 0, 130, 0.2) 0%, transparent 60%),
     radial-gradient(circle at 85% 75%, rgba(25, 25, 112, 0.18) 0%, transparent 55%),
     radial-gradient(circle at 50% 50%, rgba(0, 100, 200, 0.12) 0%, transparent 70%),
@@ -566,7 +830,7 @@ html, body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
+  background:
     radial-gradient(circle at 20% 30%, rgba(75, 0, 130, 0.08) 0%, transparent 40%),
     radial-gradient(circle at 80% 20%, rgba(25, 25, 112, 0.06) 0%, transparent 45%),
     radial-gradient(circle at 70% 80%, rgba(138, 43, 226, 0.05) 0%, transparent 50%),
@@ -577,13 +841,14 @@ html, body {
 }
 
 @keyframes galaxyBreath {
-  0%, 100% { 
+  0%,
+  100% {
     opacity: 0.4;
   }
-  33% { 
+  33% {
     opacity: 0.8;
   }
-  66% { 
+  66% {
     opacity: 0.6;
   }
 }
@@ -613,7 +878,7 @@ html, body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: 
+  background-image:
     linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 50px 50px;
@@ -639,14 +904,46 @@ html, body {
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
 }
 
-.floating-element:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
-.floating-element:nth-child(2) { top: 60%; left: 20%; animation-delay: 2s; }
-.floating-element:nth-child(3) { top: 40%; left: 80%; animation-delay: 4s; }
-.floating-element:nth-child(4) { top: 80%; left: 70%; animation-delay: 6s; }
-.floating-element:nth-child(5) { top: 10%; left: 60%; animation-delay: 1s; }
-.floating-element:nth-child(6) { top: 70%; left: 40%; animation-delay: 3s; }
-.floating-element:nth-child(7) { top: 30%; left: 30%; animation-delay: 5s; }
-.floating-element:nth-child(8) { top: 90%; left: 85%; animation-delay: 7s; }
+.floating-element:nth-child(1) {
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+.floating-element:nth-child(2) {
+  top: 60%;
+  left: 20%;
+  animation-delay: 2s;
+}
+.floating-element:nth-child(3) {
+  top: 40%;
+  left: 80%;
+  animation-delay: 4s;
+}
+.floating-element:nth-child(4) {
+  top: 80%;
+  left: 70%;
+  animation-delay: 6s;
+}
+.floating-element:nth-child(5) {
+  top: 10%;
+  left: 60%;
+  animation-delay: 1s;
+}
+.floating-element:nth-child(6) {
+  top: 70%;
+  left: 40%;
+  animation-delay: 3s;
+}
+.floating-element:nth-child(7) {
+  top: 30%;
+  left: 30%;
+  animation-delay: 5s;
+}
+.floating-element:nth-child(8) {
+  top: 90%;
+  left: 85%;
+  animation-delay: 7s;
+}
 
 /* Estrellas */
 .stars-container {
@@ -682,11 +979,12 @@ html, body {
 }
 
 @keyframes starTwinkle {
-  0%, 100% { 
+  0%,
+  100% {
     opacity: 0.3;
     transform: scale(1);
   }
-  50% { 
+  50% {
     opacity: 1;
     transform: scale(1.2);
   }
@@ -714,7 +1012,7 @@ html, body {
 .tech-button {
   background: rgba(138, 43, 226, 0.1);
   border: 1px solid rgba(138, 43, 226, 0.3);
-  color: #8A2BE2;
+  color: #8a2be2;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   cursor: pointer;
@@ -755,7 +1053,14 @@ html, body {
   font-weight: 200;
   margin-bottom: 1rem;
   text-align: center;
-  background: linear-gradient(135deg, #4B0082 0%, #8A2BE2 25%, #9400D3 50%, #8B5CF6 75%, #EC4899 100%);
+  background: linear-gradient(
+    135deg,
+    #4b0082 0%,
+    #8a2be2 25%,
+    #9400d3 50%,
+    #8b5cf6 75%,
+    #ec4899 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -766,11 +1071,14 @@ html, body {
 }
 
 @keyframes titleGlow {
-  0%, 100% { 
+  0%,
+  100% {
     text-shadow: 0 0 40px rgba(138, 43, 226, 0.5);
   }
-  50% { 
-    text-shadow: 0 0 60px rgba(138, 43, 226, 0.7), 0 0 80px rgba(138, 43, 226, 0.4);
+  50% {
+    text-shadow:
+      0 0 60px rgba(138, 43, 226, 0.7),
+      0 0 80px rgba(138, 43, 226, 0.4);
   }
 }
 
@@ -855,7 +1163,7 @@ html, body {
 }
 
 .card-title i {
-  color: #8A2BE2;
+  color: #8a2be2;
 }
 
 .card-content {
@@ -869,18 +1177,29 @@ html, body {
 
 /* Form Styles */
 .form-label {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   color: #b1b8d4;
   font-weight: 500;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.form-label .variable-type-badge {
+  margin-left: 0;
+  margin-top: 0.25rem;
+  flex-shrink: 0;
 }
 
 .form-select,
 .form-input {
   width: 100%;
   padding: 0.875rem 1rem;
-  background: 
+  background:
     linear-gradient(135deg, rgba(20, 20, 35, 0.9), rgba(30, 30, 50, 0.8)),
     radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.1) 0%, transparent 50%);
   border: 1px solid rgba(138, 43, 226, 0.4);
@@ -890,7 +1209,7 @@ html, body {
   transition: all 0.3s ease;
   position: relative;
   backdrop-filter: blur(10px);
-  box-shadow: 
+  box-shadow:
     0 4px 15px rgba(138, 43, 226, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
@@ -899,11 +1218,11 @@ html, body {
 .form-input:focus {
   outline: none;
   border-color: rgba(138, 43, 226, 0.8);
-  box-shadow: 
+  box-shadow:
     0 0 20px rgba(138, 43, 226, 0.4),
     0 0 40px rgba(138, 43, 226, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  background: 
+  background:
     linear-gradient(135deg, rgba(20, 20, 35, 0.95), rgba(30, 30, 50, 0.9)),
     radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.15) 0%, transparent 50%);
   transform: translateY(-1px);
@@ -912,7 +1231,7 @@ html, body {
 .form-select:hover,
 .form-input:hover {
   border-color: rgba(138, 43, 226, 0.6);
-  box-shadow: 
+  box-shadow:
     0 6px 20px rgba(138, 43, 226, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
   transform: translateY(-1px);
@@ -920,26 +1239,29 @@ html, body {
 
 .form-select {
   appearance: none;
-  background: 
+  background:
     linear-gradient(135deg, rgba(20, 20, 35, 0.9), rgba(30, 30, 50, 0.8)),
     radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.1) 0%, transparent 50%),
     url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 16 16'%3e%3cpath d='M8 13.1l-8-8 2.1-2.1 5.9 5.9 5.9-5.9 2.1 2.1z'/%3e%3c/svg%3e");
   background-repeat: no-repeat, no-repeat, no-repeat;
-  background-position: left center, left center, right 1rem center;
+  background-position:
+    left center,
+    left center,
+    right 1rem center;
   background-size: cover, cover, 14px;
   padding-right: 3rem;
   cursor: pointer;
 }
 
 .form-select:focus {
-  background: 
+  background:
     linear-gradient(135deg, rgba(20, 20, 35, 0.95), rgba(30, 30, 50, 0.9)),
     radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.15) 0%, transparent 50%),
     url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%238A2BE2' viewBox='0 0 16 16'%3e%3cpath d='M8 13.1l-8-8 2.1-2.1 5.9 5.9 5.9-5.9 2.1 2.1z'/%3e%3c/svg%3e");
 }
 
 .form-select:hover {
-  background: 
+  background:
     linear-gradient(135deg, rgba(20, 20, 35, 0.95), rgba(30, 30, 50, 0.85)),
     radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.12) 0%, transparent 50%),
     url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 16 16'%3e%3cpath d='M8 13.1l-8-8 2.1-2.1 5.9 5.9 5.9-5.9 2.1 2.1z'/%3e%3c/svg%3e");
@@ -955,7 +1277,7 @@ html, body {
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.5rem;
-  color: #8A2BE2;
+  color: #8a2be2;
   font-size: 0.9rem;
 }
 
@@ -963,16 +1285,43 @@ html, body {
   width: 16px;
   height: 16px;
   border: 2px solid rgba(138, 43, 226, 0.3);
-  border-top: 2px solid #8A2BE2;
+  border-top: 2px solid #8a2be2;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
+  max-width: 100%;
+}
+
+/* Estilos para campos largos */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Permite que el contenido se contraiga */
+}
+
+.form-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  color: #b1b8d4;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.form-label .variable-type-badge {
+  margin-left: 0;
+  margin-top: 0.25rem;
+  flex-shrink: 0;
 }
 
 .form-group {
@@ -989,7 +1338,7 @@ html, body {
 .predict-btn {
   background: rgba(138, 43, 226, 0.2);
   border-color: rgba(138, 43, 226, 0.5);
-  color: #8A2BE2;
+  color: #8a2be2;
   padding: 1rem 2rem;
   font-size: 1.1rem;
   font-weight: 600;
@@ -1032,7 +1381,7 @@ html, body {
 }
 
 .section-title i {
-  color: #8A2BE2;
+  color: #8a2be2;
 }
 
 .info-items {
@@ -1103,7 +1452,7 @@ html, body {
 }
 
 .input-label {
-  color: #8A2BE2;
+  color: #8a2be2;
   font-weight: 600;
   font-size: 0.9rem;
 }
@@ -1249,18 +1598,31 @@ html, body {
 
 /* Animations */
 @keyframes gridMove {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(50px, 50px); }
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(180deg); }
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+  }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive */
@@ -1269,28 +1631,38 @@ html, body {
     padding: 0 1rem 4rem 1rem;
     max-width: 100%;
   }
-  
+
   .predictions-title {
     font-size: 2.5rem;
   }
-  
+
   .predictions-description {
     font-size: 1.1rem;
   }
-  
+
   .form-grid {
     grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
-  
+
+  .form-label {
+    font-size: 0.85rem;
+  }
+
+  .variable-type-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+  }
+
   .input-data-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .probability-item {
     grid-template-columns: 1fr;
     gap: 0.5rem;
   }
-  
+
   /* Asegurar que no haya scroll interno en mobile */
   .card-content,
   .result-section,
@@ -1310,15 +1682,34 @@ html, body {
   .container {
     padding: 0 0.5rem 4rem 0.5rem;
   }
-  
+
   .predictions-title {
     font-size: 2rem;
   }
-  
+
   .predictions-description {
     font-size: 1rem;
   }
-  
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .form-label {
+    font-size: 0.8rem;
+  }
+
+  .variable-type-badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.5rem;
+  }
+
+  .form-input {
+    font-size: 0.9rem;
+    padding: 0.65rem 0.85rem;
+  }
+
   /* Asegurar que no haya scroll interno en pantallas pequeñas */
   .card-content,
   .result-section,
@@ -1388,4 +1779,125 @@ html, body {
   line-height: 1.4;
   word-wrap: break-word;
 }
+
+/* Variable Type Badge Styles */
+.variable-type-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-left: 0;
+  margin-top: 0.25rem;
+  border: 1px solid;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.variable-type-badge.numeric {
+  background: rgba(52, 152, 219, 0.2);
+  color: #3498db;
+  border-color: rgba(52, 152, 219, 0.4);
+}
+
+.variable-type-badge.text {
+  background: rgba(46, 204, 113, 0.2);
+  color: #2ecc71;
+  border-color: rgba(46, 204, 113, 0.4);
+}
+
+.variable-type-badge.date {
+  background: rgba(155, 89, 182, 0.2);
+  color: #9b59b6;
+  border-color: rgba(155, 89, 182, 0.4);
+}
+
+.variable-type-badge.datetime {
+  background: rgba(230, 126, 34, 0.2);
+  color: #e67e22;
+  border-color: rgba(230, 126, 34, 0.4);
+}
+
+/* Input Wrapper and Hint Styles */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  padding: 0.25rem 0;
+}
+
+.input-hint i {
+  font-size: 0.8rem;
+  color: rgba(138, 43, 226, 0.7);
+}
+
+/* Validation Error Styles */
+.validation-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #e74c3c;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  border-radius: 0.25rem;
+  animation: errorFadeIn 0.3s ease-out;
+}
+
+.validation-error i {
+  font-size: 0.9rem;
+  color: #e74c3c;
+}
+
+@keyframes errorFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Form Input Enhancements */
+.form-input {
+  background: rgba(20, 20, 35, 0.7);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  border-radius: 0.5rem;
+  color: white;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: rgba(138, 43, 226, 0.6);
+  box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.1);
+  background: rgba(20, 20, 35, 0.8);
+}
+
+.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Removido: estilos :invalid que causaban el borde rojo */
 </style>

@@ -1,40 +1,34 @@
 <template>
   <div class="auth-container">
-    <NavBar />
-    
-    <!-- Background galáctico -->
-    <div class="galaxy-background">
-      <div class="stars-container">
-        <div class="star" v-for="i in 150" :key="'star-' + i"></div>
-      </div>
-      <div class="floating-elements">
-        <div class="floating-element" v-for="n in 12" :key="n"></div>
-      </div>
-      <div class="grid-pattern"></div>
+    <!-- Background animado -->
+    <div class="background-grid"></div>
+    <div class="floating-elements">
+      <div class="floating-element" v-for="n in 15" :key="n"></div>
+    </div>
+    <div class="grid-lines">
+      <div class="grid-line horizontal" v-for="n in 8" :key="'h' + n"></div>
+      <div class="grid-line vertical" v-for="n in 12" :key="'v' + n"></div>
     </div>
 
     <div class="auth-card">
-      <div class="card-header">
-        <div class="verification-icon">
-          <i class="pi pi-shield"></i>
-        </div>
-        <h2 class="auth-title">Verificar tu Cuenta</h2>
-        <p class="auth-subtitle">Ingresa el código de verificación enviado a tu correo</p>
+      <div class="verification-icon">
+        <i class="pi pi-shield"></i>
       </div>
-      
+      <h2>Verificar tu Cuenta</h2>
+      <p class="verification-subtitle">Ingresa el código de verificación enviado a tu correo</p>
+
       <div class="username-display">
         <i class="pi pi-user"></i>
         <span>{{ username }}</span>
       </div>
 
-      <form @submit.prevent="handleVerify" class="auth-form">
+      <form @submit.prevent="handleVerify">
         <div class="form-group">
-          <label for="token" class="form-label">Código de Verificación</label>
+          <label for="token">Código de Verificación</label>
           <input
             id="token"
             v-model="form.token"
             type="text"
-            class="form-input verification-input"
             placeholder="000000"
             maxlength="6"
             required
@@ -57,10 +51,8 @@
           <span>{{ successMessage }}</span>
         </div>
 
-        <button type="submit" :disabled="isLoading" class="auth-button">
-          <i class="pi pi-shield" v-if="!isLoading"></i>
-          <i class="pi pi-spin pi-spinner" v-else></i>
-          <span>{{ isLoading ? 'Verificando...' : 'Verificar Cuenta' }}</span>
+        <button type="submit" :disabled="isLoading">
+          {{ isLoading ? 'Verificando...' : 'Verificar Cuenta' }}
         </button>
       </form>
 
@@ -90,7 +82,6 @@
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
-import NavBar from '@/components/layout/NavBar.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -143,7 +134,7 @@ const handleVerify = async () => {
 
   if (result.success) {
     successMessage.value = '¡Cuenta verificada exitosamente! Redirigiendo...'
-    
+
     setTimeout(() => {
       router.push('/dashboard?verified=true')
     }, 1500)
@@ -176,17 +167,16 @@ const resendCode = () => {
 <style scoped>
 .auth-container {
   position: fixed;
-  top: 5rem; /* Comienza debajo del NavBar */
+  top: 0;
   left: 0;
   width: 100vw;
-  height: calc(100vh - 5rem); /* Altura disponible sin el NavBar */
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
   overflow: hidden;
   padding: 1rem;
-  box-sizing: border-box;
 }
 
 /* Background Grid */
@@ -328,93 +318,180 @@ const resendCode = () => {
   background: linear-gradient(180deg, transparent, rgba(0, 212, 255, 0.4), transparent);
 }
 
-.grid-line:nth-child(1) { top: 10%; animation-delay: -2s; }
-.grid-line:nth-child(2) { top: 25%; animation-delay: -4s; }
-.grid-line:nth-child(3) { top: 40%; animation-delay: -1s; }
-.grid-line:nth-child(4) { top: 55%; animation-delay: -5s; }
-.grid-line:nth-child(5) { top: 70%; animation-delay: -3s; }
-.grid-line:nth-child(6) { top: 85%; animation-delay: -6s; }
-.grid-line:nth-child(7) { top: 95%; animation-delay: -1.5s; }
-.grid-line:nth-child(8) { top: 5%; animation-delay: -4.5s; }
-.grid-line:nth-child(9) { left: 10%; animation-delay: -2.5s; }
-.grid-line:nth-child(10) { left: 25%; animation-delay: -5.5s; }
-.grid-line:nth-child(11) { left: 40%; animation-delay: -1.2s; }
-.grid-line:nth-child(12) { left: 55%; animation-delay: -4.2s; }
-.grid-line:nth-child(13) { left: 70%; animation-delay: -3.2s; }
-.grid-line:nth-child(14) { left: 85%; animation-delay: -6.2s; }
-.grid-line:nth-child(15) { left: 95%; animation-delay: -2.8s; }
-.grid-line:nth-child(16) { left: 5%; animation-delay: -5.8s; }
-.grid-line:nth-child(17) { left: 30%; animation-delay: -1.8s; }
-.grid-line:nth-child(18) { left: 60%; animation-delay: -4.8s; }
-.grid-line:nth-child(19) { left: 80%; animation-delay: -3.8s; }
-.grid-line:nth-child(20) { left: 15%; animation-delay: -6.8s; }
+.grid-line:nth-child(1) {
+  top: 10%;
+  animation-delay: -2s;
+}
+.grid-line:nth-child(2) {
+  top: 25%;
+  animation-delay: -4s;
+}
+.grid-line:nth-child(3) {
+  top: 40%;
+  animation-delay: -1s;
+}
+.grid-line:nth-child(4) {
+  top: 55%;
+  animation-delay: -5s;
+}
+.grid-line:nth-child(5) {
+  top: 70%;
+  animation-delay: -3s;
+}
+.grid-line:nth-child(6) {
+  top: 85%;
+  animation-delay: -6s;
+}
+.grid-line:nth-child(7) {
+  top: 95%;
+  animation-delay: -1.5s;
+}
+.grid-line:nth-child(8) {
+  top: 5%;
+  animation-delay: -4.5s;
+}
+.grid-line:nth-child(9) {
+  left: 10%;
+  animation-delay: -2.5s;
+}
+.grid-line:nth-child(10) {
+  left: 25%;
+  animation-delay: -5.5s;
+}
+.grid-line:nth-child(11) {
+  left: 40%;
+  animation-delay: -1.2s;
+}
+.grid-line:nth-child(12) {
+  left: 55%;
+  animation-delay: -4.2s;
+}
+.grid-line:nth-child(13) {
+  left: 70%;
+  animation-delay: -3.2s;
+}
+.grid-line:nth-child(14) {
+  left: 85%;
+  animation-delay: -6.2s;
+}
+.grid-line:nth-child(15) {
+  left: 95%;
+  animation-delay: -2.8s;
+}
+.grid-line:nth-child(16) {
+  left: 5%;
+  animation-delay: -5.8s;
+}
+.grid-line:nth-child(17) {
+  left: 30%;
+  animation-delay: -1.8s;
+}
+.grid-line:nth-child(18) {
+  left: 60%;
+  animation-delay: -4.8s;
+}
+.grid-line:nth-child(19) {
+  left: 80%;
+  animation-delay: -3.8s;
+}
+.grid-line:nth-child(20) {
+  left: 15%;
+  animation-delay: -6.8s;
+}
 
 .auth-card {
   background: rgba(26, 26, 46, 0.9);
   border: 2px solid rgba(0, 212, 255, 0.3);
   border-radius: 12px;
-  padding: 1.2rem; /* Reducido de 1.5rem */
+  padding: 1.5rem;
   backdrop-filter: blur(20px);
   box-shadow: 0 8px 40px rgba(0, 212, 255, 0.15);
   width: 100%;
-  max-width: 380px; /* Reducido de 400px */
+  max-width: 400px;
   color: #ffffff;
   position: relative;
   z-index: 10;
   text-align: center;
-  /* Asegurar que quepa en el viewport */
-  max-height: calc(100vh - 7rem); /* Altura máxima considerando NavBar + padding */
-  overflow-y: auto; /* Solo en caso extremo */
 }
 
 /* Animaciones */
 @keyframes gridPulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 @keyframes float {
-  0% { transform: translateY(0px) scale(1); opacity: 0.7; }
-  25% { transform: translateY(-10px) scale(1.1); opacity: 0.9; }
-  50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
-  75% { transform: translateY(-10px) scale(1.1); opacity: 0.9; }
-  100% { transform: translateY(0px) scale(1); opacity: 0.7; }
+  0% {
+    transform: translateY(0px) scale(1);
+    opacity: 0.7;
+  }
+  25% {
+    transform: translateY(-10px) scale(1.1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(-20px) scale(1.2);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-10px) scale(1.1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(0px) scale(1);
+    opacity: 0.7;
+  }
 }
 
 @keyframes lineGlow {
-  0% { opacity: 0.2; }
-  25% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-  75% { opacity: 0.4; }
-  100% { opacity: 0.2; }
+  0% {
+    opacity: 0.2;
+  }
+  25% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  75% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0.2;
+  }
 }
 
 .verification-icon {
-  font-size: 2.5rem; /* Reducido de 3rem */
+  font-size: 3rem;
   color: #00d4ff;
-  margin-bottom: 0.8rem; /* Reducido de 1rem */
+  margin-bottom: 1rem;
   text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
 }
 
 h2 {
   color: #00d4ff;
   text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-  font-size: 1.3rem; /* Reducido de 1.4rem */
-  margin-bottom: 0.4rem; /* Reducido de 0.5rem */
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
 }
 
 .verification-subtitle {
   color: #94a3b8;
-  font-size: 0.85rem; /* Reducido de 0.9rem */
-  margin-bottom: 1.2rem; /* Reducido de 1.5rem */
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
 }
 
 .username-display {
   background: rgba(42, 42, 58, 0.6);
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 8px;
-  padding: 0.6rem; /* Reducido de 0.75rem */
-  margin-bottom: 1.2rem; /* Reducido de 1.5rem */
+  padding: 0.75rem;
+  margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -428,13 +505,13 @@ h2 {
 }
 
 .form-group {
-  margin-bottom: 0.8rem; /* Reducido de 1rem */
+  margin-bottom: 1rem;
   text-align: left;
 }
 
 label {
   display: block;
-  margin-bottom: 0.4rem; /* Reducido de 0.5rem */
+  margin-bottom: 0.5rem;
   color: #ffffff;
   font-size: 0.9rem;
   font-weight: 500;
@@ -545,8 +622,8 @@ button:disabled {
 }
 
 .auth-footer {
-  margin-top: 1rem; /* Reducido de 1.5rem */
-  padding-top: 1rem; /* Reducido de 1.5rem */
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
   position: relative;
 }
 
@@ -554,7 +631,7 @@ button:disabled {
   width: 100%;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.4), transparent);
-  margin-bottom: 1rem; /* Reducido de 1.5rem */
+  margin-bottom: 1.5rem;
   position: relative;
 }
 
@@ -576,7 +653,7 @@ button:disabled {
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem; /* Reducido de 1.5rem */
+  margin-bottom: 1.5rem;
 }
 
 .footer-text {
@@ -587,12 +664,18 @@ button:disabled {
 .footer-brand {
   text-align: center;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 1rem; /* Reducido de 1.5rem */
+  padding-top: 1.5rem;
 }
 
 .brand-name {
   display: block;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    system-ui,
+    sans-serif;
   font-size: 1.2rem;
   font-weight: 800;
   color: #00d4ff;
@@ -639,26 +722,59 @@ button:disabled {
 
 /* Responsive vertical - pantallas pequeñas */
 @media (max-height: 700px) {
-  .auth-container { 
-    padding: 0.5rem; 
+  .auth-container {
+    padding: 0.5rem;
   }
-  .auth-card { 
-    padding: 1rem; 
-    max-height: 90vh; 
+  .auth-card {
+    padding: 1rem;
+    max-height: 98vh;
     overflow-y: auto;
   }
-  .auth-card h2 { font-size: 1.3rem; margin-bottom: 1rem; }
-  .verification-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
-  .verification-subtitle { font-size: 0.85rem; margin-bottom: 1rem; }
-  .username-display { padding: 0.5rem; margin-bottom: 1rem; }
-  .form-group { margin-bottom: 0.8rem; }
-  .form-group label { font-size: 0.8rem; margin-bottom: 0.3rem; }
-  .form-group input { padding: 0.5rem; font-size: 0.9rem; }
-  button { padding: 0.5rem; font-size: 0.9rem; }
-  .auth-footer { margin-top: 1rem; padding-top: 1rem; }
-  .footer-brand { padding-top: 1rem; }
-  .brand-name { font-size: 1.1rem; margin-bottom: 0.4rem; }
-  .brand-tagline { font-size: 0.75rem; }
+  .auth-card h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+  .verification-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.8rem;
+  }
+  .verification-subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+  .username-display {
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .form-group {
+    margin-bottom: 0.8rem;
+  }
+  .form-group label {
+    font-size: 0.8rem;
+    margin-bottom: 0.3rem;
+  }
+  .form-group input {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+  button {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+  .auth-footer {
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+  .footer-brand {
+    padding-top: 1rem;
+  }
+  .brand-name {
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+  }
+  .brand-tagline {
+    font-size: 0.75rem;
+  }
 }
 
 /* Responsive vertical - pantallas muy pequeñas */
@@ -666,18 +782,53 @@ button:disabled {
   .auth-card {
     padding: 0.8rem;
   }
-  .auth-card h2 { font-size: 1.2rem; margin-bottom: 0.8rem; }
-  .verification-icon { font-size: 2rem; margin-bottom: 0.6rem; }
-  .verification-subtitle { font-size: 0.8rem; margin-bottom: 0.8rem; }
-  .username-display { padding: 0.4rem; margin-bottom: 0.8rem; }
-  .form-group { margin-bottom: 0.6rem; }
-  .form-group label { font-size: 0.75rem; margin-bottom: 0.2rem; }
-  .form-group input { padding: 0.4rem; font-size: 0.85rem; }
-  button { padding: 0.4rem; font-size: 0.85rem; }
-  .auth-footer { margin-top: 0.8rem; padding-top: 0.8rem; }
-  .footer-content { font-size: 0.8rem; }
-  .footer-brand { padding-top: 0.8rem; }
-  .brand-name { font-size: 1rem; margin-bottom: 0.3rem; }
-  .brand-tagline { font-size: 0.7rem; }
+  .auth-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+  }
+  .verification-icon {
+    font-size: 2rem;
+    margin-bottom: 0.6rem;
+  }
+  .verification-subtitle {
+    font-size: 0.8rem;
+    margin-bottom: 0.8rem;
+  }
+  .username-display {
+    padding: 0.4rem;
+    margin-bottom: 0.8rem;
+  }
+  .form-group {
+    margin-bottom: 0.6rem;
+  }
+  .form-group label {
+    font-size: 0.75rem;
+    margin-bottom: 0.2rem;
+  }
+  .form-group input {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+  }
+  button {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+  }
+  .auth-footer {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+  }
+  .footer-content {
+    font-size: 0.8rem;
+  }
+  .footer-brand {
+    padding-top: 0.8rem;
+  }
+  .brand-name {
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+  .brand-tagline {
+    font-size: 0.7rem;
+  }
 }
 </style>
