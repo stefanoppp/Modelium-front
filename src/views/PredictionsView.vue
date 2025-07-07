@@ -20,14 +20,19 @@
           <div class="back-button">
             <button class="tech-button back-btn" @click="goBack">
               <i class="pi pi-arrow-left"></i>
-              <span>Volver al Dashboard</span>
+              <span>{{ isPublicModel ? 'Volver al Repositorio' : 'Volver al Dashboard' }}</span>
             </button>
           </div>
           
           <div class="predictions-title-section">
-            <h1 class="predictions-title">Predicciones</h1>
+            <h1 class="predictions-title">
+              {{ isPublicModel ? 'Usar Modelo Público' : 'Predicciones' }}
+            </h1>
             <p class="predictions-description">
-              Realiza predicciones con tus modelos entrenados de forma intuitiva
+              {{ isPublicModel 
+                ? 'Realiza predicciones con este modelo público de la comunidad' 
+                : 'Realiza predicciones con tus modelos entrenados de forma intuitiva' 
+              }}
             </p>
           </div>
         </div>
@@ -37,8 +42,42 @@
     <!-- Content -->
     <div class="container">
       <div class="predictions-content">
-        <!-- Selección de Modelo -->
-        <div class="model-selection-card">
+        <!-- Información del Modelo Público -->
+        <div v-if="isPublicModel && selectedModel" class="public-model-info-card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="pi pi-info-circle"></i>
+              Información del Modelo Público
+            </h3>
+          </div>
+          <div class="card-content">
+            <div class="model-info-grid">
+              <div class="info-item">
+                <span class="info-label">Nombre del modelo:</span>
+                <span class="info-value">{{ selectedModel.name }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Autor:</span>
+                <span class="info-value">{{ selectedModel.owner }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Tipo de tarea:</span>
+                <span class="info-value">{{ getTaskTypeLabel(selectedModel.task_type) }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Descripción:</span>
+                <span class="info-value">{{ selectedModel.description }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Predicciones realizadas:</span>
+                <span class="info-value">{{ selectedModel.statistics?.total_predictions || 0 }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selección de Modelo (solo para modelos propios) -->
+        <div v-if="!isPublicModel" class="model-selection-card">
           <div class="card-header">
             <h3 class="card-title">
               <i class="pi pi-cog"></i>
@@ -283,9 +322,20 @@ const predictionResult = ref(null)
 const predictionError = ref(null)
 const isLoadingModels = ref(false)
 const isPredicting = ref(false)
+const isPublicModel = ref(false)
+const publicModelId = ref(null)
 
 // Computed
 const currentUser = computed(() => authStore.currentUser)
+
+// Detectar si estamos en la ruta de modelo público
+const checkPublicModelRoute = () => {
+  if (route.name === 'public-prediction' && route.params.modelId) {
+    isPublicModel.value = true
+    publicModelId.value = route.params.modelId
+    selectedModelId.value = route.params.modelId
+  }
+}
 
 // Methods
 const loadAvailableModels = async () => {
@@ -297,20 +347,47 @@ const loadAvailableModels = async () => {
       throw new Error('No se encontró token de autenticación')
     }
 
-    const response = await fetch('http://localhost:8000/api/models/my_models/', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
+    let response
+    if (isPublicModel.value) {
+      // Cargar modelo público específico
+      response = await fetch('http://localhost:8000/api/models/public/', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+    } else {
+      // Cargar modelos propios
+      response = await fetch('http://localhost:8000/api/models/my_models/', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+    }
 
     if (!response.ok) {
       throw new Error(`Error al cargar modelos: ${response.status}`)
     }
 
     const data = await response.json()
-    // Solo modelos completados pueden hacer predicciones
-    availableModels.value = data.models?.filter(model => model.status === 'completed') || []
+    
+    if (isPublicModel.value) {
+      // Filtrar el modelo público específico
+      const publicModels = data.public_models || []
+      const targetModel = publicModels.find(model => model.id.toString() === publicModelId.value)
+      
+      if (targetModel) {
+        availableModels.value = [targetModel]
+        // Auto-seleccionar el modelo público
+        await onModelChange()
+      } else {
+        throw new Error('Modelo público no encontrado')
+      }
+    } else {
+      // Solo modelos completados pueden hacer predicciones
+      availableModels.value = data.models?.filter(model => model.status === 'completed') || []
+    }
     
   } catch (err) {
     console.error('Error loading models:', err)
@@ -396,7 +473,11 @@ const makePrediction = async () => {
       throw new Error('No se encontró token de autenticación')
     }
 
-    const response = await fetch(`http://localhost:8000/api/models/predict/${selectedModelId.value}/`, {
+    // El endpoint es el mismo para modelos propios y públicos
+    // El backend detecta automáticamente si es público o propio
+    const endpoint = `http://localhost:8000/api/models/predict/${selectedModelId.value}/`
+
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -423,7 +504,12 @@ const makePrediction = async () => {
 }
 
 const goBack = () => {
-  router.push('/dashboard')
+  // Volver al repositorio si venimos de un modelo público, sino al dashboard
+  if (isPublicModel.value) {
+    router.push('/repository')
+  } else {
+    router.push('/dashboard')
+  }
 }
 
 const clearError = () => {
@@ -463,6 +549,7 @@ const formatPredictionValue = (value) => {
 
 // Lifecycle
 onMounted(() => {
+  checkPublicModelRoute()
   loadAvailableModels()
 })
 </script>
@@ -1267,5 +1354,60 @@ html, body {
     height: auto !important;
     max-height: none !important;
   }
+}
+
+/* Estilos para la tarjeta de información del modelo público */
+.public-model-info-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  border-radius: 20px;
+  padding: 0;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.public-model-info-card:hover {
+  border-color: rgba(78, 205, 196, 0.3);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+}
+
+.model-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.model-info-grid .info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.model-info-grid .info-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(78, 205, 196, 0.2);
+}
+
+.model-info-grid .info-label {
+  color: #4ecdc4;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.model-info-grid .info-value {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  line-height: 1.4;
+  word-wrap: break-word;
 }
 </style>

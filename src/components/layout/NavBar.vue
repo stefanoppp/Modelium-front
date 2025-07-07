@@ -16,6 +16,10 @@
           <i class="pi pi-database"></i>
           <span>Modelos</span>
         </router-link>
+        <router-link to="/repository" class="nav-link">
+          <i class="pi pi-globe"></i>
+          <span>Repositorio</span>
+        </router-link>
         <button @click="handleLogout" class="nav-link logout-btn">
           <i class="pi pi-sign-out"></i>
           <span>Salir</span>

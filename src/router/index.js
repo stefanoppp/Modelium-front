@@ -59,9 +59,21 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/predictions/public/:modelId',
+      name: 'public-prediction',
+      component: () => import('../views/PredictionsView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/compare-models',
       name: 'compare-models',
       component: () => import('../views/CompareModelsView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/repository',
+      name: 'repository',
+      component: () => import('../views/RepositoryView.vue'),
       meta: { requiresAuth: true }
     },
     {
