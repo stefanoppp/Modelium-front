@@ -117,6 +117,16 @@
               <p>Analiza y compara el rendimiento de tus modelos</p>
             </div>
           </div>
+
+          <div class="action-card danger" @click="navigateToManageModels">
+            <div class="action-icon">
+              <i class="pi pi-trash"></i>
+            </div>
+            <div class="action-content">
+              <h3>Gestionar Modelos</h3>
+              <p>Administra y elimina modelos que ya no necesites</p>
+            </div>
+          </div>
         </div>
 
         <!-- Modelos recientes (si los hay) -->
@@ -259,6 +269,10 @@ const navigateToPredictions = () => {
 
 const navigateToCompareModels = () => {
   router.push('/compare-models')
+}
+
+const navigateToManageModels = () => {
+  router.push('/manage-models')
 }
 
 const navigateToModel = (modelId) => {
@@ -927,6 +941,23 @@ onMounted(async () => {
 .action-card.primary:hover {
   background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(139, 92, 246, 0.15));
   box-shadow: 0 15px 40px rgba(0, 212, 255, 0.2);
+}
+
+.action-card.danger {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(185, 28, 28, 0.1));
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.action-card.danger:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(185, 28, 28, 0.15));
+  box-shadow: 0 15px 40px rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.action-card.danger .action-icon {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.2));
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
 }
 
 .action-icon {

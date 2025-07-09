@@ -46,4 +46,56 @@ const callSessionExpiredHandler = (reason) => {
   }
 }
 
+// Función especializada para eliminación múltiple de modelos
+export const deleteMultipleModels = async (modelIds) => {
+  // Validaciones básicas
+  if (!modelIds || !Array.isArray(modelIds) || modelIds.length === 0) {
+    throw new Error('Se requiere un array válido de IDs de modelos')
+  }
+  
+  if (modelIds.length > 100) {
+    throw new Error('No se pueden eliminar más de 100 modelos a la vez')
+  }
+  
+  try {
+    // Intentar primero con DELETE (semánticamente correcto)
+    console.log(`Intentando eliminar ${modelIds.length} modelos usando método DELETE`)
+    const response = await apiClient.delete('/models/delete-multiple/', {
+      data: { model_ids: modelIds }
+    })
+    
+    // Log del método usado según headers de respuesta
+    const methodUsed = response.headers['x-delete-method'] || 'DELETE'
+    const operationCount = response.headers['x-operation-count'] || modelIds.length
+    console.log(`✅ Eliminación exitosa usando ${methodUsed}. Modelos eliminados: ${operationCount}`)
+    
+    return response.data
+  } catch (error) {
+    // Si falla DELETE, intentar con POST como fallback
+    if (error.response?.status === 405 || 
+        error.response?.status === 400 || 
+        error.response?.status === 413) {
+      
+      console.warn('⚠️ DELETE con body no soportado, usando POST como fallback')
+      try {
+        const response = await apiClient.post('/models/delete-multiple/', {
+          model_ids: modelIds
+        })
+        
+        const methodUsed = response.headers['x-delete-method'] || 'POST'
+        const operationCount = response.headers['x-operation-count'] || modelIds.length
+        console.log(`✅ Eliminación exitosa usando fallback ${methodUsed}. Modelos eliminados: ${operationCount}`)
+        
+        return response.data
+      } catch (postError) {
+        console.error('❌ Error en eliminación múltiple (POST fallback):', postError)
+        throw postError
+      }
+    }
+    
+    console.error('❌ Error en eliminación múltiple (DELETE):', error)
+    throw error
+  }
+}
+
 export default apiClient

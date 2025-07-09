@@ -16,6 +16,10 @@
           <i class="pi pi-database"></i>
           <span>Modelos</span>
         </router-link>
+        <router-link to="/manage-models" class="nav-link">
+          <i class="pi pi-cog"></i>
+          <span>Gestionar</span>
+        </router-link>
         <router-link to="/repository" class="nav-link">
           <i class="pi pi-globe"></i>
           <span>Repositorio</span>

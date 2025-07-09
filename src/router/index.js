@@ -47,6 +47,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/manage-models',
+      name: 'manage-models',
+      component: () => import('../views/ManageModelsView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/create-model',
       name: 'create-model',
       component: () => import('../views/CreateModelView.vue'),
