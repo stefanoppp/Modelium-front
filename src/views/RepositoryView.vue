@@ -20,12 +20,11 @@
     </div>
 
     <!-- Contenido principal -->
-    <div class="main-content" :class="{ 'content-blurred': expandedModel !== null }">
-      <!-- Overlay sutil para el efecto de enfoque -->
+    <div class="main-content" :class="{ 'content-blurred': expandedModel !== null }" @click="handleMainContentClick">
+      <!-- Overlay sutil para el efoque con áreas excluidas -->
       <div 
         v-if="expandedModel !== null" 
         class="focus-overlay"
-        @click="toggleExpanded(expandedModel)"
       ></div>
       <!-- Título -->
       <div class="page-header">
@@ -277,15 +276,15 @@
           <!-- Botones de acción -->
           <div class="model-actions">
             <button 
-              @click="toggleExpanded(model.id)"
-              class="expand-btn"
+              @click.stop="toggleExpanded(model.id)"
+              class="expand-btn action-button"
             >
               <i :class="expandedModel === model.id ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
               {{ expandedModel === model.id ? 'Contraer' : 'Ver más' }}
             </button>
             <button 
-              @click="navigateToPredict(model.id)"
-              class="predict-btn"
+              @click.stop="navigateToPredict(model.id)"
+              class="predict-btn action-button"
             >
               <i class="pi pi-play"></i>
               Usar modelo
@@ -467,6 +466,33 @@ const toggleExpanded = async (modelId) => {
   }
 }
 
+const handleMainContentClick = (event) => {
+  // Si no hay una tarjeta expandida, no hacer nada
+  if (!expandedModel.value) {
+    return
+  }
+  
+  // Si el click fue en un botón de acción o dentro de una tarjeta, no cerrar
+  const isActionButton = event.target.closest('.action-button')
+  const isModelCard = event.target.closest('.model-card')
+  
+  // Si clickeamos en un botón de acción, no cerrar
+  if (isActionButton) {
+    return
+  }
+  
+  // Si clickeamos dentro de la tarjeta expandida, no cerrar
+  if (isModelCard) {
+    const cardId = isModelCard.getAttribute('data-model-id')
+    if (cardId === expandedModel.value.toString()) {
+      return
+    }
+  }
+  
+  // Si llegamos aquí, es un click fuera de la tarjeta expandida, cerrar
+  expandedModel.value = null
+}
+
 // Función simplificada - ya no es necesaria la reorganización manual
 const reorganizeGrid = () => {
   // Esta función ahora es opcional gracias a las mejoras de CSS
@@ -474,10 +500,13 @@ const reorganizeGrid = () => {
 }
 
 const navigateToPredict = (modelId) => {
+  console.log('Navegando a predicciones con modelo ID:', modelId)
   // Navegar a la vista de predicciones con el modelo público
   router.push({
     name: 'public-prediction',
     params: { modelId: modelId }
+  }).catch(error => {
+    console.error('Error de navegación:', error)
   })
 }
 
@@ -671,13 +700,11 @@ onMounted(async () => {
   bottom: 0;
   background: rgba(0, 0, 0, 0.02);
   backdrop-filter: blur(0.2px);
-  z-index: 5;
+  z-index: 1; /* Z-index muy bajo para no interferir con ningún elemento interactivo */
   cursor: pointer;
   opacity: 0;
   animation: fadeInOverlay 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  pointer-events: auto;
-  /* Excluir las tarjetas expandidas del overlay */
-  pointer-events: auto;
+  pointer-events: none; /* Sin eventos para que no intercepte clicks */
 }
 
 @keyframes fadeInOverlay {
@@ -929,7 +956,7 @@ onMounted(async () => {
   /* Hacer que la transición de expansión sea más suave */
   transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   /* Dar prioridad de z-index a la tarjeta expandida, por encima del overlay */
-  z-index: 25;
+  z-index: 100; /* Z-index alto para estar por encima del overlay pero debajo de los botones */
   /* Mejorar el contraste de la tarjeta expandida */
   filter: brightness(1.1) saturate(1.2);
   /* Añadir un resplandor sutil */
@@ -945,6 +972,14 @@ onMounted(async () => {
 .model-card.expanded * {
   position: relative;
   z-index: 30;
+}
+
+/* Los botones de acción deben tener prioridad máxima */
+.model-card.expanded .model-actions,
+.model-card.expanded .expand-btn,
+.model-card.expanded .predict-btn {
+  z-index: 1001 !important;
+  pointer-events: auto !important;
 }
 
 .model-header {
@@ -1179,7 +1214,7 @@ onMounted(async () => {
   display: flex;
   gap: 1rem;
   margin-top: auto; /* Empuja los botones al final */
-  z-index: 30; /* Z-index alto para evitar problemas con overlay */
+  z-index: 1000; /* Z-index muy alto para estar sobre cualquier overlay */
   position: relative;
 }
 
@@ -1197,7 +1232,8 @@ onMounted(async () => {
   justify-content: center;
   gap: 0.5rem;
   position: relative;
-  z-index: 35; /* Z-index alto para asegurar que funcionen */
+  z-index: 10; /* Mayor que el overlay para asegurar clickeabilidad */
+  pointer-events: auto; /* Asegurar que los botones sean clickeables */
 }
 
 .expand-btn {
@@ -1279,6 +1315,18 @@ onMounted(async () => {
   background: linear-gradient(45deg, #ff8e8e, #ff6b6b);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+}
+
+/* Asegurar que todos los elementos interactivos estén por encima del overlay */
+.model-card {
+  position: relative;
+  z-index: 10; /* Por encima del overlay (z-index 1) */
+}
+
+.action-button {
+  position: relative;
+  z-index: 15 !important; /* Máxima prioridad para botones de acción */
+  pointer-events: auto !important;
 }
 
 /* Responsive */
