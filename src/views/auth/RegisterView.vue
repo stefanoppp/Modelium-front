@@ -470,7 +470,7 @@ html, body {
 }
 
 .form-label {
-  color: #8A2BE2;
+  color: rgba(200, 200, 220, 0.9);
   font-weight: 600;
   margin-bottom: 0.4rem;
   font-size: 0.85rem;
@@ -509,7 +509,7 @@ html, body {
 }
 
 .form-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(200, 200, 220, 0.5);
 }
 
 .error-message {
@@ -589,14 +589,14 @@ html, body {
 .footer-link {
   position: relative;
   text-decoration: none;
-  color: #8A2BE2;
+  color: rgba(200, 200, 220, 0.8);
   font-weight: 600;
   transition: color 0.3s ease;
   font-size: 0.85rem;
 }
 
 .footer-link:hover {
-  color: #9400D3;
+  color: #9370db;
 }
 
 .link-glow {
@@ -620,7 +620,7 @@ html, body {
 
 .brand-name {
   display: block;
-  color: #8A2BE2;
+  color: rgba(200, 200, 220, 0.9);
   font-size: 1.2rem;
   font-weight: 700;
   text-decoration: none;

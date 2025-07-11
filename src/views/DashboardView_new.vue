@@ -416,12 +416,6 @@ onMounted(async () => {
   height: 100%;
   pointer-events: none;
   z-index: 1;
-  animation: galaxyRotate 120s linear infinite;
-}
-
-@keyframes galaxyRotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 .cosmic-grid {
@@ -601,7 +595,7 @@ onMounted(async () => {
 
 /* === HEADER DEL DASHBOARD === */
 .dashboard-header {
-  padding: 7rem 0 2rem;
+  padding: 5rem 0 3rem;
   position: relative;
   z-index: 10;
   text-align: center;
@@ -739,10 +733,8 @@ onMounted(async () => {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
-  max-width: 1100px;
-  margin: 0 auto;
 }
 
 .stat-card {
@@ -751,14 +743,13 @@ onMounted(async () => {
   border-radius: 16px;
   padding: 2rem;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 1.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   position: relative;
   overflow: hidden;
-  min-height: 140px;
 }
 
 .stat-card::before {
@@ -803,7 +794,6 @@ onMounted(async () => {
   font-size: 1.5rem;
   color: #8A2BE2;
   flex-shrink: 0;
-  margin-top: 10px;
 }
 
 .stat-icon.training {
@@ -826,9 +816,6 @@ onMounted(async () => {
 
 .stat-info {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding-top: 10px;
 }
 
 .stat-number {
@@ -837,9 +824,6 @@ onMounted(async () => {
   color: white;
   margin-bottom: 0.5rem;
   line-height: 1;
-  height: 2.5rem;
-  display: flex;
-  align-items: flex-start;
 }
 
 .stat-label {
@@ -848,8 +832,6 @@ onMounted(async () => {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 500;
-  line-height: 1.2;
-  margin-top: auto;
 }
 
 .stat-indicator {
@@ -872,10 +854,8 @@ onMounted(async () => {
 
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
-  max-width: 800px;
-  margin: 0 auto;
 }
 
 .action-card {
@@ -1124,10 +1104,8 @@ onMounted(async () => {
 
 .management-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
-  max-width: 800px;
-  margin: 0 auto;
 }
 
 .management-card {
@@ -1221,19 +1199,16 @@ onMounted(async () => {
   }
   
   .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: 1rem;
-    max-width: 600px;
   }
   
   .actions-grid {
     grid-template-columns: 1fr;
-    max-width: 400px;
   }
   
   .management-grid {
     grid-template-columns: 1fr;
-    max-width: 400px;
   }
   
   .empty-actions {
@@ -1278,12 +1253,6 @@ onMounted(async () => {
   
   .section-title {
     font-size: 1.3rem;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    max-width: 350px;
   }
   
   .stat-number {

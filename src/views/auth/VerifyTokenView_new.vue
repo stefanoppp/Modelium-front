@@ -131,37 +131,23 @@ const formatToken = (event) => {
 }
 
 const handleVerify = async () => {
-  console.log('🔍 Iniciando verificación de token...')
-  console.log('Username:', username.value)
-  console.log('Token:', form.token)
-  
   authError.value = ''
   successMessage.value = ''
   isLoading.value = true
 
   try {
-    const result = await authStore.verifyToken(username.value, form.token)
-    console.log('📊 Resultado de verificación:', result)
+    const result = await authStore.verifyToken({
+      username: username.value,
+      token: form.token
+    })
 
     if (result.success) {
       successMessage.value = 'Cuenta verificada exitosamente. Redirigiendo...'
       setTimeout(() => {
         router.push('/dashboard')
       }, 2000)
-    } else {
-      authError.value = result.error || 'Error al verificar el código'
-      attemptsLeft.value = result.attemptsLeft || null
-      console.log('❌ Error en verificación:', result.error)
-      console.log('🔢 Intentos restantes:', result.attemptsLeft)
-      
-      if (result.attemptsLeft === 0) {
-        setTimeout(() => {
-          router.push('/auth/login')
-        }, 3000)
-      }
     }
   } catch (error) {
-    console.log('💥 Error capturado:', error)
     authError.value = error.message || 'Error al verificar el código'
     attemptsLeft.value = error.attemptsLeft || null
     
@@ -172,7 +158,6 @@ const handleVerify = async () => {
     }
   } finally {
     isLoading.value = false
-    console.log('✅ Verificación completada')
   }
 }
 
@@ -229,10 +214,6 @@ if (typeof window !== 'undefined') {
     radial-gradient(circle at 30% 80%, rgba(138, 43, 226, 0.15) 0%, transparent 65%),
     radial-gradient(circle at 70% 20%, rgba(72, 61, 139, 0.1) 0%, transparent 50%);
   color: white;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
 }
 
 /* Auth container */
@@ -442,12 +423,11 @@ if (typeof window !== 'undefined') {
 }
 
 .auth-subtitle {
-  color: rgba(220, 220, 235, 0.9);
+  color: rgba(200, 200, 220, 0.8);
   font-size: 1.1rem;
   font-weight: 300;
   margin: 0 0 1.5rem 0;
   line-height: 1.5;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .username-display {
@@ -455,48 +435,22 @@ if (typeof window !== 'undefined') {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  background: rgba(15, 15, 25, 0.9);
-  border: 1px solid rgba(138, 43, 226, 0.5);
+  background: rgba(138, 43, 226, 0.1);
+  border: 1px solid rgba(138, 43, 226, 0.3);
   border-radius: 12px;
-  padding: 1rem 1.5rem;
-  margin: 1.5rem auto 0 auto;
-  max-width: 300px;
-  backdrop-filter: blur(15px);
-  box-shadow: 
-    0 4px 20px rgba(138, 43, 226, 0.1),
-    inset 0 1px 0 rgba(138, 43, 226, 0.1);
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  pointer-events: none;
-  outline: none;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
 }
 
 .username-display i {
-  color: #a855f7;
-  font-size: 1.2rem;
-  flex-shrink: 0;
+  color: #9370db;
+  font-size: 1.1rem;
 }
 
 .username-display span {
-  color: rgba(240, 240, 250, 0.95);
-  font-weight: 600;
-  font-size: 1.1rem;
-  text-align: center;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-  letter-spacing: 0.5px;
-}
-
-/* Eliminar cualquier efecto de selección o focus en el username */
-.username-display,
-.username-display *,
-.username-display:hover,
-.username-display:focus,
-.username-display:active {
-  outline: none !important;
-  border-color: rgba(138, 43, 226, 0.5) !important;
-  box-shadow: 0 4px 20px rgba(138, 43, 226, 0.1) !important, inset 0 1px 0 rgba(138, 43, 226, 0.1) !important;
+  color: rgba(200, 200, 220, 0.9);
+  font-weight: 500;
+  font-size: 1rem;
 }
 
 /* Form styles */
@@ -510,43 +464,34 @@ if (typeof window !== 'undefined') {
 
 .form-label {
   display: block;
-  color: rgba(220, 220, 235, 0.95);
+  color: rgba(200, 200, 220, 0.9);
   font-size: 0.9rem;
   font-weight: 500;
   margin-bottom: 0.5rem;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-  user-select: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .form-input {
   width: 100%;
   padding: 1rem 1.25rem;
-  background: rgba(15, 15, 25, 0.9);
-  border: 1px solid rgba(138, 43, 226, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
-  color: rgba(240, 240, 250, 0.95);
+  color: rgba(200, 200, 220, 0.9);
   font-size: 1rem;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
-  box-shadow: 
-    0 2px 10px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  user-select: text;
-  -webkit-user-select: text;
-  -moz-user-select: text;
-  -ms-user-select: text;
 }
 
 .form-input::placeholder {
-  color: rgba(200, 200, 220, 0.5);
+  color: rgba(200, 200, 220, 0.4);
 }
 
 .form-input:focus {
   outline: none;
   border-color: #8a2be2;
   box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
-  background: rgba(20, 20, 30, 0.95);
-  color: rgba(250, 250, 255, 0.98);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .verification-input {
@@ -590,30 +535,25 @@ if (typeof window !== 'undefined') {
 }
 
 .resend-button {
-  background: rgba(15, 15, 25, 0.8);
-  border: 1px solid rgba(138, 43, 226, 0.6);
-  color: rgba(220, 220, 235, 0.9);
+  background: none;
+  border: 1px solid rgba(138, 43, 226, 0.5);
+  color: #9370db;
   padding: 0.5rem 1rem;
   border-radius: 8px;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-  user-select: none;
 }
 
 .resend-button:hover:not(:disabled) {
-  background: rgba(138, 43, 226, 0.15);
+  background: rgba(138, 43, 226, 0.1);
   border-color: #8a2be2;
-  color: rgba(240, 240, 250, 0.95);
-  transform: translateY(-1px);
+  color: rgba(200, 200, 220, 0.9);
 }
 
 .resend-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  color: rgba(180, 180, 200, 0.6);
 }
 
 /* Messages */
@@ -635,18 +575,15 @@ if (typeof window !== 'undefined') {
 }
 
 .error-content {
-  color: rgba(240, 240, 250, 0.95);
+  color: rgba(200, 200, 220, 0.9);
   font-size: 0.9rem;
   line-height: 1.4;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .attempts-left {
-  color: rgba(255, 200, 100, 0.9);
-  font-size: 0.85rem;
+  color: rgba(200, 200, 220, 0.7);
+  font-size: 0.8rem;
   margin-top: 0.5rem;
-  font-weight: 500;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .success-message {
@@ -666,9 +603,8 @@ if (typeof window !== 'undefined') {
 }
 
 .success-message span {
-  color: rgba(240, 240, 250, 0.95);
+  color: rgba(200, 200, 220, 0.9);
   font-size: 0.9rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Footer */
@@ -692,10 +628,8 @@ if (typeof window !== 'undefined') {
 }
 
 .footer-text {
-  color: rgba(200, 200, 220, 0.8);
+  color: rgba(200, 200, 220, 0.7);
   font-size: 0.9rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-  user-select: none;
 }
 
 .footer-brand {
@@ -723,12 +657,10 @@ if (typeof window !== 'undefined') {
 
 .brand-tagline {
   display: block;
-  color: rgba(200, 200, 220, 0.7);
+  color: rgba(200, 200, 220, 0.6);
   font-size: 0.8rem;
   font-style: italic;
   margin-top: 0.5rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-  user-select: none;
 }
 
 /* Responsive */

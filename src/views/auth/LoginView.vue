@@ -21,25 +21,27 @@
         </div>
         
         <form @submit.prevent="handleLogin" class="auth-form">
-          <div class="form-group">
+          <div class="form-group" :class="{ error: error }">
             <label for="username" class="form-label">Usuario o Email</label>
             <input 
               v-model="form.username" 
               id="username" 
               type="text" 
               class="form-input"
+              :class="{ error: error }"
               placeholder="Ingresa tu usuario o email"
               required 
             />
           </div>
           
-          <div class="form-group">
+          <div class="form-group" :class="{ error: error }">
             <label for="password" class="form-label">Contraseña</label>
             <input 
               v-model="form.password" 
               id="password" 
               type="password" 
               class="form-input"
+              :class="{ error: error }"
               placeholder="Ingresa tu contraseña"
               required 
             />
@@ -47,7 +49,7 @@
           
           <div v-if="error" class="error-message">
             <i class="pi pi-exclamation-circle"></i>
-            {{ error }}
+            <span>{{ error }}</span>
           </div>
         
           <button type="submit" :disabled="isLoading" class="auth-button">
@@ -77,7 +79,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import NavBar from '@/components/layout/NavBar.vue'
@@ -93,19 +95,58 @@ const form = reactive({
 const error = ref('')
 const isLoading = ref(false)
 
+// Limpiar error cuando el usuario empiece a escribir
+watch([() => form.username, () => form.password], () => {
+  if (error.value) {
+    error.value = ''
+  }
+})
+
 const handleLogin = async () => {
   isLoading.value = true
   error.value = ''
-  const result = await authStore.login({
-    username: form.username,
-    password: form.password,
-  })
-  if (result.success) {
-    router.push('/dashboard')
-  } else {
-    error.value = result.error || 'Usuario o contraseña incorrectos.'
+  
+  try {
+    const result = await authStore.login({
+      username: form.username,
+      password: form.password,
+    })
+    
+    if (result.success) {
+      router.push('/dashboard')
+    } else {
+      // Mostrar mensajes de error más específicos y claros
+      if (result.error) {
+        const errorMsg = result.error.toLowerCase()
+        if (errorMsg.includes('no encontrado') || errorMsg.includes('not found') || errorMsg.includes('does not exist')) {
+          error.value = 'El usuario no existe. Verifica que hayas escrito correctamente tu nombre de usuario.'
+        } else if (errorMsg.includes('contraseña') || errorMsg.includes('password') || errorMsg.includes('incorrecta') || errorMsg.includes('incorrect')) {
+          error.value = 'La contraseña es incorrecta. Verifica que hayas escrito correctamente tu contraseña.'
+        } else if (errorMsg.includes('verificado') || errorMsg.includes('verified') || result.needsVerification) {
+          error.value = 'Tu cuenta no está verificada. Revisa tu correo electrónico para completar la verificación.'
+        } else if (errorMsg.includes('conexión') || errorMsg.includes('connection') || errorMsg.includes('network')) {
+          error.value = 'No se pudo conectar con el servidor. Verifica tu conexión a internet e intenta nuevamente.'
+        } else if (errorMsg.includes('credenciales') || errorMsg.includes('credentials') || errorMsg.includes('invalid')) {
+          error.value = 'Las credenciales son incorrectas. Verifica tu usuario y contraseña.'
+        } else {
+          // Si el error no coincide con ningún patrón conocido, mostrar el mensaje original
+          error.value = result.error
+        }
+      } else {
+        error.value = 'Las credenciales son incorrectas. Verifica tu usuario y contraseña e intenta nuevamente.'
+      }
+    }
+  } catch (err) {
+    console.error('Error en login:', err)
+    // Manejar errores de red o del cliente
+    if (err.code === 'NETWORK_ERROR' || err.message?.includes('Network Error')) {
+      error.value = 'No se pudo conectar con el servidor. Verifica tu conexión a internet e intenta nuevamente.'
+    } else {
+      error.value = 'Ocurrió un error inesperado. Por favor, intenta nuevamente en unos momentos.'
+    }
+  } finally {
+    isLoading.value = false
   }
-  isLoading.value = false
 }
 </script>
 
@@ -383,7 +424,7 @@ const handleLogin = async () => {
 
 .form-label {
   display: block;
-  color: #8A2BE2;
+  color: rgba(200, 200, 220, 0.9);
   font-weight: 600;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
@@ -420,20 +461,101 @@ const handleLogin = async () => {
 }
 
 .form-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(200, 200, 220, 0.5);
+}
+
+/* Estado de error para los campos */
+.form-input.error {
+  border-color: rgba(239, 68, 68, 0.6);
+  background: 
+    linear-gradient(135deg, rgba(35, 20, 20, 0.9), rgba(40, 25, 25, 0.8)),
+    radial-gradient(circle at 20% 50%, rgba(239, 68, 68, 0.08) 0%, transparent 50%);
+  box-shadow: 
+    0 0 15px rgba(239, 68, 68, 0.3),
+    0 0 30px rgba(239, 68, 68, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.form-input.error:focus {
+  border-color: rgba(239, 68, 68, 0.8);
+  box-shadow: 
+    0 0 20px rgba(239, 68, 68, 0.4),
+    0 0 40px rgba(239, 68, 68, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.form-group.error .form-label {
+  color: rgba(239, 68, 68, 0.8);
 }
 
 .error-message {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  color: #ef4444;
+  background: 
+    linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%),
+    radial-gradient(circle at 20% 50%, rgba(239, 68, 68, 0.08) 0%, transparent 50%);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-left: 4px solid #ef4444;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  color: #fecaca;
   font-size: 0.9rem;
+  line-height: 1.5;
   margin-bottom: 1.5rem;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  align-items: flex-start;
+  gap: 0.75rem;
+  box-shadow: 
+    0 4px 15px rgba(239, 68, 68, 0.2),
+    0 0 20px rgba(239, 68, 68, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  animation: errorSlideIn 0.4s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.error-message::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(239, 68, 68, 0.1) 50%, 
+    transparent 100%);
+  animation: errorScan 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.error-message i {
+  color: #ef4444;
+  font-size: 1.1rem;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.4));
+}
+
+@keyframes errorSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes errorScan {
+  0%, 100% { 
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  50% { 
+    opacity: 1;
+    transform: translateX(100%);
+  }
 }
 
 .auth-button {

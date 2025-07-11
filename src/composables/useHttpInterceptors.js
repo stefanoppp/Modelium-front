@@ -44,7 +44,17 @@ export function useHttpInterceptors() {
       async (error) => {
         const originalRequest = error.config
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        // Solo intentar renovar token si:
+        // 1. Es un error 401
+        // 2. No hemos intentado renovar esta request antes
+        // 3. NO estamos en la página de login (para evitar interferir con intentos de login)
+        // 4. El usuario tenía un token válido anteriormente (está autenticado)
+        if (
+          error.response?.status === 401 && 
+          !originalRequest._retry &&
+          (typeof window === 'undefined' || !window.location.pathname.includes('/auth/login')) &&
+          authService.getToken()
+        ) {
           if (isRefreshing) {
             // Si ya se está renovando, poner la request en cola
             return new Promise((resolve, reject) => {
@@ -81,7 +91,9 @@ export function useHttpInterceptors() {
             const authStore = useAuthStore()
             authStore.logout()
 
-            if (typeof window !== 'undefined') {
+            // Solo redirigir si NO estamos en la página de login
+            // Esto evita redirecciones cuando las credenciales de login son incorrectas
+            if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/login')) {
               window.location.href = '/auth/login?reason=session-expired'
             }
 
@@ -89,6 +101,12 @@ export function useHttpInterceptors() {
           } finally {
             isRefreshing = false
           }
+        }
+
+        // Si estamos en la página de login y hay un error 401, 
+        // solo propagar el error sin intentar renovar (credenciales incorrectas)
+        if (error.response?.status === 401 && typeof window !== 'undefined' && window.location.pathname.includes('/auth/login')) {
+          return Promise.reject(error)
         }
 
         return Promise.reject(error)
