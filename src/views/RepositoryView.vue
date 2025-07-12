@@ -324,12 +324,77 @@
           class="clear-filters-btn"
         />
       </div>
+      
+      <!-- Pagination Controls -->
+      <div v-if="!isLoading && models.length > 0 && showPagination" class="pagination-container">
+        <div class="pagination-info">
+          <span class="pagination-text">
+            Página {{ currentPage }} de {{ totalPages }} 
+            <span class="total-models">({{ modelsData.count }} modelos total)</span>
+          </span>
+        </div>
+        
+        <div class="pagination-controls">
+          <!-- Primera página -->
+          <button 
+            @click="goToPage(1)" 
+            :disabled="currentPage === 1"
+            class="pagination-btn first-page"
+            title="Primera página"
+          >
+            <i class="pi pi-angle-double-left"></i>
+          </button>
+          
+          <!-- Página anterior -->
+          <button 
+            @click="goToPreviousPage" 
+            :disabled="!hasPreviousPage"
+            class="pagination-btn prev-page"
+            title="Página anterior"
+          >
+            <i class="pi pi-angle-left"></i>
+          </button>
+          
+          <!-- Números de página -->
+          <div class="page-numbers">
+            <button
+              v-for="page in visiblePages"
+              :key="page"
+              @click="goToPage(page)"
+              :class="['page-number', { active: page === currentPage }]"
+              :disabled="page === '...'"
+            >
+              {{ page }}
+            </button>
+          </div>
+          
+          <!-- Página siguiente -->
+          <button 
+            @click="goToNextPage" 
+            :disabled="!hasNextPage"
+            class="pagination-btn next-page"
+            title="Página siguiente"
+          >
+            <i class="pi pi-angle-right"></i>
+          </button>
+          
+          <!-- Última página -->
+          <button 
+            @click="goToPage(totalPages)" 
+            :disabled="currentPage === totalPages"
+            class="pagination-btn last-page"
+            title="Última página"
+          >
+            <i class="pi pi-angle-double-right"></i>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref, nextTick } from 'vue'
+import { computed, onMounted, ref, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import { useAuthGuard } from '@/composables/useAuthGuard'
@@ -343,6 +408,17 @@ const { safeApiCall } = useAuthGuard()
 
 // Estado reactivo
 const models = ref([])
+const modelsData = ref({
+  count: 0,
+  public_models: [],
+  num_pages: 0,
+  current_page: 1,
+  page_size: 15,
+  has_next: false,
+  has_previous: false,
+  next_page: null,
+  previous_page: null
+})
 const filteredModels = ref([])
 const isLoading = ref(false)
 const expandedModel = ref(null)
@@ -350,6 +426,7 @@ const searchQuery = ref('')
 const selectedType = ref('')
 const sortBy = ref('created_at')
 const sortOrder = ref('desc')
+const currentPage = ref(1)
 
 // Computed properties
 const uniqueAuthors = computed(() => {
@@ -357,17 +434,57 @@ const uniqueAuthors = computed(() => {
   return authors.size
 })
 
+// Pagination computed properties
+const totalPages = computed(() => modelsData.value.num_pages || 0)
+const hasNextPage = computed(() => modelsData.value.has_next || false)
+const hasPreviousPage = computed(() => modelsData.value.has_previous || false)
+
+// Páginas visibles en la paginación
+const visiblePages = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
+  const pages = []
+  
+  if (total <= 7) {
+    // Si hay 7 páginas o menos, mostrar todas
+    for (let i = 1; i <= total; i++) {
+      pages.push(i)
+    }
+  } else {
+    // Lógica más compleja para muchas páginas
+    if (current <= 4) {
+      // Cerca del inicio
+      pages.push(1, 2, 3, 4, 5, '...', total)
+    } else if (current >= total - 3) {
+      // Cerca del final
+      pages.push(1, '...', total - 4, total - 3, total - 2, total - 1, total)
+    } else {
+      // En el medio
+      pages.push(1, '...', current - 1, current, current + 1, '...', total)
+    }
+  }
+  
+  return pages
+})
+
+// Computed para mostrar la paginación (solo cuando no hay búsqueda activa)
+const showPagination = computed(() => {
+  return !searchQuery.value.trim() && !selectedType.value && totalPages.value > 1
+})
+
 // Funciones
-const loadPublicModels = async () => {
+const loadPublicModels = async (page = 1) => {
   isLoading.value = true
   try {
     const response = await safeApiCall(
-      () => apiClient.get('/models/public/'),
+      () => apiClient.get(`/models/public/?page=${page}&page_size=15`),
       'carga de modelos públicos'
     )
     if (response && response.data) {
+      modelsData.value = response.data
       models.value = response.data.public_models || []
       filteredModels.value = [...models.value]
+      currentPage.value = page
       sortModels()
     }
   } catch (error) {
@@ -375,6 +492,24 @@ const loadPublicModels = async () => {
     // Aquí podrías agregar una notificación de error
   } finally {
     isLoading.value = false
+  }
+}
+
+const goToPage = async (page) => {
+  if (page >= 1 && page <= totalPages.value && page !== currentPage.value) {
+    await loadPublicModels(page)
+  }
+}
+
+const goToNextPage = async () => {
+  if (hasNextPage.value) {
+    await loadPublicModels(currentPage.value + 1)
+  }
+}
+
+const goToPreviousPage = async () => {
+  if (hasPreviousPage.value) {
+    await loadPublicModels(currentPage.value - 1)
   }
 }
 
@@ -539,11 +674,24 @@ const formatDate = (dateString) => {
 onMounted(async () => {
   await loadPublicModels()
 })
+
+// Watchers para resetear paginación cuando se filtra
+watch([searchQuery, selectedType], () => {
+  // Solo resetear si estamos en una página diferente a la 1
+  if (currentPage.value !== 1) {
+    currentPage.value = 1
+    // Recargar desde el servidor cuando se cambian los filtros
+    if (!searchQuery.value.trim() && !selectedType.value) {
+      loadPublicModels(1)
+    }
+  }
+})
 </script>
 
 <style scoped>
 .repository-container {
   min-height: 100vh;
+  padding-bottom: 140px; /* Espacio para paginación fija */
   background: 
     linear-gradient(135deg, #000000 0%, #0a0a0f 15%, #1a0a1a 30%, #0f0f1a 45%, #1a1a2e 60%, #2a1a3a 75%, #1a2a4a 90%, #0f1a2a 100%),
     radial-gradient(circle at 15% 25%, rgba(75, 0, 130, 0.4) 0%, transparent 40%),
@@ -554,6 +702,18 @@ onMounted(async () => {
   position: relative;
   overflow-x: hidden;
   color: white;
+}
+
+@media (max-width: 768px) {
+  .repository-container {
+    padding-bottom: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .repository-container {
+    padding-bottom: 110px;
+  }
 }
 
 .galactic-background {
@@ -1473,4 +1633,257 @@ onMounted(async () => {
 .no-metrics i {
   color: rgba(255, 255, 255, 0.4);
 }
+
+/* Pagination Styles - REFACTORIZED FOR PERFECT CENTERING */
+.pagination-container {
+  /* Posicionamiento absoluto centrado */
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  
+  /* Contenedor */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  
+  /* Estilos visuales */
+  padding: 0.75rem 1.2rem;
+  background: rgba(22, 33, 62, 0.92);
+  border: 1.5px solid #334155;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 24px 0 rgba(30,40,80,0.18);
+  min-width: 220px;
+  max-width: 420px;
+  width: auto;
+  
+  /* Animación suave al aparecer */
+  animation: slideUpFade 0.3s ease-out;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.pagination-info {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.pagination-text {
+  color: #e0e6ed;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+}
+
+.total-models {
+  color: #7b8bb2;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  width: auto;
+}
+
+.pagination-btn {
+  width: 32px;
+  height: 32px;
+  border: 1.2px solid #334155;
+  background: rgba(26, 34, 56, 0.92);
+  color: #e0e6ed;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  backdrop-filter: blur(10px);
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.3);
+  border-color: #3b82f6;
+  color: #60a5fa;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: rgba(15, 23, 42, 0.5);
+  transform: none;
+  box-shadow: none;
+}
+
+.page-numbers {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  margin: 0 0.75rem;
+  flex-wrap: nowrap;
+}
+
+.page-number {
+  width: 32px;
+  height: 32px;
+  border: 1.2px solid #334155;
+  background: rgba(26, 34, 56, 0.92);
+  color: #e0e6ed;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  flex-shrink: 0;
+  backdrop-filter: blur(10px);
+}
+
+.page-number:hover:not(:disabled):not(.active) {
+  background: rgba(59, 130, 246, 0.3);
+  border-color: #3b82f6;
+  color: #60a5fa;
+  transform: translateY(-2px);
+}
+
+.page-number.active {
+  background: linear-gradient(135deg, #334155 60%, #1e293b 100%);
+  border-color: #475569;
+  color: #fff;
+  box-shadow: 0 0 8px 0 rgba(51,65,85,0.18);
+  transform: scale(1.08);
+  font-weight: 600;
+}
+
+.page-number:disabled {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: default;
+  font-weight: 400;
+  pointer-events: none;
+  transform: none;
+}
+
+/* Responsive design para mantener centrado */
+@media (max-width: 768px) {
+  .pagination-container {
+    bottom: 20px;
+    padding: 1.25rem 1.5rem;
+    gap: 0.75rem;
+    min-width: 280px;
+    max-width: 95vw;
+  }
+  
+  .pagination-controls {
+    gap: 0.375rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .pagination-btn,
+  .page-number {
+  width: 28px;
+  height: 28px;
+  font-size: 0.8rem;
+  }
+  
+  .page-numbers {
+    margin: 0 0.5rem;
+    order: 2;
+    flex-basis: 100%;
+    justify-content: center;
+    gap: 0.25rem;
+  }
+  
+  .pagination-btn.first-page,
+  .pagination-btn.prev-page {
+    order: 1;
+  }
+  
+  .pagination-btn.next-page,
+  .pagination-btn.last-page {
+    order: 3;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagination-container {
+    bottom: 15px;
+    padding: 1rem 1.25rem;
+    gap: 0.75rem;
+    min-width: 260px;
+    max-width: 98vw;
+  }
+  
+  .pagination-text {
+    font-size: 0.8rem;
+  }
+  
+  .total-models {
+    display: block;
+    margin-left: 0;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+  }
+  
+  .pagination-controls {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+  
+  .pagination-btn,
+  .page-number {
+  width: 24px;
+  height: 24px;
+  font-size: 0.75rem;
+  }
+  
+  .page-numbers {
+    order: 2;
+    width: 100%;
+    justify-content: center;
+    margin: 0.5rem 0 0 0;
+    gap: 0.25rem;
+  }
+  
+  .pagination-btn.first-page,
+  .pagination-btn.prev-page {
+    order: 1;
+  }
+  
+  .pagination-btn.next-page,
+  .pagination-btn.last-page {
+    order: 3;
+  }
+}
+
+
 </style>
