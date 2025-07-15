@@ -221,26 +221,6 @@
           </div>
         </section>
 
-        <!-- Sección de Pruebas (solo desarrollo) -->
-        <section v-if="isDevelopment" class="test-panel">
-          <h2 class="section-title">
-            <i class="pi pi-bug"></i>
-            Herramientas de Desarrollo
-          </h2>
-          <div class="test-content">
-            <p>Herramientas disponibles solo en modo desarrollo</p>
-            <div class="test-actions">
-              <TechButton 
-                @click="testSessionExpired"
-                class="danger-btn"
-                icon="pi pi-exclamation-triangle"
-              >
-                Probar Sesión Expirada
-              </TechButton>
-            </div>
-          </div>
-        </section>
-
       </div>
     </main>
   </div>

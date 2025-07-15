@@ -62,25 +62,6 @@
             {{ isLoading ? 'Verificando...' : 'Verificar Cuenta' }}
           </button>
         </form>
-
-        <div class="auth-footer">
-          <div class="footer-divider"></div>
-          <div class="footer-content">
-            <span class="footer-text">¿No recibiste el código?</span>
-            <button
-              type="button"
-              class="resend-button"
-              :disabled="resendCooldown > 0"
-              @click="resendCode"
-            >
-              {{ resendCooldown > 0 ? `Reenviar en ${resendCooldown}s` : 'Reenviar Código' }}
-            </button>
-          </div>
-          <div class="footer-brand">
-            <router-link to="/" class="brand-link">Modelium</router-link>
-            <span class="brand-tagline">Potenciando el futuro del desarrollo de IA</span>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -496,7 +477,8 @@ if (typeof window !== 'undefined') {
 .username-display:active {
   outline: none !important;
   border-color: rgba(138, 43, 226, 0.5) !important;
-  box-shadow: 0 4px 20px rgba(138, 43, 226, 0.1) !important, inset 0 1px 0 rgba(138, 43, 226, 0.1) !important;
+  box-shadow: 0 4px 20px rgba(138, 43, 226, 0.1) !important;
+  inset: 0 1px 0 rgba(138, 43, 226, 0.1) !important;
 }
 
 /* Form styles */
