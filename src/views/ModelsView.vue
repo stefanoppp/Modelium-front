@@ -437,22 +437,22 @@ const statsData = computed(() => [
   {
     icon: 'pi pi-chart-network',
     value: modelsData.value.count || 0,
-    label: 'TOTAL MODELS'
+    label: 'Modelos totales'
   },
   {
     icon: 'pi pi-check-circle',
     value: completedModels.value.length,
-    label: 'COMPLETED'
+    label: 'Completados'
   },
   {
     icon: 'pi pi-eye',
     value: publicModels.value.length,
-    label: 'PUBLIC'
+    label: 'Publicos'
   },
   {
     icon: 'pi pi-cog',
     value: modelsData.value.models?.filter(m => m.status === 'training').length || 0,
-    label: 'TRAINING'
+    label: 'Entrenando'
   }
 ])
 
