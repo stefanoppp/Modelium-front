@@ -113,6 +113,7 @@
           class="model-card"
           :class="{ expanded: expandedModel === model.id }"
           :data-model-id="model.id"
+          @click="toggleExpanded(model.id)"
         >
           <!-- Cabecera del modelo -->
           <div class="model-header">
@@ -172,7 +173,7 @@
               <h4>Características del modelo</h4>
               <div class="features-list">
                 <span 
-                  v-for="feature in model.features_list" 
+                  v-for="feature in getModelFeatures(model)" 
                   :key="feature"
                   class="feature-tag"
                 >
@@ -206,7 +207,7 @@
                   </div>
                   <div class="metric-item" v-if="model.metrics?.precision">
                     <div class="metric-icon">
-                      <i class="pi pi-target"></i>
+                      <i class="pi pi-chart-bar"></i>
                     </div>
                     <div class="metric-content">
                       <span class="metric-label">Precisión</span>
@@ -285,6 +286,7 @@
             <button 
               @click.stop="navigateToPredict(model.id)"
               class="predict-btn action-button"
+              style="position: relative; z-index: 10;"
             >
               <i class="pi pi-play"></i>
               Usar modelo
@@ -670,9 +672,81 @@ const formatDate = (dateString) => {
   })
 }
 
+// Función para procesar las características del modelo
+const getModelFeatures = (model) => {
+  if (!model.features_list) {
+    return []
+  }
+  
+  let features = []
+  
+  // Si features_list es un string (JSON), parsearlo
+  if (typeof model.features_list === 'string') {
+    try {
+      features = JSON.parse(model.features_list)
+    } catch (error) {
+      console.warn('Error parsing features_list:', error)
+      return []
+    }
+  }
+  // Si ya es un array, usarlo directamente
+  else if (Array.isArray(model.features_list)) {
+    features = model.features_list
+  }
+  // Si es un objeto, extraer los nombres de las características
+  else if (typeof model.features_list === 'object') {
+    features = Object.keys(model.features_list)
+  }
+  else {
+    return []
+  }
+  
+  // Extraer solo los nombres de las features
+  return features.map(feature => {
+    // Si la feature es un objeto con propiedad 'name', extraer el nombre
+    if (typeof feature === 'object' && feature.name) {
+      return feature.name
+    }
+    // Si es un string, devolverlo directamente
+    if (typeof feature === 'string') {
+      return feature
+    }
+    // Para cualquier otro caso, convertir a string
+    return String(feature)
+  })
+}
+
+// Posicionar elementos galácticos aleatoriamente
+const positionGalacticElements = () => {
+  // Posicionar estrellas aleatoriamente
+  const stars = document.querySelectorAll('.star')
+  stars.forEach(star => {
+    const top = Math.random() * 100
+    const left = Math.random() * 100
+    star.style.top = `${top}%`
+    star.style.left = `${left}%`
+    star.style.animationDelay = `${Math.random() * 3}s`
+  })
+  
+  // Posicionar partículas aleatoriamente
+  const particles = document.querySelectorAll('.particle')
+  particles.forEach(particle => {
+    const top = Math.random() * 100
+    const left = Math.random() * 100
+    particle.style.top = `${top}%`
+    particle.style.left = `${left}%`
+    particle.style.animationDelay = `${Math.random() * 15}s`
+  })
+}
+
 // Lifecycle
 onMounted(async () => {
   await loadPublicModels()
+  
+  // Posicionar elementos del fondo galáctico después de que se monte el componente
+  setTimeout(() => {
+    positionGalacticElements()
+  }, 100)
 })
 
 // Watchers para resetear paginación cuando se filtra
@@ -693,12 +767,12 @@ watch([searchQuery, selectedType], () => {
   min-height: 100vh;
   padding-bottom: 140px; /* Espacio para paginación fija */
   background: 
-    linear-gradient(135deg, #000000 0%, #0a0a0f 15%, #1a0a1a 30%, #0f0f1a 45%, #1a1a2e 60%, #2a1a3a 75%, #1a2a4a 90%, #0f1a2a 100%),
-    radial-gradient(circle at 15% 25%, rgba(75, 0, 130, 0.4) 0%, transparent 40%),
-    radial-gradient(circle at 85% 15%, rgba(25, 25, 112, 0.35) 0%, transparent 45%),
-    radial-gradient(circle at 50% 80%, rgba(138, 43, 226, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 20% 60%, rgba(72, 61, 139, 0.25) 0%, transparent 55%),
-    radial-gradient(circle at 80% 40%, rgba(106, 90, 205, 0.2) 0%, transparent 60%);
+    linear-gradient(135deg, #1a1a2e 0%, #2a2a3e 15%, #3a3a4e 30%, #4a4a5e 45%, #5a5a6e 60%, #6a6a7e 75%, #7a7a8e 90%, #8a8a9e 100%),
+    radial-gradient(circle at 15% 25%, rgba(138, 43, 226, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 85% 15%, rgba(177, 156, 217, 0.15) 0%, transparent 55%),
+    radial-gradient(circle at 50% 80%, rgba(200, 181, 230, 0.1) 0%, transparent 60%),
+    radial-gradient(circle at 20% 60%, rgba(138, 43, 226, 0.08) 0%, transparent 65%),
+    radial-gradient(circle at 80% 40%, rgba(177, 156, 217, 0.06) 0%, transparent 70%);
   position: relative;
   overflow-x: hidden;
   color: white;
@@ -716,14 +790,16 @@ watch([searchQuery, selectedType], () => {
   }
 }
 
+/* Fondo galáctico inmersivo */
 .galactic-background {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none;
-  z-index: -1;
+  z-index: 0;
+  background: radial-gradient(ellipse at 60% 40%, #0a1a2e 0%, #0f1523 70%, #000814 100%);
+  overflow: hidden;
 }
 
 .cosmic-grid {
@@ -732,16 +808,11 @@ watch([searchQuery, selectedType], () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
-    linear-gradient(rgba(138, 43, 226, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(138, 43, 226, 0.1) 1px, transparent 1px);
-  background-size: 50px 50px;
-  animation: grid-move 20s linear infinite;
-}
-
-@keyframes grid-move {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(50px, 50px); }
+  background-image:
+    linear-gradient(rgba(59, 130, 246, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.12) 1px, transparent 1px);
+  background-size: 100px 100px;
+  animation: gridFloat 20s ease-in-out infinite;
 }
 
 .nebula-layers {
@@ -756,23 +827,50 @@ watch([searchQuery, selectedType], () => {
   position: absolute;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle, rgba(138, 43, 226, 0.1) 0%, transparent 70%);
-  animation: nebula-float 15s ease-in-out infinite;
+  border-radius: 50%;
+  filter: blur(60px);
+  animation: nebulaFloat 30s ease-in-out infinite;
 }
 
-.nebula-layer:nth-child(1) { animation-delay: 0s; }
-.nebula-layer:nth-child(2) { animation-delay: 3s; }
-.nebula-layer:nth-child(3) { animation-delay: 6s; }
-.nebula-layer:nth-child(4) { animation-delay: 9s; }
-.nebula-layer:nth-child(5) { animation-delay: 12s; }
+.nebula-layer:nth-child(1) {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.35) 0%, transparent 70%);
+  top: -20%;
+  left: -20%;
+  animation-delay: 0s;
+}
 
-@keyframes nebula-float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(180deg); }
+.nebula-layer:nth-child(2) {
+  background: radial-gradient(circle, rgba(0, 191, 255, 0.25) 0%, transparent 70%);
+  top: 20%;
+  right: -20%;
+  animation-delay: 10s;
+}
+
+.nebula-layer:nth-child(3) {
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.2) 0%, transparent 70%);
+  bottom: -20%;
+  left: 10%;
+  animation-delay: 20s;
+}
+
+.nebula-layer:nth-child(4) {
+  background: radial-gradient(circle, rgba(30, 144, 255, 0.15) 0%, transparent 70%);
+  top: 50%;
+  left: -10%;
+  animation-delay: 15s;
+}
+
+.nebula-layer:nth-child(5) {
+  background: radial-gradient(circle, rgba(0, 123, 255, 0.12) 0%, transparent 70%);
+  bottom: 10%;
+  right: 10%;
+  animation-delay: 25s;
 }
 
 .star-field {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
 }
@@ -783,20 +881,27 @@ watch([searchQuery, selectedType], () => {
   height: 2px;
   background: white;
   border-radius: 50%;
-  animation: star-twinkle 3s infinite;
+  animation: starTwinkle 4s ease-in-out infinite;
 }
 
 .star:nth-child(odd) {
   animation-delay: 1s;
 }
 
-@keyframes star-twinkle {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.2); }
+.star:nth-child(3n) {
+  animation-delay: 2s;
+  background: rgba(59, 130, 246, 0.6);
+}
+
+.star:nth-child(5n) {
+  animation-delay: 0.5s;
+  background: rgba(0, 191, 255, 0.6);
 }
 
 .floating-particles {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
 }
@@ -805,18 +910,16 @@ watch([searchQuery, selectedType], () => {
   position: absolute;
   width: 4px;
   height: 4px;
-  background: radial-gradient(circle, rgba(138, 43, 226, 0.8) 0%, transparent 70%);
+  background: rgba(255, 255, 255, 0.6);
   border-radius: 50%;
-  animation: particle-float 10s linear infinite;
-}
-
-@keyframes particle-float {
-  0% { transform: translateY(100vh) translateX(0); }
-  100% { transform: translateY(-20px) translateX(100px); }
+  animation: particleFloat 15s linear infinite;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
 .energy-streams {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
 }
@@ -825,18 +928,88 @@ watch([searchQuery, selectedType], () => {
   position: absolute;
   width: 2px;
   height: 100%;
-  background: linear-gradient(to bottom, transparent, rgba(138, 43, 226, 0.5), transparent);
-  animation: energy-flow 8s linear infinite;
+  background: linear-gradient(to bottom, transparent, rgba(139, 92, 246, 0.5), transparent);
+  animation: energyFlow 8s linear infinite;
 }
 
-.energy-stream:nth-child(1) { left: 20%; animation-delay: 0s; }
-.energy-stream:nth-child(2) { left: 40%; animation-delay: 2s; }
-.energy-stream:nth-child(3) { left: 60%; animation-delay: 4s; }
-.energy-stream:nth-child(4) { left: 80%; animation-delay: 6s; }
+.energy-stream:nth-child(1) {
+  left: 20%;
+  animation-delay: 0s;
+}
 
-@keyframes energy-flow {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
+.energy-stream:nth-child(2) {
+  left: 50%;
+  animation-delay: 3s;
+  background: linear-gradient(to bottom, transparent, rgba(0, 212, 255, 0.5), transparent);
+}
+
+.energy-stream:nth-child(3) {
+  left: 80%;
+  animation-delay: 6s;
+  background: linear-gradient(to bottom, transparent, rgba(236, 72, 153, 0.5), transparent);
+}
+
+@keyframes gridFloat {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate(20px, 20px) rotate(1deg);
+  }
+}
+
+@keyframes nebulaFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -20px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 30px) scale(0.9);
+  }
+}
+
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(100vh) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) translateX(100px);
+    opacity: 0;
+  }
+}
+
+@keyframes energyFlow {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
 }
 
 .main-content {
@@ -886,32 +1059,37 @@ watch([searchQuery, selectedType], () => {
 }
 
 .page-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
-  background-size: 400% 400%;
+  font-size: 2.8rem;
+  font-weight: 300;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, 
+    #3b82f6 0%, 
+    #60a5fa 30%, 
+    #93c5fd 60%, 
+    rgba(240, 240, 250, 0.95) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradient-shift 3s ease infinite;
+  text-shadow: 
+    0 0 20px rgba(59, 130, 246, 0.4),
+    0 0 40px rgba(59, 130, 246, 0.2),
+    0 0 60px rgba(59, 130, 246, 0.1);
   margin-bottom: 1rem;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
 .page-title i {
   margin-right: 1rem;
-  color: #4ecdc4;
+  color: #3b82f6;
+  text-shadow: 
+    0 2px 4px rgba(59, 130, 246, 0.4),
+    0 4px 8px rgba(59, 130, 246, 0.3);
 }
 
 .page-subtitle {
   font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(240, 240, 250, 0.8);
   margin: 0;
-}
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 }
 
 .controls-section {
@@ -927,16 +1105,34 @@ watch([searchQuery, selectedType], () => {
 }
 
 .controls-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  background: rgba(25, 25, 40, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 16px;
   padding: 2rem;
   backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.controls-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.05) 0%, 
+    transparent 50%, 
+    rgba(59, 130, 246, 0.02) 100%);
+  opacity: 0.6;
 }
 
 .search-container {
   margin-bottom: 2rem;
+  position: relative;
+  z-index: 2;
 }
 
 .search-box {
@@ -950,29 +1146,33 @@ watch([searchQuery, selectedType], () => {
   left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #4ecdc4;
+  color: #3b82f6;
   font-size: 1.1rem;
+  z-index: 3;
 }
 
 .search-input {
   width: 100%;
   padding: 1rem 1rem 1rem 3rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 30px;
-  color: white;
+  background: rgba(25, 25, 40, 0.9);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  color: rgba(240, 240, 250, 0.95);
   font-size: 1rem;
   transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #4ecdc4;
-  box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+  border-color: #3b82f6;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+  background: rgba(25, 25, 40, 0.95);
 }
 
 .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(240, 240, 250, 0.6);
 }
 
 .clear-search-btn {
@@ -982,10 +1182,11 @@ watch([searchQuery, selectedType], () => {
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(240, 240, 250, 0.6);
   cursor: pointer;
   font-size: 1rem;
   transition: color 0.3s ease;
+  z-index: 3;
 }
 
 .clear-search-btn:hover {
@@ -997,6 +1198,8 @@ watch([searchQuery, selectedType], () => {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
   margin-bottom: 2rem;
+  position: relative;
+  z-index: 2;
 }
 
 .filter-group {
@@ -1006,30 +1209,31 @@ watch([searchQuery, selectedType], () => {
 }
 
 .filter-label {
-  color: #4ecdc4;
+  color: #3b82f6;
   font-weight: 600;
   font-size: 0.9rem;
 }
 
 .filter-select {
   padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  color: white;
+  background: rgba(25, 25, 40, 0.9);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
+  color: rgba(240, 240, 250, 0.95);
   font-size: 0.9rem;
   transition: all 0.3s ease;
 }
 
 .filter-select:focus {
   outline: none;
-  border-color: #4ecdc4;
-  box-shadow: 0 0 15px rgba(78, 205, 196, 0.3);
+  border-color: #3b82f6;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+  background: rgba(25, 25, 40, 0.95);
 }
 
 .filter-select option {
-  background: #1a1a2e;
-  color: white;
+  background: rgba(25, 25, 40, 0.95);
+  color: rgba(240, 240, 250, 0.95);
 }
 
 .stats-container {
@@ -1037,19 +1241,25 @@ watch([searchQuery, selectedType], () => {
   justify-content: center;
   gap: 2rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(59, 130, 246, 0.3);
+  position: relative;
+  z-index: 2;
 }
 
 .stat-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(240, 240, 250, 0.8);
   font-size: 0.9rem;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .stat-item i {
-  color: #4ecdc4;
+  color: #3b82f6;
 }
 
 .models-grid {
@@ -1080,12 +1290,12 @@ watch([searchQuery, selectedType], () => {
 }
 
 .model-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  background: rgba(25, 25, 40, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 16px;
   padding: 1.5rem;
   backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
   transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -1103,16 +1313,35 @@ watch([searchQuery, selectedType], () => {
   isolation: isolate;
 }
 
+.model-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(138, 43, 226, 0.05) 0%, 
+    transparent 50%, 
+    rgba(138, 43, 226, 0.02) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
 .model-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-  border-color: #4ecdc4;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.model-card:hover::before {
+  opacity: 1;
 }
 
 .model-card.expanded {
   transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(78, 205, 196, 0.2);
-  border-color: #4ecdc4;
+  box-shadow: 0 15px 40px rgba(59, 130, 246, 0.3);
+  border-color: #3b82f6;
   /* Hacer que la transición de expansión sea más suave */
   transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   /* Dar prioridad de z-index a la tarjeta expandida, por encima del overlay */
@@ -1121,8 +1350,8 @@ watch([searchQuery, selectedType], () => {
   filter: brightness(1.1) saturate(1.2);
   /* Añadir un resplandor sutil */
   box-shadow: 
-    0 15px 40px rgba(78, 205, 196, 0.3),
-    0 0 30px rgba(78, 205, 196, 0.1),
+    0 15px 40px rgba(59, 130, 246, 0.4),
+    0 0 30px rgba(59, 130, 246, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   /* Asegurar que todos los elementos internos también tengan z-index alto */
   position: relative;
@@ -1154,20 +1383,23 @@ watch([searchQuery, selectedType], () => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  border-radius: 20px;
+  border-radius: 12px;
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
+  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .type-classification {
-  background: rgba(255, 107, 107, 0.2);
-  color: #ff6b6b;
+  background: rgba(251, 146, 60, 0.15);
+  color: #fb923c;
+  border-color: rgba(251, 146, 60, 0.3);
 }
 
 .type-regression {
-  background: rgba(69, 183, 209, 0.2);
-  color: #45b7d1;
+  background: rgba(20, 184, 166, 0.15);
+  color: #14b8a6;
+  border-color: rgba(20, 184, 166, 0.3);
 }
 
 .model-stats {
@@ -1181,33 +1413,35 @@ watch([searchQuery, selectedType], () => {
   align-items: center;
   gap: 0.2rem;
   padding: 0.4rem 0.7rem;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(240, 240, 250, 0.8);
   min-width: 60px;
   transition: all 0.3s ease;
 }
 
 .stat-badge:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
   transform: translateY(-1px);
 }
 
 .stat-badge i {
   font-size: 0.8rem;
-  color: #4ecdc4;
+  color: #3b82f6;
 }
 
 .stat-value {
   font-weight: 700;
-  color: white;
+  color: rgba(240, 240, 250, 0.95);
   font-size: 0.9rem;
 }
 
 .stat-label {
   font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(240, 240, 250, 0.6);
   text-transform: lowercase;
 }
 
@@ -1219,14 +1453,14 @@ watch([searchQuery, selectedType], () => {
 }
 
 .model-name {
-  color: white;
+  color: rgba(240, 240, 250, 0.95);
   font-size: 1.3rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
 .model-description {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(240, 240, 250, 0.8);
   margin-bottom: 1rem;
   line-height: 1.5;
   /* Altura fija para la descripción */
@@ -1243,7 +1477,7 @@ watch([searchQuery, selectedType], () => {
   justify-content: space-between;
   align-items: center;
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(240, 240, 250, 0.6);
 }
 
 .model-owner,
@@ -1255,14 +1489,14 @@ watch([searchQuery, selectedType], () => {
 
 .model-owner i,
 .model-date i {
-  color: #4ecdc4;
+  color: #3b82f6;
   font-size: 0.8rem;
 }
 
 .model-details {
   margin-bottom: 1.5rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(138, 43, 226, 0.3);
   /* Animación suave para el contenido expandido */
   animation: expandContent 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
   transform-origin: top center;
@@ -1314,7 +1548,7 @@ watch([searchQuery, selectedType], () => {
 }
 
 .details-section h4 {
-  color: #4ecdc4;
+  color: #3b82f6;
   margin-bottom: 0.75rem;
   font-size: 1rem;
 }
@@ -1327,12 +1561,12 @@ watch([searchQuery, selectedType], () => {
 }
 
 .detail-label {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(240, 240, 250, 0.7);
   font-size: 0.9rem;
 }
 
 .detail-value {
-  color: white;
+  color: rgba(240, 240, 250, 0.95);
   font-weight: 600;
   font-size: 0.9rem;
 }
@@ -1344,10 +1578,11 @@ watch([searchQuery, selectedType], () => {
 }
 
 .feature-tag {
-  background: rgba(78, 205, 196, 0.2);
-  color: #4ecdc4;
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
   padding: 0.3rem 0.6rem;
-  border-radius: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 500;
 }
@@ -1362,12 +1597,12 @@ watch([searchQuery, selectedType], () => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(240, 240, 250, 0.8);
   font-size: 0.9rem;
 }
 
 .usage-stat i {
-  color: #4ecdc4;
+  color: #3b82f6;
 }
 
 .model-actions {
@@ -1397,25 +1632,27 @@ watch([searchQuery, selectedType], () => {
 }
 
 .expand-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(25, 25, 40, 0.8);
+  color: rgba(240, 240, 250, 0.95);
+  border: 1px solid rgba(138, 43, 226, 0.3);
 }
 
 .expand-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: #4ecdc4;
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
 }
 
 .predict-btn {
-  background: linear-gradient(45deg, #4ecdc4, #45b7d1);
-  color: white;
+  background: linear-gradient(45deg, #3b82f6, #60a5fa);
+  color: rgba(240, 240, 250, 0.95);
+  border: 1px solid rgba(59, 130, 246, 0.5);
 }
 
 .predict-btn:hover:not(:disabled) {
-  background: linear-gradient(45deg, #45b7d1, #4ecdc4);
+  background: linear-gradient(45deg, #1d4ed8, #3b82f6);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
 }
 
 .predict-btn:disabled {
@@ -1427,12 +1664,12 @@ watch([searchQuery, selectedType], () => {
 .loading-state {
   text-align: center;
   padding: 4rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(240, 240, 250, 0.8);
 }
 
 .loading-spinner {
   font-size: 3rem;
-  color: #4ecdc4;
+  color: #3b82f6;
   margin-bottom: 1rem;
 }
 
@@ -1440,18 +1677,18 @@ watch([searchQuery, selectedType], () => {
 .no-results-state {
   text-align: center;
   padding: 4rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(240, 240, 250, 0.7);
 }
 
 .empty-icon {
   font-size: 4rem;
-  color: #4ecdc4;
+  color: #3b82f6;
   margin-bottom: 1rem;
 }
 
 .empty-state h3,
 .no-results-state h3 {
-  color: white;
+  color: rgba(240, 240, 250, 0.95);
   margin-bottom: 1rem;
 }
 
@@ -1461,20 +1698,20 @@ watch([searchQuery, selectedType], () => {
 }
 
 .clear-filters-btn {
-  background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-  color: white;
-  border: none;
+  background: linear-gradient(45deg, #3b82f6, #60a5fa);
+  color: rgba(240, 240, 250, 0.95);
+  border: 1px solid rgba(59, 130, 246, 0.5);
   padding: 0.75rem 2rem;
-  border-radius: 30px;
+  border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .clear-filters-btn:hover {
-  background: linear-gradient(45deg, #ff8e8e, #ff6b6b);
+  background: linear-gradient(45deg, #1d4ed8, #3b82f6);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
 }
 
 /* Asegurar que todos los elementos interactivos estén por encima del overlay */
@@ -1882,6 +2119,80 @@ watch([searchQuery, selectedType], () => {
   .pagination-btn.next-page,
   .pagination-btn.last-page {
     order: 3;
+  }
+}
+
+/* Animaciones para el fondo galáctico */
+@keyframes gridFloat {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(10px, -10px) rotate(0.5deg);
+  }
+  50% {
+    transform: translate(-5px, 5px) rotate(-0.3deg);
+  }
+  75% {
+    transform: translate(-10px, -5px) rotate(0.2deg);
+  }
+}
+
+@keyframes nebulaFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.3;
+  }
+  33% {
+    transform: translate(20px, -15px) scale(1.1);
+    opacity: 0.5;
+  }
+  66% {
+    transform: translate(-15px, 10px) scale(0.9);
+    opacity: 0.4;
+  }
+}
+
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes energyFlow {
+  0% {
+    transform: translateX(-100%) scaleY(1);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateX(0%) scaleY(1.2);
+  }
+  100% {
+    transform: translateX(100%) scaleY(1);
+    opacity: 0;
   }
 }
 
