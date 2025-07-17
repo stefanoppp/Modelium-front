@@ -49,7 +49,7 @@
             </div>
             <p class="models-description">
               <i class="pi pi-chart-network"></i>
-              Gestiona tu arsenal de modelos de inteligencia artificial
+              Gestiona tus modelos de inteligencia artificial
             </p>
           </div>
 
@@ -1606,7 +1606,7 @@ html {
 }
 
 .glitch-text {
-  background: linear-gradient(135deg, #4B0082 0%, #8A2BE2 50%, #9400D3 100%);
+  background: linear-gradient(135deg, #972ef9 0%, #784bfe 50%,#35e3fa 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

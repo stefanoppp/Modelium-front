@@ -1,6 +1,23 @@
 <template>
   <div class="predictions-view">
     <NavBar />
+    
+    <!-- Fondo galáctico inmersivo -->
+    <div class="galactic-background">
+      <div class="cosmic-grid"></div>
+      <div class="nebula-layers">
+        <div class="nebula-layer" v-for="n in 5" :key="n"></div>
+      </div>
+      <div class="star-field">
+        <div class="star" v-for="n in 100" :key="n"></div>
+      </div>
+      <div class="floating-particles">
+        <div class="particle" v-for="n in 15" :key="n"></div>
+      </div>
+      <div class="energy-streams">
+        <div class="energy-stream" v-for="n in 3" :key="n"></div>
+      </div>
+    </div>
 
     <!-- Header -->
     <div class="predictions-header">
@@ -240,7 +257,7 @@
               <div class="result-section prediction-section">
                 <h4 class="section-title">
                   <i class="pi pi-bullseye"></i>
-                  Resultado de la Predicción
+                  Valor obtenido
                 </h4>
                 <div class="prediction-details">
                   <div class="prediction-main">
@@ -249,7 +266,6 @@
                       v-if="predictionResult.task_type === 'classification'"
                       class="predicted-class"
                     >
-                      <span class="prediction-label">Resultado de predicción:</span>
                       <span class="prediction-value main-prediction">
                         {{ formatPredictionClass(predictionResult.prediction.predicted_class) }}
                       </span>
@@ -401,7 +417,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import { useAuthGuard } from '@/composables/useAuthGuard'
@@ -539,15 +555,19 @@ const loadModelFeatures = async () => {
         console.log('Required features:', modelInfo.required_features)
 
         // Guardar información sobre las features
-        modelFeatures.value = modelInfo.required_features.map((feature) => ({
-          name: feature,
-          type: detectVariableType(feature),
-          // Si el backend proporciona información sobre tipos, usarla
-          actualType: modelInfo.feature_types?.[feature] || detectVariableType(feature),
-        }))
+        modelFeatures.value = modelInfo.required_features.map((feature) => {
+          const featureName = typeof feature === 'object' ? feature.name : feature
+          return {
+            name: featureName,
+            type: detectVariableType(featureName),
+            // Si el backend proporciona información sobre tipos, usarla
+            actualType: modelInfo.feature_types?.[featureName] || detectVariableType(featureName),
+          }
+        })
 
         modelInfo.required_features.forEach((feature) => {
-          newInputData[feature] = ''
+          const featureName = typeof feature === 'object' ? feature.name : feature
+          newInputData[featureName] = ''
         })
       }
 
@@ -780,10 +800,38 @@ const hasValidationErrors = () => {
   return Object.values(validationErrors.value).some((error) => error !== null)
 }
 
+// Posicionar elementos galácticos
+const positionGalacticElements = () => {
+  // Posicionar estrellas aleatoriamente
+  const stars = document.querySelectorAll('.star-field .star')
+  stars.forEach((star) => {
+    const top = Math.random() * 100
+    const left = Math.random() * 100
+    star.style.top = `${top}%`
+    star.style.left = `${left}%`
+    star.style.animationDelay = `${Math.random() * 3}s`
+  })
+
+  // Posicionar partículas aleatoriamente
+  const particles = document.querySelectorAll('.particle')
+  particles.forEach((particle, index) => {
+    const top = Math.random() * 100
+    const left = Math.random() * 100
+    particle.style.top = `${top}%`
+    particle.style.left = `${left}%`
+    particle.style.animationDelay = `${index * 2}s`
+  })
+}
+
 // Lifecycle
 onMounted(() => {
   checkPublicModelRoute()
   loadAvailableModels()
+  
+  // Posicionar elementos galácticos después de que el DOM esté listo
+  nextTick(() => {
+    positionGalacticElements()
+  }, 100)
 })
 </script>
 
@@ -801,26 +849,235 @@ body {
 
 .predictions-view {
   min-height: 100vh;
-  background:
-    linear-gradient(
-      135deg,
-      #000000 0%,
-      #0a0a0f 20%,
-      #0f0f1a 40%,
-      #1a1a2e 60%,
-      #16213e 80%,
-      #0e1a2e 100%
-    ),
-    radial-gradient(circle at 15% 25%, rgba(75, 0, 130, 0.2) 0%, transparent 60%),
-    radial-gradient(circle at 85% 75%, rgba(25, 25, 112, 0.18) 0%, transparent 55%),
-    radial-gradient(circle at 50% 50%, rgba(0, 100, 200, 0.12) 0%, transparent 70%),
-    radial-gradient(circle at 30% 80%, rgba(138, 43, 226, 0.15) 0%, transparent 65%),
-    radial-gradient(circle at 70% 20%, rgba(72, 61, 139, 0.1) 0%, transparent 50%);
-  color: white;
+  background: #000;
   position: relative;
   overflow-x: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: white;
   width: 100%;
   box-sizing: border-box;
+}
+
+/* Fondo galáctico inmersivo */
+.galactic-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background: radial-gradient(ellipse at 60% 40%, #1a0a2e 0%, #0f0f23 70%, #000 100%);
+  overflow: hidden;
+}
+
+.cosmic-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    linear-gradient(rgba(139, 92, 246, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.1) 1px, transparent 1px);
+  background-size: 100px 100px;
+  animation: gridFloat 20s ease-in-out infinite;
+}
+
+.nebula-layers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.nebula-layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  filter: blur(60px);
+  animation: nebulaFloat 30s ease-in-out infinite;
+}
+
+.nebula-layer:nth-child(1) {
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+  top: -20%;
+  left: -20%;
+  animation-delay: 0s;
+}
+
+.nebula-layer:nth-child(2) {
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, transparent 70%);
+  top: 20%;
+  right: -20%;
+  animation-delay: 10s;
+}
+
+.nebula-layer:nth-child(3) {
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, transparent 70%);
+  bottom: -20%;
+  left: 10%;
+  animation-delay: 20s;
+}
+
+.nebula-layer:nth-child(4) {
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%);
+  top: 50%;
+  left: -10%;
+  animation-delay: 15s;
+}
+
+.nebula-layer:nth-child(5) {
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.1) 0%, transparent 70%);
+  bottom: 10%;
+  right: 10%;
+  animation-delay: 25s;
+}
+
+.star-field {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  animation: starTwinkle 3s ease-in-out infinite;
+}
+
+.star:nth-child(odd) {
+  animation-delay: 1s;
+}
+
+.star:nth-child(3n) {
+  animation-delay: 2s;
+  background: rgba(139, 92, 246, 0.8);
+}
+
+.star:nth-child(5n) {
+  animation-delay: 0.5s;
+  background: rgba(0, 212, 255, 0.8);
+}
+
+.floating-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: particleFloat 15s linear infinite;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.energy-streams {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.energy-stream {
+  position: absolute;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent, rgba(139, 92, 246, 0.5), transparent);
+  animation: energyFlow 8s linear infinite;
+}
+
+.energy-stream:nth-child(1) {
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.energy-stream:nth-child(2) {
+  left: 50%;
+  animation-delay: 3s;
+  background: linear-gradient(to bottom, transparent, rgba(0, 212, 255, 0.5), transparent);
+}
+
+.energy-stream:nth-child(3) {
+  left: 80%;
+  animation-delay: 6s;
+  background: linear-gradient(to bottom, transparent, rgba(236, 72, 153, 0.5), transparent);
+}
+
+@keyframes gridFloat {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate(20px, 20px) rotate(1deg);
+  }
+}
+
+@keyframes nebulaFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -20px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 30px) scale(0.9);
+  }
+}
+
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(100vh) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) translateX(100px);
+    opacity: 0;
+  }
+}
+
+@keyframes energyFlow {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
 }
 
 .predictions-view::before {
@@ -854,13 +1111,46 @@ body {
 }
 
 .predictions-header {
-  background: linear-gradient(135deg, rgba(8, 8, 12, 0.98), rgba(12, 12, 18, 0.95));
-  padding: 2rem 0;
-  margin-top: 5rem;
+  background: linear-gradient(135deg, 
+    rgba(25, 25, 40, 0.05) 0%, 
+    rgba(15, 15, 30, 0.08) 50%,
+    rgba(25, 25, 40, 0.03) 100%);
+  backdrop-filter: blur(8px);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    0 0 40px rgba(139, 92, 246, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: 0 0 30px 30px;
+  padding: 3rem 0 2.5rem 0;
+  margin-top: 2rem;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  z-index: 1;
   width: 100%;
   max-width: 100%;
+}
+
+.predictions-header::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(139, 92, 246, 0.4) 20%,
+    rgba(0, 212, 255, 0.6) 50%,
+    rgba(139, 92, 246, 0.4) 80%,
+    transparent 100%);
+  z-index: 3;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
 }
 
 .header-background {
@@ -1049,25 +1339,19 @@ body {
 }
 
 .predictions-title {
-  font-size: 4rem;
-  font-weight: 200;
-  margin-bottom: 1rem;
-  text-align: center;
-  background: linear-gradient(
-    135deg,
-    #4b0082 0%,
-    #8a2be2 25%,
-    #9400d3 50%,
-    #8b5cf6 75%,
-    #ec4899 100%
-  );
+  font-size: 2.7rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(90deg, #00d4ff 0%, #8a2be2 60%, #ec4899 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 32px rgba(139, 92, 246, 0.18);
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 20px rgba(139, 92, 246, 0.3));
+  text-align: center;
   position: relative;
   z-index: 4;
-  text-shadow: 0 0 40px rgba(138, 43, 226, 0.5);
-  animation: titleGlow 3s ease-in-out infinite;
 }
 
 @keyframes titleGlow {
@@ -1083,20 +1367,38 @@ body {
 }
 
 .predictions-description {
-  font-size: 1.4rem;
-  color: rgba(200, 200, 220, 0.9);
-  margin-bottom: 3rem;
+  font-size: 1.1rem;
+  color: #e5e7eb;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
   text-align: center;
   position: relative;
   z-index: 4;
-  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.7);
-  font-weight: 300;
 }
 
 .predictions-content {
-  padding: 3rem 0 4rem 0;
+  padding: 2rem 0 3rem 0;
+  position: relative;
+  z-index: 1;
+  min-height: 70vh;
   width: 100%;
   box-sizing: border-box;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 3;
+}
+
+.header-content {
+  position: relative;
+  z-index: 4;
+  margin-top: 1rem;
 }
 
 /* Cards */
@@ -1104,46 +1406,35 @@ body {
 .prediction-form-card,
 .prediction-result-card,
 .error-card {
-  background: rgba(30, 30, 50, 0.8);
-  border: 1px solid rgba(138, 43, 226, 0.3);
-  border-radius: 16px;
-  backdrop-filter: blur(15px);
-  overflow: visible;
-  transition: all 0.3s ease;
+  background: rgba(25, 25, 40, 0.95);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 20px;
+  backdrop-filter: blur(25px);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(139, 92, 246, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
+  height: fit-content;
+  min-height: 250px;
   width: 100%;
   box-sizing: border-box;
   margin-bottom: 2rem;
 }
 
-.model-selection-card::before,
-.prediction-form-card::before,
-.prediction-result-card::before,
-.error-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(138, 43, 226, 0.05), rgba(75, 0, 130, 0.03));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
 
-.model-selection-card:hover::before,
-.prediction-form-card:hover::before,
-.prediction-result-card:hover::before {
-  opacity: 1;
-}
 
 .model-selection-card:hover,
 .prediction-form-card:hover,
 .prediction-result-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(138, 43, 226, 0.5);
-  box-shadow: 0 20px 40px rgba(138, 43, 226, 0.2);
+  transform: translateY(-6px) scale(1.01);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 50px rgba(139, 92, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(139, 92, 246, 0.6);
 }
 
 .card-header {
@@ -1241,30 +1532,26 @@ body {
   appearance: none;
   background:
     linear-gradient(135deg, rgba(20, 20, 35, 0.9), rgba(30, 30, 50, 0.8)),
-    radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.1) 0%, transparent 50%),
-    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 16 16'%3e%3cpath d='M8 13.1l-8-8 2.1-2.1 5.9 5.9 5.9-5.9 2.1 2.1z'/%3e%3c/svg%3e");
-  background-repeat: no-repeat, no-repeat, no-repeat;
+    radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.1) 0%, transparent 50%);
+  background-repeat: no-repeat, no-repeat;
   background-position:
     left center,
-    left center,
-    right 1rem center;
-  background-size: cover, cover, 14px;
-  padding-right: 3rem;
+    left center;
+  background-size: cover, cover;
+  padding-right: 1rem;
   cursor: pointer;
 }
 
 .form-select:focus {
   background:
     linear-gradient(135deg, rgba(20, 20, 35, 0.95), rgba(30, 30, 50, 0.9)),
-    radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.15) 0%, transparent 50%),
-    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%238A2BE2' viewBox='0 0 16 16'%3e%3cpath d='M8 13.1l-8-8 2.1-2.1 5.9 5.9 5.9-5.9 2.1 2.1z'/%3e%3c/svg%3e");
+    radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.15) 0%, transparent 50%);
 }
 
 .form-select:hover {
   background:
     linear-gradient(135deg, rgba(20, 20, 35, 0.95), rgba(30, 30, 50, 0.85)),
-    radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.12) 0%, transparent 50%),
-    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 16 16'%3e%3cpath d='M8 13.1l-8-8 2.1-2.1 5.9 5.9 5.9-5.9 2.1 2.1z'/%3e%3c/svg%3e");
+    radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.12) 0%, transparent 50%);
 }
 
 .form-select option {
@@ -1336,17 +1623,25 @@ body {
 }
 
 .predict-btn {
-  background: rgba(138, 43, 226, 0.2);
-  border-color: rgba(138, 43, 226, 0.5);
-  color: #8a2be2;
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.8), rgba(138, 43, 226, 0.6));
+  border: 2px solid rgba(138, 43, 226, 0.8);
+  color: #ffffff;
   padding: 1rem 2rem;
   font-size: 1.1rem;
   font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  box-shadow: 
+    0 4px 15px rgba(138, 43, 226, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .predict-btn:hover {
-  background: rgba(138, 43, 226, 0.3);
-  border-color: rgba(138, 43, 226, 0.7);
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.9), rgba(138, 43, 226, 0.7));
+  border-color: rgba(138, 43, 226, 1);
+  box-shadow: 
+    0 6px 20px rgba(138, 43, 226, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
 }
 
 /* Results Styles */
@@ -1464,7 +1759,7 @@ body {
 }
 
 .prediction-section {
-  border-color: rgba(34, 197, 94, 0.3);
+  border-color: rgba(255, 255, 255, 0.811);
 }
 
 .prediction-details {
@@ -1486,8 +1781,8 @@ body {
 .predicted-class {
   text-align: center;
   padding: 2rem;
-  background: rgba(34, 197, 94, 0.1);
-  border: 2px solid rgba(34, 197, 94, 0.3);
+  background: rgba(65, 1, 107, 0.1);
+  border: 2px solid rgba(0, 31, 157, 0.3);
   border-radius: 12px;
 }
 
@@ -1509,8 +1804,8 @@ body {
 .main-prediction {
   font-size: 2rem;
   font-weight: 700;
-  color: #22c55e;
-  text-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+  color: #fefefed5;
+  text-shadow: 0 0 20px rgba(224, 100, 255, 0.25);
 }
 
 .confidence,

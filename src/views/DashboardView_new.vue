@@ -121,7 +121,7 @@
 
             <div class="action-card tertiary" @click="navigateToPredictions">
               <div class="action-icon">
-                <i class="pi pi-target"></i>
+                <i class="pi pi-chart-bar"></i>
               </div>
               <div class="action-content">
                 <h3>Hacer Predicciones</h3>
@@ -131,7 +131,7 @@
 
             <div class="action-card accent" @click="navigateToCompareModels">
               <div class="action-icon">
-                <i class="pi pi-chart-line"></i>
+                <i class="pi pi-chart-pie"></i>
               </div>
               <div class="action-content">
                 <h3>Comparar Modelos</h3>
@@ -249,7 +249,7 @@ const isDevelopment = computed(() => import.meta.env.DEV)
 const greeting = computed(() => {
   const hour = new Date().getHours()
   if (hour < 12) return 'Buenos días'
-  if (hour < 18) return 'Buenas tardes'
+  if (hour < 20) return 'Buenas tardes'
   return 'Buenas noches'
 })
 
@@ -618,11 +618,11 @@ onMounted(async () => {
 
 .greeting-glow {
   display: inline-block;
-  background: linear-gradient(135deg, #4B0082 0%, #8A2BE2 25%, #9400D3 50%, #8B5CF6 75%, #EC4899 100%);
+  background: linear-gradient(135deg, #9400D3 0%, #8B5CF6 50%, #EC4899 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+  text-shadow: 0 0 20px rgba(154, 47, 255, 0.32);
   user-select: none;
 }
 

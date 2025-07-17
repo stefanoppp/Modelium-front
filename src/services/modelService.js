@@ -25,7 +25,7 @@ export const modelService = {
    */
   async getModelById(id) {
     try {
-      const response = await apiClient.get(`/models/${id}/`)
+      const response = await apiClient.get(`/models/info/${id}/`)
       return {
         success: true,
         data: response.data,

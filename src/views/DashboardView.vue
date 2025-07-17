@@ -121,7 +121,7 @@
 
             <div class="action-card tertiary" @click="navigateToPredictions">
               <div class="action-icon">
-                <i class="pi pi-target"></i>
+                <i class="pi pi-chart-bar"></i>
               </div>
               <div class="action-content">
                 <h3>Hacer Predicciones</h3>
@@ -131,7 +131,7 @@
 
             <div class="action-card accent" @click="navigateToCompareModels">
               <div class="action-icon">
-                <i class="pi pi-chart-line"></i>
+                <i class="pi pi-chart-pie"></i>
               </div>
               <div class="action-content">
                 <h3>Comparar Modelos</h3>
@@ -624,7 +624,7 @@ onMounted(async () => {
 
 .greeting-glow {
   display: inline-block;
-  background: linear-gradient(135deg, #4B0082 0%, #8A2BE2 25%, #9400D3 50%, #8B5CF6 75%, #EC4899 100%);
+  background: linear-gradient(135deg, #b813ff 0%, #d86eff 50%, #EC4899 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
