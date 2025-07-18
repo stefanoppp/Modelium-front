@@ -313,7 +313,7 @@ import NavBar from '@/components/layout/NavBar.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
-const { showError } = useNotifications()
+const { showSuccess, showError, showWarning, showInfo } = useNotifications()
 
 // Estado del formulario
 const form = ref({
@@ -356,6 +356,10 @@ const handleFileSelect = (event) => {
   if (file) {
     selectedFile.value = file
     parseCSV(file)
+    showSuccess(`Archivo "${file.name}" cargado correctamente`, {
+      title: 'Archivo CSV cargado',
+      duration: 3000
+    })
   }
 }
 
@@ -369,6 +373,10 @@ const handleFileDrop = (event) => {
     if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
       selectedFile.value = file
       parseCSV(file)
+      showSuccess(`Archivo "${file.name}" cargado correctamente`, {
+        title: 'Archivo CSV cargado',
+        duration: 3000
+      })
     } else {
       showError('Por favor, selecciona un archivo CSV válido', {
         title: 'Formato de archivo incorrecto',
@@ -380,11 +388,19 @@ const handleFileDrop = (event) => {
 }
 
 const removeFile = () => {
+  const fileName = selectedFile.value?.name
   selectedFile.value = null
   csvColumns.value = []
   csvPreview.value = []
   form.value.target_column = ''
   form.value.ignored_columns = []
+  
+  if (fileName) {
+    showInfo(`Archivo "${fileName}" eliminado`, {
+      title: 'Archivo removido',
+      duration: 2000
+    })
+  }
 }
 
 const parseCSV = (file) => {
@@ -471,6 +487,10 @@ const createModel = async () => {
     
     if (response.ok) {
         const result = await response.json()
+        showSuccess(`El modelo "${form.value.name}" ha sido creado exitosamente y está siendo entrenado.`, {
+          title: 'Modelo creado exitosamente',
+          duration: 6000
+        })
         router.push(`/models/${result.id}`)
     } else {
       const error = await response.json()
@@ -481,15 +501,13 @@ const createModel = async () => {
       
       if (error.error_code === 'DUPLICATE_PUBLIC_MODEL_NAME') {
           showError(error.error || error.detail, {
-            title: 'Modelo público duplicado',
-            autoClose: false,
-            duration: 6000
+            title: 'Nombre de modelo duplicado',
+            autoClose: false
           })
         } else if (error.error_code === 'DUPLICATE_PRIVATE_MODEL_NAME') {
           showError(error.error || error.detail, {
-            title: 'Modelo privado duplicado',
-            autoClose: false,
-            duration: 6000
+            title: 'Nombre de modelo duplicado',
+            autoClose: false
           })
         } else if (error.error_code === 'MISSING_MODEL_NAME') {
           showError(error.error || error.detail, {
