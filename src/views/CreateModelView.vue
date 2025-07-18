@@ -28,10 +28,15 @@
           </div>
           
           <div class="page-title-section">
-            <h1 class="page-title">Crear Nuevo Modelo</h1>
-            <p class="page-description">
-              Sube tu dataset y configura tu modelo de IA personalizado
-            </p>
+            <div class="title-container">
+              <h1 class="title-glitch">
+                <span class="title-text">CREAR NUEVO MODELO</span>
+                <div class="title-underline"></div>
+              </h1>
+              <p class="subtitle-text">
+                <span class="subtitle-prefix">>_</span> Sube tu dataset y configura tu modelo de IA personalizado<span class="cursor-blink">_</span>
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -303,10 +308,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import { useNotifications } from '@/composables/useNotifications'
 import NavBar from '@/components/layout/NavBar.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { showError } = useNotifications()
 
 // Estado del formulario
 const form = ref({
@@ -362,6 +369,12 @@ const handleFileDrop = (event) => {
     if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
       selectedFile.value = file
       parseCSV(file)
+    } else {
+      showError('Por favor, selecciona un archivo CSV válido', {
+        title: 'Formato de archivo incorrecto',
+        autoClose: true,
+        duration: 4000
+      })
     }
   }
 }
@@ -457,16 +470,63 @@ const createModel = async () => {
     })
     
     if (response.ok) {
-      const result = await response.json()
-      router.push(`/models/${result.id}`)
+        const result = await response.json()
+        router.push(`/models/${result.id}`)
     } else {
       const error = await response.json()
       console.error('Error creating model:', error)
-      alert('Error al crear el modelo: ' + (error.detail || 'Error desconocido'))
+      
+      // Manejar diferentes tipos de errores
+      let errorMessage = 'Error desconocido'
+      
+      if (error.error_code === 'DUPLICATE_PUBLIC_MODEL_NAME') {
+          showError(error.error || error.detail, {
+            title: 'Modelo público duplicado',
+            autoClose: false,
+            duration: 6000
+          })
+        } else if (error.error_code === 'DUPLICATE_PRIVATE_MODEL_NAME') {
+          showError(error.error || error.detail, {
+            title: 'Modelo privado duplicado',
+            autoClose: false,
+            duration: 6000
+          })
+        } else if (error.error_code === 'MISSING_MODEL_NAME') {
+          showError(error.error || error.detail, {
+            title: 'Información requerida',
+            autoClose: false
+          })
+        } else if (error.error_code === 'MISSING_CSV_FILE') {
+          showError(error.error || error.detail, {
+            title: 'Archivo requerido',
+            autoClose: false
+          })
+        } else if (error.error_code === 'MISSING_TARGET_COLUMN') {
+          showError(error.error || error.detail, {
+            title: 'Configuración incompleta',
+            autoClose: false
+          })
+        } else if (error.error_code === 'TARGET_COLUMN_NOT_FOUND') {
+          showError(error.error || error.detail, {
+            title: 'Columna no encontrada',
+            autoClose: false
+          })
+        } else if (error.error_code === 'INVALID_IGNORED_COLUMNS') {
+          showError(error.error || error.detail, {
+            title: 'Columnas inválidas',
+            autoClose: false
+          })
+        } else {
+          const message = error.error || error.detail || (typeof error === 'string' ? error : 'Error desconocido')
+          showError(message, {
+            title: 'Error al crear el modelo',
+            autoClose: false
+          })
+        }
     }
   } catch (error) {
     console.error('Error:', error)
-    alert('Error al crear el modelo')
+    showError('Error de conexión', 'No se pudo conectar con el servidor. Verifica tu conexión a internet.')
   } finally {
     isSubmitting.value = false
   }
@@ -1192,4 +1252,58 @@ onMounted(() => {
 .particle:nth-child(6) { top: 30%; left: 50%; animation-delay: 10s; }
 .particle:nth-child(7) { top: 70%; left: 30%; animation-delay: 12s; }
 .particle:nth-child(8) { top: 50%; left: 85%; animation-delay: 14s; }
+
+/* Estilos para título tecnológico */
+.title-container {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.title-glitch {
+  font-family: 'Courier New', monospace;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin: 0;
+  position: relative;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.title-text {
+  display: inline-block;
+  position: relative;
+}
+
+.title-underline {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #8B5CF6, transparent);
+  margin: 0.5rem auto;
+  width: 60%;
+  opacity: 0.7;
+}
+
+.subtitle-text {
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  color: #e2e8f0;
+  margin: 1rem 0 0 0;
+  letter-spacing: 1px;
+}
+
+.subtitle-prefix {
+  color: #8B5CF6;
+  font-weight: bold;
+}
+
+.cursor-blink {
+  animation: blink 1s infinite;
+  color: #8B5CF6;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
 </style>

@@ -42,16 +42,19 @@
           </div>
 
           <div class="predictions-title-section">
-            <h1 class="predictions-title">
-              {{ isPublicModel ? 'Usar Modelo Público' : 'Predicciones' }}
-            </h1>
-            <p class="predictions-description">
-              {{
-                isPublicModel
-                  ? 'Realiza predicciones con este modelo público de la comunidad'
-                  : 'Realiza predicciones con tus modelos entrenados de forma intuitiva'
-              }}
-            </p>
+            <div class="title-container">
+              <h1 class="title-glitch">
+                <span class="title-text">{{ isPublicModel ? 'USAR MODELO PÚBLICO' : 'PREDICCIONES' }}</span>
+                <div class="title-underline"></div>
+              </h1>
+              <p class="subtitle-text">
+                <span class="subtitle-prefix">>_</span> {{
+                  isPublicModel
+                    ? 'Realiza predicciones con este modelo público de la comunidad'
+                    : 'Realiza predicciones con tus modelos entrenados de forma intuitiva'
+                }}<span class="cursor-blink">_</span>
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -2195,4 +2198,58 @@ body {
 }
 
 /* Removido: estilos :invalid que causaban el borde rojo */
+
+/* Estilos para título tecnológico */
+.title-container {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.title-glitch {
+  font-family: 'Courier New', monospace;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin: 0;
+  position: relative;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.title-text {
+  display: inline-block;
+  position: relative;
+}
+
+.title-underline {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #8B5CF6, transparent);
+  margin: 0.5rem auto;
+  width: 60%;
+  opacity: 0.7;
+}
+
+.subtitle-text {
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  color: #e2e8f0;
+  margin: 1rem 0 0 0;
+  letter-spacing: 1px;
+}
+
+.subtitle-prefix {
+  color: #8B5CF6;
+  font-weight: bold;
+}
+
+.cursor-blink {
+  animation: blink 1s infinite;
+  color: #8B5CF6;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
 </style>

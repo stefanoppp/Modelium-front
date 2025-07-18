@@ -23,13 +23,19 @@
     <div class="main-content">
       <!-- Título -->
       <div class="page-header">
-        <h1 class="page-title">
-          <i class="pi pi-chart-bar"></i>
-          Comparación de Modelos
-        </h1>
-        <p class="page-subtitle">
-          Analiza y compara el rendimiento de tus modelos de Machine Learning
-        </p>
+        <div class="title-container">
+          <div class="title-glitch">
+            <h1 class="page-title">
+               <span class="title-text">ANÁLISIS COMPARATIVO</span>
+             </h1>
+            <div class="title-underline"></div>
+          </div>
+          <p class="page-subtitle">
+            <span class="subtitle-prefix">></span>
+            <span class="subtitle-text">Sistema de evaluación gráfico</span>
+            <span class="cursor-blink">_</span>
+          </p>
+        </div>
       </div>
 
       <!-- Selector de tipo de modelo -->
@@ -1278,33 +1284,86 @@ onMounted(async () => {
   padding-top: 4rem;
 }
 
-.page-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
-  background-size: 400% 400%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradient-shift 3s ease infinite;
-  margin-bottom: 1rem;
+/* Header styling - Dark tech theme */
+.page-header {
+  margin-bottom: 3rem;
+  position: relative;
 }
 
-.page-title i {
-  margin-right: 1rem;
-  color: #4ecdc4;
+.title-container {
+  text-align: center;
+  position: relative;
+}
+
+.title-glitch {
+  position: relative;
+  display: inline-block;
+}
+
+.page-title {
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  position: relative;
+  text-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.1),
+    0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+.title-bracket {
+  color: #666666;
+  font-weight: 300;
+  opacity: 0.8;
+}
+
+.title-text {
+  color: #ffffff;
+  position: relative;
+}
+
+.title-underline {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #333333, transparent);
+  opacity: 0.6;
 }
 
 .page-subtitle {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.8);
-  margin: 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 1.5rem 0 0 0;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 400;
 }
 
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+.subtitle-prefix {
+  color: #666666;
+  margin-right: 0.5rem;
+}
+
+.subtitle-text {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.cursor-blink {
+  color: #666666;
+  animation: blink 1.5s infinite;
+  margin-left: 0.2rem;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
 }
 
 .selector-card {

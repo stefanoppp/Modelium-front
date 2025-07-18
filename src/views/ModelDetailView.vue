@@ -36,7 +36,12 @@
           <!-- Model Title and Status -->
           <div class="model-header">
             <div class="model-title-section">
-              <h1 class="model-title">{{ modelStatus.name }}</h1>
+              <div class="title-container">
+                <h1 class="title-glitch">
+                  <span class="title-text">{{ modelStatus.name }}</span>
+                  <div class="title-underline"></div>
+                </h1>
+              </div>
               <div class="status-badge" :class="getStatusClass(modelStatus.status)">
                 <i :class="getStatusIcon(modelStatus.status)"></i>
                 <span>{{ getStatusLabel(modelStatus.status) }}</span>
@@ -2340,4 +2345,55 @@ onUnmounted(() => {
 .detail-card:nth-child(2) { animation-delay: 0.2s; }
 .detail-card:nth-child(3) { animation-delay: 0.3s; }
 .detail-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* Technological Title Styles */
+.title-container {
+  margin-bottom: 1rem;
+}
+
+.title-glitch {
+  font-family: 'Courier New', monospace;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  margin: 0;
+  position: relative;
+}
+
+.title-text {
+  display: inline-block;
+  letter-spacing: 2px;
+}
+
+.title-underline {
+  height: 2px;
+  background: linear-gradient(90deg, #ffffff 0%, transparent 100%);
+  margin-top: 0.5rem;
+  width: 60%;
+}
+
+.subtitle-text {
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  color: #e2e8f0;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.subtitle-prefix {
+  color: #ffffff;
+  margin-right: 0.5rem;
+}
+
+.cursor-blink {
+  animation: blink 1s infinite;
+  color: #ffffff;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
 </style>

@@ -4,6 +4,9 @@
     
     <!-- Modal de sesión expirada -->
     <SessionExpiredModalSimple />
+    
+    <!-- Contenedor de notificaciones -->
+    <NotificationContainer />
   </div>
 </template>
 
@@ -13,6 +16,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { markSessionAsExpired } from '@/stores/sessionExpiredStore'
 import { setSessionExpiredHandler } from '@/services/apiService'
 import SessionExpiredModalSimple from '@/components/SessionExpiredModalSimple.vue'
+import NotificationContainer from '@/components/ui/NotificationContainer.vue'
 
 const authStore = useAuthStore()
 

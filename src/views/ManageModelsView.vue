@@ -28,13 +28,14 @@
       <div class="manage-header">
         <div class="manage-header::after"></div>
         <div class="header-content">
-          <h1 class="manage-title">
-            <i class="pi pi-trash"></i>
-            Gestión de Modelos
-          </h1>
-          <p class="manage-description">
-            <i class="pi pi-exclamation-triangle"></i>
-            Centro de control para administrar y eliminar tus modelos de machine learning
+          <div class="title-container">
+            <h1 class="title-glitch">
+              <span class="title-text">GESTIÓN DE MODELOS</span>
+              <div class="title-underline"></div>
+            </h1>
+          </div>
+          <p class="subtitle-text">
+            <span class="subtitle-prefix">&gt;</span> Centro de control para administrar y eliminar tus modelos de machine learning<span class="cursor-blink">_</span>
           </p>
         </div>
       </div>
@@ -2346,4 +2347,55 @@ onMounted(async () => {
     order: 3;
   }
 }
+
+/* Technological Title Styles */
+.title-container {
+  margin-bottom: 1rem;
+}
+
+.title-glitch {
+  font-family: 'Courier New', monospace;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  margin: 0;
+  position: relative;
+}
+
+.title-text {
+  display: inline-block;
+  letter-spacing: 2px;
+}
+
+.title-underline {
+  height: 2px;
+  background: linear-gradient(90deg, #ffffff 0%, transparent 100%);
+  margin-top: 0.5rem;
+  width: 60%;
+}
+
+.subtitle-text {
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  color: #e2e8f0;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.subtitle-prefix {
+  color: #ffffff;
+  margin-right: 0.5rem;
+}
+
+.cursor-blink {
+  animation: blink 1s infinite;
+  color: #ffffff;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
 </style>

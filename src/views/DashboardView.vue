@@ -25,11 +25,14 @@
         <div class="welcome-section">
           <div class="cosmic-aura"></div>
           <div class="welcome-content">
-            <h1 class="galactic-title">
-              <span class="greeting-glow">{{ greeting }}, {{ currentUser?.first_name || currentUser?.username }}</span>
-            </h1>
-            <p class="cosmic-subtitle">
-              <span class="subtitle-text">Explora las infinitas posibilidades de la IA</span>
+            <div class="title-container">
+              <h1 class="title-glitch">
+                <span class="title-text">{{ greeting }}, {{ currentUser?.first_name || currentUser?.username }}</span>
+                <div class="title-underline"></div>
+              </h1>
+            </div>
+            <p class="subtitle-text">
+              <span class="subtitle-prefix">&gt;</span> Explora la creación de la IA con Modelium<span class="cursor-blink">_</span>
             </p>
           </div>
         </div>
@@ -248,8 +251,8 @@ const isDevelopment = computed(() => import.meta.env.DEV)
 
 const greeting = computed(() => {
   const hour = new Date().getHours()
-  if (hour < 12) return 'Buenos días'
-  if (hour < 18) return 'Buenas tardes'
+  if (7 < hour < 14) return 'Buenos días'
+  if (14< hour < 19) return 'Buenas tardes'
   return 'Buenas noches'
 })
 
@@ -615,71 +618,7 @@ onMounted(async () => {
   z-index: 2;
 }
 
-.galactic-title {
-  font-size: 3.5rem;
-  font-weight: 300;
-  margin-bottom: 1rem;
-  text-align: center;
-}
 
-.greeting-glow {
-  display: inline-block;
-  background: linear-gradient(135deg, #b813ff 0%, #d86eff 50%, #EC4899 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
-  user-select: none;
-}
-
-.cosmic-subtitle {
-  font-size: 1.3rem;
-  color: rgba(230, 230, 245, 0.9);
-  margin: 0;
-  font-weight: 300;
-  letter-spacing: 0.5px;
-  text-shadow: 
-    0 0 10px rgba(138, 43, 226, 0.4),
-    0 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-.subtitle-text {
-  display: inline-block;
-  background: linear-gradient(135deg, 
-    rgba(230, 230, 245, 0.95) 0%, 
-    rgba(200, 200, 230, 0.9) 50%, 
-    rgba(180, 180, 220, 0.85) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  position: relative;
-}
-
-.subtitle-text::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(138, 43, 226, 0.1) 50%, 
-    transparent 100%);
-  animation: subtitleScan 4s ease-in-out infinite;
-  z-index: -1;
-}
-
-@keyframes subtitleScan {
-  0%, 100% { 
-    opacity: 0;
-    transform: translateX(-100%);
-  }
-  50% { 
-    opacity: 1;
-    transform: translateX(100%);
-  }
-}
 
 /* === CONTENIDO PRINCIPAL === */
 .dashboard-content {
@@ -1188,13 +1127,7 @@ onMounted(async () => {
     padding: 3rem 0 2rem;
   }
   
-  .galactic-title {
-    font-size: 2.5rem;
-  }
-  
-  .cosmic-subtitle {
-    font-size: 1.1rem;
-  }
+
   
   .container {
     padding: 0 1rem;
@@ -1248,13 +1181,7 @@ onMounted(async () => {
 }
 
 @media (max-width: 480px) {
-  .galactic-title {
-    font-size: 2rem;
-  }
-  
-  .cosmic-subtitle {
-    font-size: 1rem;
-  }
+
   
   .section-title {
     font-size: 1.3rem;
@@ -1280,6 +1207,100 @@ onMounted(async () => {
   }
   
   .empty-content p {
+    font-size: 1rem;
+  }
+}
+
+/* === TÍTULO TECNOLÓGICO === */
+.title-container {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.title-glitch {
+  font-family: 'Inter', 'Helvetica Neue', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 3.2rem;
+  font-weight: 400;
+  margin: 0;
+  text-align: center;
+  position: relative;
+}
+
+.title-text {
+  display: inline-block;
+  background: linear-gradient(135deg, #b813ff 0%, #d86eff 50%, #EC4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 20px rgba(138, 43, 226, 0.25);
+  letter-spacing: 1.5px;
+  user-select: none;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+  position: relative;
+  animation: subtleGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes subtleGlow {
+  0% {
+    text-shadow: 0 0 20px rgba(138, 43, 226, 0.25), 0 0 30px rgba(138, 43, 226, 0.1);
+  }
+  100% {
+    text-shadow: 0 0 25px rgba(138, 43, 226, 0.35), 0 0 40px rgba(138, 43, 226, 0.15);
+  }
+}
+
+.title-underline {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #b813ff, #d86eff, #EC4899, transparent);
+  margin: 0.5rem auto;
+  width: 60%;
+  opacity: 0.8;
+}
+
+.subtitle-text {
+  font-family: 'Courier New', monospace;
+  font-size: 1.3rem;
+  color: rgba(230, 230, 245, 0.9);
+  margin: 0;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  text-shadow: 
+    0 0 10px rgba(138, 43, 226, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.subtitle-prefix {
+  color: #8A2BE2;
+  margin-right: 0.5rem;
+}
+
+.cursor-blink {
+  animation: blink 1s infinite;
+  color: #8A2BE2;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@media (max-width: 768px) {
+  .title-glitch {
+    font-size: 2.5rem;
+  }
+  
+  .subtitle-text {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .title-glitch {
+    font-size: 2rem;
+  }
+  
+  .subtitle-text {
     font-size: 1rem;
   }
 }

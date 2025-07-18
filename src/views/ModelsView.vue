@@ -40,15 +40,14 @@
         <!-- Title section with tech styling -->
         <div class="header-content">
           <div class="title-section">
-            <div class="title-glow">
-              <h1 class="models-title">
-                <span class="title-prefix">&lt;</span>
-                MIS MODELOS
-                <span class="title-suffix">/&gt;</span>
+            <div class="title-container">
+              <h1 class="title-glitch">
+                <span class="title-text">MIS MODELOS</span>
+                <div class="title-underline"></div>
               </h1>
             </div>
-            <p class="models-description">
-              Gestiona tus modelos de inteligencia artificial
+            <p class="subtitle-text">
+              <span class="subtitle-prefix">&gt;</span> Gestiona tus modelos de inteligencia artificial<span class="cursor-blink">_</span>
             </p>
           </div>
 
@@ -2358,6 +2357,56 @@ html {
   .overlay-text {
     font-size: 0.8rem;
   }
+}
+
+/* Technological Title Styles */
+.title-container {
+  margin-bottom: 1rem;
+}
+
+.title-glitch {
+  font-family: 'Courier New', monospace;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  margin: 0;
+  position: relative;
+}
+
+.title-text {
+  display: inline-block;
+  letter-spacing: 2px;
+}
+
+.title-underline {
+  height: 2px;
+  background: linear-gradient(90deg, #ffffff 0%, transparent 100%);
+  margin-top: 0.5rem;
+  width: 60%;
+}
+
+.subtitle-text {
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  color: #e2e8f0;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.subtitle-prefix {
+  color: #ffffff;
+  margin-right: 0.5rem;
+}
+
+.cursor-blink {
+  animation: blink 1s infinite;
+  color: #ffffff;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
 }
 
 </style>
