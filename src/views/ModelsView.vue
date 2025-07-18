@@ -48,7 +48,6 @@
               </h1>
             </div>
             <p class="models-description">
-              <i class="pi pi-chart-network"></i>
               Gestiona tus modelos de inteligencia artificial
             </p>
           </div>
@@ -226,7 +225,7 @@
                   
                   <div class="metadata-item">
                     <div class="metadata-icon">
-                      <i class="pi pi-chart-network"></i>
+                      <i class="pi pi-list"></i>
                     </div>
                     <div class="metadata-content">
                       <span class="metadata-label">Features</span>
@@ -435,7 +434,7 @@ const showPagination = computed(() => {
 // Computed stats for enhanced dashboard
 const statsData = computed(() => [
   {
-    icon: 'pi pi-chart-network',
+    icon: 'pi pi-th-large',
     value: modelsData.value.count || 0,
     label: 'Modelos totales'
   },
@@ -1223,7 +1222,7 @@ html {
 
 /* Header Styles */
 .models-header {
-  padding: 1.5rem 0 1rem;
+  padding: 2rem 0 3rem;
   position: relative;
   z-index: 10;
   overflow: hidden;
@@ -1395,7 +1394,7 @@ html {
 
 /* Content Area */
 .models-content {
-  padding: 1rem 0 2rem;
+  padding: 2rem 0 2rem;
   position: relative;
   z-index: 10;
 }

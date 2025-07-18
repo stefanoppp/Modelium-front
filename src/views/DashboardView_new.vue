@@ -49,7 +49,7 @@
           <div class="stats-grid">
             <div class="stat-card primary" @click="navigateToModels">
               <div class="stat-icon">
-                <i class="pi pi-cog"></i>
+                <i class="pi pi-box"></i>
               </div>
               <div class="stat-info">
                 <div class="stat-number">{{ modelStats.total }}</div>
@@ -248,8 +248,8 @@ const isDevelopment = computed(() => import.meta.env.DEV)
 
 const greeting = computed(() => {
   const hour = new Date().getHours()
-  if (hour < 12) return 'Buenos días'
-  if (hour < 20) return 'Buenas tardes'
+  if (6<hour < 12) return 'Buenos días'
+  if (17 < hour < 20) return 'Buenas tardes'
   return 'Buenas noches'
 })
 
