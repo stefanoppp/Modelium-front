@@ -494,7 +494,7 @@ const showPagination = computed(() => {
 const loadModels = async (page = 1) => {
   isLoading.value = true
   try {
-    const response = await apiClient.get(`/models/my_models/?page=${page}&page_size=15`)
+    const response = await apiClient.get(`/api/models/my_models/?page=${page}&page_size=15`)
     if (response.data) {
       modelsData.value = response.data
       models.value = response.data.models || []
@@ -634,7 +634,7 @@ const executeDelete = async () => {
     if (modelIdsToDelete.length === 1) {
       // Eliminación individual - usar endpoint específico
       const modelId = modelIdsToDelete[0]
-      const response = await apiClient.delete(`/models/delete/${modelId}/`)
+      const response = await apiClient.delete(`/api/models/delete/${modelId}/`)
       deleteResult = response.data
     } else {
       // Eliminación múltiple - usar función optimizada con fallback

@@ -512,7 +512,7 @@ const formatRegressionValue = (value) => {
 const getModelMetrics = async (modelId) => {
   try {
     console.log(`Making authenticated request to: /models/info/${modelId}/`)
-    const response = await apiClient.get(`/models/info/${modelId}/`)
+    const response = await apiClient.get(`/api/models/info/${modelId}/`)
     
     console.log(`Response status for model ${modelId}:`, response.status)
     console.log(`Raw response for model ${modelId}:`, response.data)

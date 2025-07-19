@@ -467,13 +467,13 @@ const loadAvailableModels = async () => {
     if (isPublicModel.value) {
       // Cargar modelo público específico
       response = await safeApiCall(
-        () => apiClient.get('/models/public/'),
+        () => apiClient.get('/api/models/public/'),
         'carga de modelos públicos',
       )
     } else {
       // Cargar modelos propios
       response = await safeApiCall(
-        () => apiClient.get('/models/my_models/'),
+        () => apiClient.get('/api/models/my_models/'),
         'carga de modelos propios',
       )
     }
@@ -537,7 +537,7 @@ const loadModelFeatures = async () => {
     console.log('Loading features for model ID:', selectedModelId.value)
 
     const response = await safeApiCall(
-      () => apiClient.get(`/models/info/${selectedModelId.value}/`),
+      () => apiClient.get(`/api/models/info/${selectedModelId.value}/`),
       'carga de información del modelo',
     )
 
@@ -628,7 +628,7 @@ const makePrediction = async () => {
     // El backend detecta automáticamente si es público o propio
     const response = await safeApiCall(
       () =>
-        apiClient.post(`/models/predict/${selectedModelId.value}/`, {
+        apiClient.post(`/api/models/predict/${selectedModelId.value}/`, {
           input_data: processedData,
         }),
       'predicción del modelo',

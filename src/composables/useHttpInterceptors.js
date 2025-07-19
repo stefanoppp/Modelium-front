@@ -109,6 +109,15 @@ export function useHttpInterceptors() {
           return Promise.reject(error)
         }
 
+        // Manejar errores específicos del sistema
+        if (error.response?.status === 429) {
+          // Error 429: Demasiadas solicitudes (límite de 3 modelos)
+          console.warn('Límite de modelos alcanzado:', error.response.data)
+        } else if (error.response?.status === 503) {
+          // Error 503: Servicio no disponible (worker sobrecargado)
+          console.warn('Worker sobrecargado:', error.response.data)
+        }
+
         return Promise.reject(error)
       },
     )

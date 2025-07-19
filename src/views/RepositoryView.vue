@@ -481,7 +481,7 @@ const loadPublicModels = async (page = 1) => {
   isLoading.value = true
   try {
     const response = await safeApiCall(
-      () => apiClient.get(`/models/public/?page=${page}&page_size=15`),
+      () => apiClient.get(`/api/models/public/?page=${page}&page_size=15`),
       'carga de modelos públicos'
     )
     if (response && response.data) {

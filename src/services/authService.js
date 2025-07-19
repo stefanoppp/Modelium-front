@@ -4,7 +4,7 @@ export const authService = {
   // Registro de usuario
   async register(userData) {
     try {
-      const response = await apiClient.post('/users/register/', userData)
+      const response = await apiClient.post('/api/users/register/', userData)
       return {
         success: true,
         data: response.data,
@@ -24,7 +24,7 @@ export const authService = {
   // Verificación de token 2FA
   async verifyToken(username, token) {
     try {
-      const response = await apiClient.post('/users/verify/', {
+      const response = await apiClient.post('/api/users/verify/', {
         username,
         token,
       })
@@ -47,7 +47,7 @@ export const authService = {
       // Limpiar tokens existentes antes del login para evitar conflictos
       this.logout()
 
-      const response = await apiClient.post('/users/login/', credentials)
+      const response = await apiClient.post('/api/users/login/', credentials)
 
       // Verificar que la respuesta contiene los tokens necesarios
       if (!response.data.access || !response.data.refresh) {
@@ -205,7 +205,7 @@ export const authService = {
         throw new Error('No hay refresh token disponible')
       }
 
-      const response = await apiClient.post('/users/token/refresh/', {
+      const response = await apiClient.post('/api/users/token/refresh/', {
         refresh: refreshToken,
       })
 
@@ -249,7 +249,7 @@ export const authService = {
       }
 
       const response = await apiClient.post(
-        '/users/session/extend/',
+        '/api/users/session/extend/',
         {},
         {
           headers: {
@@ -285,7 +285,7 @@ export const authService = {
         return { active: false, reason: 'No token' }
       }
 
-      const response = await apiClient.get('/users/session/status/', {
+      const response = await apiClient.get('/api/users/session/status/', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

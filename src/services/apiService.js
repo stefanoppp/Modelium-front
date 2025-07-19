@@ -60,7 +60,7 @@ export const deleteMultipleModels = async (modelIds) => {
   try {
     // Intentar primero con DELETE (semánticamente correcto)
     console.log(`Intentando eliminar ${modelIds.length} modelos usando método DELETE`)
-    const response = await apiClient.delete('/models/delete-multiple/', {
+    const response = await apiClient.delete('/api/models/delete-multiple/', {
       data: { model_ids: modelIds }
     })
     
@@ -78,7 +78,7 @@ export const deleteMultipleModels = async (modelIds) => {
       
       console.warn('⚠️ DELETE con body no soportado, usando POST como fallback')
       try {
-        const response = await apiClient.post('/models/delete-multiple/', {
+        const response = await apiClient.post('/api/models/delete-multiple/', {
           model_ids: modelIds
         })
         

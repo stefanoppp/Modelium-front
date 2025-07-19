@@ -6,7 +6,7 @@ export const modelService = {
    */
   async getMyModels() {
     try {
-      const response = await apiClient.get('/models/my_models/')
+      const response = await apiClient.get('/api/models/my_models/')
       return {
         success: true,
         data: response.data,
@@ -25,7 +25,7 @@ export const modelService = {
    */
   async getModelById(id) {
     try {
-      const response = await apiClient.get(`/models/info/${id}/`)
+      const response = await apiClient.get(`/api/models/info/${id}/`)
       return {
         success: true,
         data: response.data,
@@ -44,16 +44,36 @@ export const modelService = {
    */
   async createModel(modelData) {
     try {
-      const response = await apiClient.post('/models/', modelData)
+      const response = await apiClient.post('/api/models/', modelData)
       return {
         success: true,
         data: response.data,
       }
     } catch (error) {
       console.error('Error creating model:', error)
+      
+      // Manejar errores específicos del sistema
+      if (error.response?.status === 429) {
+        return {
+          success: false,
+          error: error.response.data?.error || 'Has alcanzado el límite máximo de 3 modelos en entrenamiento simultáneo.',
+          errorCode: 'MAX_MODELS_LIMIT',
+          statusCode: 429
+        }
+      } else if (error.response?.status === 503) {
+        return {
+          success: false,
+          error: error.response.data?.error || 'El sistema está sobrecargado. Intenta nuevamente en unos minutos.',
+          errorCode: 'WORKER_OVERLOADED',
+          statusCode: 503
+        }
+      }
+      
       return {
         success: false,
-        error: error.response?.data?.message || 'Error al crear el modelo',
+        error: error.response?.data?.message || error.response?.data?.error || 'Error al crear el modelo',
+        errorCode: error.response?.data?.error_code,
+        statusCode: error.response?.status
       }
     }
   },
@@ -63,7 +83,7 @@ export const modelService = {
    */
   async updateModel(id, modelData) {
     try {
-      const response = await apiClient.put(`/models/${id}/`, modelData)
+      const response = await apiClient.put(`/api/models/${id}/`, modelData)
       return {
         success: true,
         data: response.data,
@@ -82,7 +102,7 @@ export const modelService = {
    */
   async deleteModel(id) {
     try {
-      await apiClient.delete(`/models/${id}/`)
+      await apiClient.delete(`/api/models/${id}/`)
       return {
         success: true,
       }
@@ -100,7 +120,7 @@ export const modelService = {
    */
   async getMyModelsCount() {
     try {
-      const response = await apiClient.get('/models/my_models/')
+      const response = await apiClient.get('/api/models/my_models/')
       return {
         success: true,
         count: response.data.count,
@@ -119,7 +139,7 @@ export const modelService = {
    */
   async getMyModelsStats() {
     try {
-      const response = await apiClient.get('/models/my_models/')
+      const response = await apiClient.get('/api/models/my_models/')
       const models = response.data.models || []
 
       const stats = {

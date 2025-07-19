@@ -487,7 +487,7 @@ const createModel = async () => {
     
     if (response.ok) {
         const result = await response.json()
-        showSuccess(`El modelo "${form.value.name}" ha sido creado exitosamente y está siendo entrenado.`, {
+        showSuccess(`El modelo "${form.value.name}" está siendo entrenado correctamente.`, {
           title: 'Modelo creado exitosamente',
           duration: 6000
         })
@@ -496,7 +496,22 @@ const createModel = async () => {
       const error = await response.json()
       console.error('Error creating model:', error)
       
-      // Manejar diferentes tipos de errores
+      // Manejar errores por código de estado HTTP primero
+      if (response.status === 429) {
+        showError(error.error || error.detail || 'Has alcanzado el límite máximo de 3 modelos en entrenamiento simultáneo. Espera a que termine alguno antes de crear uno nuevo.', {
+          title: 'Límite de modelos alcanzado',
+          autoClose: false
+        })
+        return
+      } else if (response.status === 503) {
+        showError(error.error || error.detail || 'El sistema está sobrecargado. Por favor, intenta nuevamente en unos minutos.', {
+          title: 'Sistema sobrecargado',
+          autoClose: false
+        })
+        return
+      }
+      
+      // Manejar diferentes tipos de errores por error_code
       let errorMessage = 'Error desconocido'
       
       if (error.error_code === 'DUPLICATE_PUBLIC_MODEL_NAME') {
@@ -532,6 +547,16 @@ const createModel = async () => {
         } else if (error.error_code === 'INVALID_IGNORED_COLUMNS') {
           showError(error.error || error.detail, {
             title: 'Columnas inválidas',
+            autoClose: false
+          })
+        } else if (error.error_code === 'MAX_MODELS_LIMIT') {
+          showError(error.error || error.detail, {
+            title: 'Límite de modelos alcanzado',
+            autoClose: false
+          })
+        } else if (error.error_code === 'WORKER_OVERLOADED') {
+          showError(error.error || error.detail, {
+            title: 'Sistema sobrecargado',
             autoClose: false
           })
         } else {
