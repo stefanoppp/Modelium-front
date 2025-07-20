@@ -812,7 +812,7 @@ onMounted(() => {
 .tech-button.primary {
   background: linear-gradient(135deg, rgba(138, 43, 226, 0.2), rgba(75, 0, 130, 0.2));
   border-color: rgba(138, 43, 226, 0.4);
-  color: #8B5CF6;
+  color: #ffffff;
 }
 
 .tech-button.primary:hover {
@@ -954,6 +954,9 @@ onMounted(() => {
   background-size: 1.5em 1.5em;
   padding-right: 2.5rem;
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
 .form-select option {

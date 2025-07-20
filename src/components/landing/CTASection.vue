@@ -21,7 +21,7 @@
         </h2>
         
         <p class="cta-description">
-          Únete a más de 10,000 desarrolladores y científicos de datos que ya están 
+          Únete al resto de desarrolladores y científicos de datos que ya están 
           construyendo el futuro con nuestra plataforma de IA avanzada.
         </p>
         
@@ -48,32 +48,9 @@
             size="large"
             class="cta-primary"
           />
-          <TechButton 
-            label="Ver Demo en Vivo" 
-            icon="pi pi-play"
-            severity="secondary"
-            outlined
-            size="large"
-          />
         </div>
         
-        <div class="trust-indicators">
-          <p class="trust-text">Confiado por empresas líderes en todo el mundo</p>
-          <div class="trust-stats">
-            <div class="stat">
-              <span class="stat-number">99.9%</span>
-              <span class="stat-label">Uptime</span>
-            </div>
-            <div class="stat">
-              <span class="stat-number">10K+</span>
-              <span class="stat-label">Usuarios Activos</span>
-            </div>
-            <div class="stat">
-              <span class="stat-number">50M+</span>
-              <span class="stat-label">Modelos Entrenados</span>
-            </div>
-          </div>
-        </div>
+
       </div>
     </div>
   </section>

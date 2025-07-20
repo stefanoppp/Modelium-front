@@ -44,20 +44,7 @@
               Sin código necesario, resultados profesionales en minutos.
             </p>
             
-            <div class="hero-stats">
-              <div class="stat-item">
-                <span class="stat-number">10K+</span>
-                <span class="stat-label">Modelos Creados</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-number">99.5%</span>
-                <span class="stat-label">Exactitud</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-number">5min</span>
-                <span class="stat-label">Tiempo Promedio</span>
-              </div>
-            </div>
+
             
             <div class="hero-actions">
               <TechButton 
@@ -65,13 +52,6 @@
                 icon="pi pi-rocket"
                 @click="navigateToAuth"
                 class="primary-btn"
-                size="large"
-              />
-              <TechButton 
-                label="Ver Demo" 
-                icon="pi pi-play"
-                severity="secondary"
-                outlined
                 size="large"
               />
             </div>
@@ -136,7 +116,7 @@ const getStarStyle = (index) => {
 
 <style scoped>
 .hero-section {
-  padding: 0;
+  padding: 80px 0 0 0;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -305,7 +285,7 @@ const getStarStyle = (index) => {
 .hero-grid {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
-  gap: 6rem;
+  gap: 8rem;
   align-items: center;
   min-height: 100vh;
   padding: 2rem 0;
@@ -313,6 +293,7 @@ const getStarStyle = (index) => {
 
 .hero-content {
   padding-left: 2rem;
+  margin-top: -4rem;
 }
 
 .content-wrapper {
@@ -355,7 +336,7 @@ const getStarStyle = (index) => {
 }
 
 .hero-title {
-  font-size: 4.5rem;
+  font-size: 3.8rem;
   font-weight: 300;
   margin-bottom: 1rem;
   line-height: 1.1;
@@ -380,7 +361,7 @@ const getStarStyle = (index) => {
 }
 
 .hero-subtitle {
-  font-size: 2rem;
+  font-size: 1.7rem;
   font-weight: 400;
   color: var(--accent-color);
   margin-bottom: 1.5rem;
@@ -390,11 +371,11 @@ const getStarStyle = (index) => {
 }
 
 .hero-description {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   color: #b1b8d4;
   margin-bottom: 3rem;
   line-height: 1.7;
-  max-width: 500px;
+  max-width: 450px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   font-weight: 400;
   letter-spacing: -0.005em;
@@ -444,13 +425,14 @@ const getStarStyle = (index) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
+  padding: 1rem 3rem 2rem 3rem;
+  margin-top: -6rem;
 }
 
 .visual-container {
   position: relative;
-  width: 520px;
-  height: 520px;
+  width: 450px;
+  height: 450px;
 }
 
 .ai-visualization {
@@ -464,8 +446,8 @@ const getStarStyle = (index) => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -501,7 +483,7 @@ const getStarStyle = (index) => {
 }
 
 .core-center {
-  font-size: 2rem;
+  font-size: 1.7rem;
   font-weight: 700;
   color: white;
   z-index: 2;
@@ -530,30 +512,30 @@ const getStarStyle = (index) => {
 }
 
 .orbit-1 {
-  width: 260px;
-  height: 260px;
+  width: 220px;
+  height: 220px;
   animation: galaxyOrbit 25s linear infinite;
   border-color: rgba(139, 92, 246, 0.5);
 }
 
 .orbit-2 {
-  width: 380px;
-  height: 380px;
+  width: 320px;
+  height: 320px;
   animation: galaxyOrbit 35s linear infinite reverse;
   border-color: rgba(0, 212, 255, 0.4);
 }
 
 .orbit-3 {
-  width: 500px;
-  height: 500px;
+  width: 430px;
+  height: 430px;
   animation: galaxyOrbit 45s linear infinite;
   border-color: rgba(236, 72, 153, 0.3);
 }
 
 .orbit-node {
   position: absolute;
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   background: radial-gradient(circle, rgba(42, 42, 60, 0.95) 0%, rgba(20, 20, 40, 0.9) 100%);
   border: 2px solid #8B5CF6;
   border-radius: 50% !important;
@@ -562,7 +544,7 @@ const getStarStyle = (index) => {
   justify-content: center;
   font-weight: 600;
   color: #8B5CF6;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   backdrop-filter: blur(10px);
   box-shadow: 
     0 0 15px rgba(139, 92, 246, 0.6),
@@ -582,7 +564,7 @@ const getStarStyle = (index) => {
 }
 
 .node-1 {
-  top: -30px;
+  top: -25px;
   left: 50%;
   transform: translateX(-50%);
   animation-delay: 0s;
@@ -590,13 +572,13 @@ const getStarStyle = (index) => {
 
 .node-2 {
   top: 50%;
-  right: -30px;
+  right: -25px;
   transform: translateY(-50%);
   animation-delay: 1s;
 }
 
 .node-3 {
-  bottom: -30px;
+  bottom: -25px;
   left: 50%;
   transform: translateX(-50%);
   animation-delay: 2s;
@@ -684,32 +666,54 @@ const getStarStyle = (index) => {
 /* Responsive Design */
 @media (max-width: 1200px) {
   .hero-grid {
-    gap: 4rem;
+    gap: 6rem;
   }
   
   .hero-title {
-    font-size: 3.5rem;
+    font-size: 3.2rem;
     font-weight: 300;
   }
   
+  .hero-subtitle {
+    font-size: 1.5rem;
+  }
+  
+  .hero-description {
+    font-size: 1rem;
+    max-width: 400px;
+  }
+  
+  .hero-visual {
+    padding: 1rem 2rem 2rem 2rem;
+  }
+  
   .visual-container {
-    width: 420px;
-    height: 420px;
+    width: 380px;
+    height: 380px;
   }
   
   .orbit-1 {
-    width: 220px;
-    height: 220px;
+    width: 190px;
+    height: 190px;
   }
   
   .orbit-2 {
-    width: 320px;
-    height: 320px;
+    width: 280px;
+    height: 280px;
   }
   
   .orbit-3 {
-    width: 410px;
-    height: 410px;
+    width: 370px;
+    height: 370px;
+  }
+  
+  .central-core {
+    width: 85px;
+    height: 85px;
+  }
+  
+  .core-center {
+    font-size: 1.5rem;
   }
   
   .nebula-1 {
@@ -728,33 +732,118 @@ const getStarStyle = (index) => {
   }
 }
 
+@media (max-width: 992px) {
+  .hero-grid {
+    gap: 4rem;
+  }
+  
+  .hero-content {
+    margin-top: -2rem;
+  }
+  
+  .hero-title {
+    font-size: 2.8rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.3rem;
+  }
+  
+  .hero-description {
+    font-size: 0.95rem;
+    max-width: 350px;
+  }
+  
+  .hero-visual {
+    padding: 1rem;
+    margin-top: -4rem;
+  }
+  
+  .visual-container {
+    width: 320px;
+    height: 320px;
+  }
+  
+  .orbit-1 {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .orbit-2 {
+    width: 230px;
+    height: 230px;
+  }
+  
+  .orbit-3 {
+    width: 310px;
+    height: 310px;
+  }
+  
+  .central-core {
+    width: 75px;
+    height: 75px;
+  }
+  
+  .core-center {
+    font-size: 1.3rem;
+  }
+  
+  .orbit-node {
+    width: 45px;
+    height: 45px;
+    font-size: 0.75rem;
+  }
+  
+  .node-1 {
+    top: -22px;
+  }
+  
+  .node-2 {
+    right: -22px;
+  }
+  
+  .node-3 {
+    bottom: -22px;
+  }
+}
+
 @media (max-width: 768px) {
   .hero-grid {
     grid-template-columns: 1fr;
     text-align: center;
-    gap: 3rem;
+    gap: 2rem;
   }
   
   .hero-content {
     padding-left: 0;
+    margin-top: 0;
+    order: 2;
+  }
+  
+  .hero-visual {
+    order: 1;
+    margin-top: 0;
+    padding: 1rem 0;
   }
   
   .content-wrapper {
     max-width: none;
+    padding: 0 1rem;
   }
   
   .hero-title {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     font-weight: 300;
   }
   
   .hero-subtitle {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
   }
   
   .hero-description {
-    font-size: 1.1rem;
+    font-size: 1rem;
     max-width: none;
+    margin-bottom: 2rem;
   }
   
   .hero-stats {
@@ -763,50 +852,50 @@ const getStarStyle = (index) => {
   }
   
   .visual-container {
-    width: 330px;
-    height: 330px;
+    width: 280px;
+    height: 280px;
   }
   
   .orbit-1 {
-    width: 180px;
-    height: 180px;
+    width: 150px;
+    height: 150px;
   }
   
   .orbit-2 {
-    width: 260px;
-    height: 260px;
+    width: 210px;
+    height: 210px;
   }
   
   .orbit-3 {
-    width: 320px;
-    height: 320px;
+    width: 270px;
+    height: 270px;
   }
   
   .orbit-node {
-    width: 50px;
-    height: 50px;
-    font-size: 0.75rem;
+    width: 42px;
+    height: 42px;
+    font-size: 0.7rem;
   }
   
   .node-1 {
-    top: -25px;
+    top: -21px;
   }
   
   .node-2 {
-    right: -25px;
+    right: -21px;
   }
   
   .node-3 {
-    bottom: -25px;
+    bottom: -21px;
   }
   
   .central-core {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
   }
   
   .core-center {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
   }
   
   .nebula-1 {
@@ -847,62 +936,62 @@ const getStarStyle = (index) => {
 
 @media (max-width: 480px) {
   .hero-title {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
   
   .hero-subtitle {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
   
   .hero-description {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
   
   .visual-container {
-    width: 280px;
-    height: 280px;
+    width: 240px;
+    height: 240px;
   }
   
   .orbit-1 {
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
   }
   
   .orbit-2 {
-    width: 210px;
-    height: 210px;
+    width: 170px;
+    height: 170px;
   }
   
   .orbit-3 {
-    width: 270px;
-    height: 270px;
+    width: 230px;
+    height: 230px;
   }
   
   .orbit-node {
-    width: 40px;
-    height: 40px;
-    font-size: 0.65rem;
+    width: 35px;
+    height: 35px;
+    font-size: 0.6rem;
   }
   
   .node-1 {
-    top: -20px;
+    top: -17px;
   }
   
   .node-2 {
-    right: -20px;
+    right: -17px;
   }
   
   .node-3 {
-    bottom: -20px;
+    bottom: -17px;
   }
   
   .central-core {
-    width: 80px;
-    height: 80px;
+    width: 65px;
+    height: 65px;
   }
   
   .core-center {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
   }
   
   .hero-stats {

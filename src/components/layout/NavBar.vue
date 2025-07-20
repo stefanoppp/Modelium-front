@@ -2,8 +2,8 @@
   <nav class="navbar">
     <div class="navbar-container">
       <div class="navbar-brand">
-        <router-link to="/" class="brand-link">
-          <span class="brand-name">Modelium</span>
+        <router-link to="/" class="logo-link">
+          <img src="@/assets/logo-modelium.png" alt="Modelium" class="logo" />
         </router-link>
       </div>
       
@@ -58,8 +58,6 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
 .navbar {
   position: fixed;
   top: 0;
@@ -67,8 +65,7 @@ const handleLogout = () => {
   right: 0;
   width: 100vw;
   z-index: 1000;
-  background: rgba(10, 10, 10, 0.95);
-  backdrop-filter: blur(10px);
+  background: #000000;
   border-bottom: 1px solid rgba(0, 212, 255, 0.2);
   padding: 1rem 0;
   margin: 0;
@@ -85,61 +82,25 @@ const handleLogout = () => {
 .navbar-brand {
   display: flex;
   align-items: center;
-}
-
-.brand-link {
-  text-decoration: none;
-  color: white;
-  font-weight: 600;
-  font-size: 1.5rem;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-}
-
-.brand-name {
-  font-size: 1.5rem;
-  font-weight: 700;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #00D4FF 0%, #8B5CF6 50%, #EC4899 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  position: relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.brand-link {
-  position: relative;
-  overflow: hidden;
-  padding: 0.5rem 1rem;
-  border-radius: 12px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.brand-link::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
-  transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.brand-link:hover::before {
-  left: 100%;
+.logo-link {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  height: 100%;
 }
 
-.brand-link:hover .brand-name {
-  text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-  transform: translateY(-1px);
+.logo-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
-.brand-link:hover {
-  background: rgba(0, 212, 255, 0.05);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+.logo {
+  height: 48px;
+  width: auto;
 }
 
 .navbar-menu {

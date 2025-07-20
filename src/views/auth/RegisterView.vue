@@ -17,7 +17,7 @@
       <div class="auth-card">
         <div class="card-header">
           <h2 class="auth-title">Crea tu cuenta</h2>
-          <p class="auth-subtitle">Únete a la revolución de la IA</p>
+          <p class="auth-subtitle">Únete a la creación de la IA</p>
         </div>
         
         <form @submit.prevent="handleRegister" class="auth-form">
@@ -115,10 +115,6 @@
               <span class="link-text">Iniciar Sesión</span>
               <div class="link-glow"></div>
             </router-link>
-          </div>
-          <div class="footer-brand">
-            <router-link to="/" class="brand-name">Modelium</router-link>
-            <span class="brand-tagline">Potenciando el futuro del desarrollo de IA</span>
           </div>
         </div>
       </div>
@@ -381,18 +377,21 @@ html, body {
 
 /* Auth card */
 .auth-card {
-  background: rgba(30, 30, 50, 0.9);
-  border: 1px solid rgba(138, 43, 226, 0.3);
-  border-radius: 20px;
-  padding: 2rem;
-  max-width: 480px;
-  width: 100%;
+  background: 
+    linear-gradient(135deg, rgba(20, 20, 35, 0.95), rgba(30, 30, 50, 0.9)),
+    radial-gradient(circle at 30% 40%, rgba(138, 43, 226, 0.1) 0%, transparent 70%);
   backdrop-filter: blur(20px);
-  position: relative;
-  z-index: 10;
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  border-radius: 12px;
+  padding: 0.15rem 0.15rem 0.1rem 0.15rem;
+  width: 100%;
+  max-width: 200px;
   box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.5),
-    0 0 40px rgba(138, 43, 226, 0.1);
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 60px rgba(138, 43, 226, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 2;
   box-sizing: border-box;
 }
 
@@ -416,10 +415,10 @@ html, body {
 }
 
 .auth-title {
-  font-size: 2rem;
+  font-size: 2.1rem;
   font-weight: 300;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #4B0082 0%, #8A2BE2 25%, #9400D3 50%, #8B5CF6 75%, #EC4899 100%);
+  background: linear-gradient(135deg, #b145ff 0%, #da38a9 50%,#b145ff  100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -578,7 +577,6 @@ html, body {
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
 }
 
 .footer-text {
@@ -646,7 +644,7 @@ html, body {
   
   .auth-card {
     max-width: 550px;
-    padding: 3.5rem;
+    padding: 1.5rem;
   }
 }
 
@@ -657,9 +655,9 @@ html, body {
   }
   
   .auth-card {
-    padding: 1.5rem;
+    padding: 0.1rem 0.1rem 0.05rem 0.1rem;
     margin: 1.5rem 0;
-    max-width: 100%;
+    max-width: 180px;
   }
   
   .form-row {
@@ -669,6 +667,21 @@ html, body {
   
   .form-row .form-group {
     margin-bottom: 1rem;
+  }
+  
+  .auth-title {
+    font-size: 1.6rem;
+  }
+  
+  .auth-subtitle {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .auth-card {
+    padding: 1.8rem;
+    margin: 1rem;
   }
   
   .auth-title {
@@ -686,22 +699,23 @@ html, body {
   }
   
   .auth-card {
-    padding: 1.25rem;
+    padding: 0.05rem 0.05rem 0.02rem 0.05rem;
     margin: 1rem 0;
     border-radius: 16px;
+    max-width: 160px;
   }
   
   .auth-title {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
   }
   
   .auth-subtitle {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
   }
   
   .form-input {
-    padding: 0.65rem;
-    font-size: 0.85rem;
+    padding: 0.7rem;
+    font-size: 0.9rem;
   }
   
   .form-label {
@@ -710,8 +724,8 @@ html, body {
   }
   
   .auth-button {
-    padding: 0.75rem 1.25rem;
-    font-size: 0.95rem;
+    padding: 0.7rem;
+    font-size: 0.9rem;
   }
   
   .card-header {
@@ -736,6 +750,8 @@ html, body {
   
   .form-row {
     margin-bottom: 1rem;
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
   }
 }
 

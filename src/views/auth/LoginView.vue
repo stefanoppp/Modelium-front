@@ -68,10 +68,6 @@
               <div class="link-glow"></div>
             </router-link>
           </div>
-          <div class="footer-brand">
-            <router-link to="/" class="brand-name">Modelium</router-link>
-            <span class="brand-tagline">Potenciando el futuro del desarrollo de IA</span>
-          </div>
         </div>
       </div>
     </div>
@@ -350,9 +346,9 @@ const handleLogin = async () => {
 .auth-card {
   background: rgba(30, 30, 50, 0.9);
   border: 1px solid rgba(138, 43, 226, 0.3);
-  border-radius: 20px;
-  padding: 3rem;
-  max-width: 450px;
+  border-radius: 12px;
+  padding: 0.15rem 0.15rem 0.1rem 0.15rem;
+  max-width: 200px;
   width: 100%;
   backdrop-filter: blur(20px);
   position: relative;
@@ -385,10 +381,10 @@ const handleLogin = async () => {
 }
 
 .auth-title {
-  font-size: 2.5rem;
+  font-size: 2.1rem;
   font-weight: 300;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #4B0082 0%, #8A2BE2 25%, #9400D3 50%, #8B5CF6 75%, #EC4899 100%);
+  background: linear-gradient(135deg, #b145ff 0%, #da38a9 50%,#b145ff  100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -611,7 +607,6 @@ const handleLogin = async () => {
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
 }
 
 .footer-text {
@@ -678,33 +673,45 @@ const handleLogin = async () => {
   
   .auth-card {
     max-width: 500px;
-    padding: 3.5rem;
+    padding: 1.5rem;
   }
 }
 
 @media (max-width: 768px) {
   .auth-card {
-    padding: 2rem;
+    padding: 0.1rem 0.1rem 0.05rem 0.1rem;
+    max-width: 180px;
     margin: 1rem;
   }
   
   .auth-title {
-    font-size: 2rem;
+    font-size: 1.6rem;
   }
   
   .auth-subtitle {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 }
 
 @media (max-width: 480px) {
   .auth-card {
-    padding: 1.5rem;
+    padding: 0.05rem 0.05rem 0.02rem 0.05rem;
+    max-width: 160px;
     margin: 0.5rem;
   }
   
   .auth-title {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
+  }
+
+  .form-input {
+    padding: 0.7rem;
+    font-size: 0.9rem;
+  }
+
+  .auth-button {
+    padding: 0.7rem;
+    font-size: 0.9rem;
   }
 }
 </style>

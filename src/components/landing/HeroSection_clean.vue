@@ -27,34 +27,12 @@
               necesario, resultados profesionales en minutos.
             </p>
 
-            <div class="hero-stats">
-              <div class="stat-item">
-                <span class="stat-number">10K+</span>
-                <span class="stat-label">Modelos Creados</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-number">99.5%</span>
-                <span class="stat-label">Exactitud</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-number">5min</span>
-                <span class="stat-label">Tiempo Promedio</span>
-              </div>
-            </div>
-
             <div class="hero-actions">
               <TechButton
                 label="Comenzar Gratis"
                 icon="pi pi-rocket"
                 @click="navigateToAuth"
                 class="primary-btn"
-                size="large"
-              />
-              <TechButton
-                label="Ver Demo"
-                icon="pi pi-play"
-                severity="secondary"
-                outlined
                 size="large"
               />
             </div>

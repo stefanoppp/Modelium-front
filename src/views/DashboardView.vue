@@ -1,6 +1,11 @@
 <template>
-  <div class="dashboard-container">
-    <NavBar />
+  <div class="dashboard-wrapper">
+    <!-- Contenedor aislado para el navbar -->
+    <div class="navbar-isolation">
+      <NavBar />
+    </div>
+    
+    <div class="dashboard-container">
     
     <!-- Fondo galáctico -->
     <div class="galactic-background">
@@ -226,7 +231,8 @@
 
       </div>
     </main>
-  </div>
+    </div> <!-- Cierre de dashboard-container -->
+  </div> <!-- Cierre de dashboard-wrapper -->
 </template>
 
 <script setup>
@@ -375,8 +381,45 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* === WRAPPER PRINCIPAL === */
+.dashboard-wrapper {
+  min-height: 100vh;
+  position: relative;
+}
+
+/* === AISLAMIENTO DEL NAVBAR === */
+.navbar-isolation {
+  /* Reset completo para aislar el navbar */
+  all: initial;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  width: 100%;
+  height: auto;
+  
+  /* Propiedades específicas necesarias */
+  font-family: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  
+  /* Evitar herencia de transformaciones y filtros */
+  transform: none;
+  filter: none;
+  backdrop-filter: none;
+  
+  /* Evitar herencia de animaciones */
+  animation: none;
+  transition: none;
+}
+
 /* === CONTENEDOR PRINCIPAL === */
 .dashboard-container {
+  padding-top: 80px; /* Espacio para el navbar fijo */
   min-height: 100vh;
   background: 
     linear-gradient(135deg, #000000 0%, #0a0a0f 15%, #1a0a1a 30%, #0f0f1a 45%, #1a1a2e 60%, #2a1a3a 75%, #1a2a4a 90%, #0f1a2a 100%),
