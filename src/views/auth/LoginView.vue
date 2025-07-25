@@ -22,14 +22,14 @@
         
         <form @submit.prevent="handleLogin" class="auth-form">
           <div class="form-group" :class="{ error: error }">
-            <label for="username" class="form-label">Usuario o Email</label>
+            <label for="username" class="form-label">Usuario</label>
             <input 
               v-model="form.username" 
               id="username" 
               type="text" 
               class="form-input"
               :class="{ error: error }"
-              placeholder="Ingresa tu usuario o email"
+              placeholder="Ingresa tu usuario"
               required 
             />
           </div>

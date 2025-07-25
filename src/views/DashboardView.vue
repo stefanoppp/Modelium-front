@@ -186,9 +186,6 @@
         <!-- Estado Vacío -->
         <section v-if="modelStats.total === 0" class="empty-panel">
           <div class="empty-content">
-            <div class="empty-icon">
-              <i class="pi pi-sparkles"></i>
-            </div>
             <h3>¡Comienza tu Aventura en IA!</h3>
             <p>Crea tu primer modelo de inteligencia artificial y descubre el poder del machine learning</p>
             <div class="empty-actions">
@@ -627,7 +624,7 @@ onMounted(async () => {
 
 /* === HEADER DEL DASHBOARD === */
 .dashboard-header {
-  padding: 7rem 0 2rem;
+  padding: 4rem 0 2rem;
   position: relative;
   z-index: 10;
   text-align: center;
@@ -1052,7 +1049,7 @@ onMounted(async () => {
 }
 
 .empty-icon {
-  font-size: 4rem;
+  font-size: 10rem;
   color: #8A2BE2;
   margin-bottom: 1.5rem;
   opacity: 0.8;

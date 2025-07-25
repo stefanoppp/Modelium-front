@@ -80,11 +80,31 @@
                     <i class="pi pi-list"></i>
                     Tipo de Tarea
                   </label>
-                  <select v-model="form.task_type" class="form-select" required>
-                    <option value="">Selecciona el tipo de tarea</option>
-                    <option value="classification">Clasificación</option>
-                    <option value="regression">Regresión</option>
-                  </select>
+                  <div class="input-with-info">
+                    <select v-model="form.task_type" class="form-select" required>
+                      <option value="">Selecciona el tipo de tarea</option>
+                      <option value="classification">Clasificación</option>
+                      <option value="regression">Regresión</option>
+                    </select>
+                    <button 
+                      type="button"
+                      @click="suggestTaskType" 
+                      class="suggest-button"
+                      title="Sugerir tipo de tarea automáticamente"
+                      :disabled="!selectedFile || !form.target_column || isSuggesting"
+                    >
+                      <i class="pi pi-spin pi-spinner" v-if="isSuggesting"></i>
+                      <i class="pi pi-lightbulb" v-else></i>
+                    </button>
+                    <a 
+                      href="#" 
+                      @click.prevent="toggleTaskTypeInfo" 
+                      class="info-link-side"
+                      title="¿Cuándo usar cada tipo?"
+                    >
+                      <i class="pi pi-question-circle"></i>
+                    </a>
+                  </div>
                 </div>
                 
                 <div class="form-group full-width">
@@ -301,6 +321,94 @@
         </div>
       </div>
     </div>
+    
+    <!-- Modal informativo para tipos de tarea -->
+    <div v-if="showTaskTypeInfo" class="modal-overlay" @click="toggleTaskTypeInfo">
+      <div class="modal-container" @click.stop>
+        <div class="modal-header">
+          <h3 class="modal-title">
+            <i class="pi pi-info-circle"></i>
+            Tipos de Tareas de Machine Learning
+          </h3>
+          <button 
+            type="button" 
+            @click="toggleTaskTypeInfo" 
+            class="modal-close-btn"
+          >
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+        
+        <div class="modal-content">
+          <div class="task-cards">
+            <div class="task-card classification-card">
+              <div class="card-header">
+                <div class="card-icon">
+                  <i class="pi pi-tags"></i>
+                </div>
+                <h4 class="card-title">Clasificación</h4>
+              </div>
+              
+              <div class="card-content">
+                <p class="card-description">
+                  Úsala cuando quieras <strong>predecir categorías o etiquetas</strong>.
+                </p>
+                
+                <div class="card-examples">
+                  <h5 class="examples-title">Ejemplos prácticos:</h5>
+                  <ul class="examples-list">
+                    <li><span class="example-icon">📧</span> ¿Es spam o no spam?</li>
+                    <li><span class="example-icon">🛍️</span> ¿Qué tipo de producto es?</li>
+                    <li><span class="example-icon">💰</span> ¿El cliente comprará o no?</li>
+                    <li><span class="example-icon">🏥</span> Resultados positivos o negativos</li>
+                  </ul>
+                </div>
+                
+                <div class="card-use-case">
+                  <strong>Resultado:</strong> Categorías discretas (Sí/No, A/B/C)
+                </div>
+              </div>
+            </div>
+            
+            <div class="task-card regression-card">
+              <div class="card-header">
+                <div class="card-icon">
+                  <i class="pi pi-chart-line"></i>
+                </div>
+                <h4 class="card-title">Regresión</h4>
+              </div>
+              
+              <div class="card-content">
+                <p class="card-description">
+                  Úsala cuando quieras <strong>predecir valores numéricos continuos</strong>.
+                </p>
+                
+                <div class="card-examples">
+                  <h5 class="examples-title">Ejemplos prácticos:</h5>
+                  <ul class="examples-list">
+                    <li><span class="example-icon">🏠</span> ¿Cuál será el precio de una casa?</li>
+                    <li><span class="example-icon">📈</span> ¿Cuántas ventas tendremos?</li>
+                    <li><span class="example-icon">🌡️</span> ¿Qué temperatura habrá?</li>
+                    <li><span class="example-icon">⏱️</span> ¿Cuánto tiempo tardará?</li>
+                  </ul>
+                </div>
+                
+                <div class="card-use-case">
+                  <strong>Resultado:</strong> Números continuos ($1,250, 45.7°C)
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="modal-footer">
+            <div class="help-tip">
+              <i class="pi pi-lightbulb"></i>
+              <span>¿Aún tienes dudas? Piensa en qué tipo de respuesta esperas: ¿una categoría o un número?</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -334,6 +442,8 @@ const tempIgnoredColumn = ref('')
 
 // Estado de la UI
 const isSubmitting = ref(false)
+const showTaskTypeInfo = ref(false)
+const isSuggesting = ref(false)
 
 // Computed
 const canSubmit = computed(() => {
@@ -456,6 +566,77 @@ const removeIgnoredColumn = (column) => {
 // Navegación
 const goBack = () => {
   router.push('/dashboard')
+}
+
+// Control del panel informativo
+const toggleTaskTypeInfo = () => {
+  showTaskTypeInfo.value = !showTaskTypeInfo.value
+}
+
+// Sugerencia de tipo de tarea
+const suggestTaskType = async () => {
+  if (!selectedFile.value || !form.value.target_column) {
+    showWarning('Primero debes cargar un archivo CSV y seleccionar la columna objetivo', {
+      title: 'Información faltante',
+      duration: 4000
+    })
+    return
+  }
+  
+  isSuggesting.value = true
+  
+  try {
+    const formData = new FormData()
+    formData.append('file', selectedFile.value)
+    formData.append('target_column', form.value.target_column)
+    
+    const token = authStore.getToken?.() || localStorage.getItem('access_token')
+    
+    const response = await fetch('http://localhost:8000/api/models/suggest-task-type/', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    })
+    
+    if (response.ok) {
+      const result = await response.json()
+      
+      // Aplicar la sugerencia
+      form.value.task_type = result.suggested_task_type
+      
+      // Mostrar información detallada
+      const confidenceText = result.confidence === 'alta' ? '🎯 Alta' : 
+                            result.confidence === 'media' ? '⚡ Media' : '❓ Baja'
+      
+      showSuccess(
+        `Sugerencia aplicada: ${result.suggested_task_type === 'classification' ? 'Clasificación' : 'Regresión'}\n\n` +
+        `Confianza: ${confidenceText}\n\n` +
+        `Razón: ${result.reasoning}`,
+        {
+          title: '🤖 Sugerencia de IA',
+          duration: 8000
+        }
+      )
+      
+    } else {
+      const error = await response.json()
+      showError(error.error || 'Error al obtener sugerencia', {
+        title: 'Error en la sugerencia',
+        duration: 5000
+      })
+    }
+    
+  } catch (error) {
+    console.error('Error suggesting task type:', error)
+    showError('Error de conexión al obtener la sugerencia', {
+      title: 'Error de conexión',
+      duration: 5000
+    })
+  } finally {
+    isSuggesting.value = false
+  }
 }
 
 // Envío del formulario
@@ -1328,6 +1509,500 @@ onMounted(() => {
   margin: 0.5rem auto;
   width: 60%;
   opacity: 0.7;
+}
+
+/* Estilos para el enlace informativo y panel */
+.info-link {
+  color: #8B5CF6;
+  text-decoration: none;
+  margin-left: 0.75rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.9;
+  background: rgba(139, 92, 246, 0.1);
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.info-link:hover {
+  color: #ffffff;
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.info-link i {
+  font-size: 1rem;
+}
+
+/* Contenedor para input con botón de información al lado */
+.input-with-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.input-with-info .form-select {
+  flex: 1;
+}
+
+/* Botón de información al lado del input */
+.info-link-side {
+  color: #8B5CF6;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.9;
+  background: rgba(139, 92, 246, 0.1);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  min-width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.info-link-side:hover {
+  color: #ffffff;
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.info-link-side i {
+  font-size: 1rem;
+}
+
+/* Botón de sugerencia de tipo de tarea */
+.suggest-button {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border-radius: 8px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.suggest-button:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.suggest-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.suggest-button i {
+  font-size: 1rem;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+  padding: 1rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal Container */
+.modal-container {
+  background: linear-gradient(135deg, 
+    rgba(30, 41, 59, 0.98) 0%, 
+    rgba(51, 65, 85, 0.95) 50%, 
+    rgba(30, 41, 59, 0.98) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 16px;
+  max-width: 750px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: slideUp 0.4s ease-out;
+  position: relative;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal Header */
+.modal-header {
+  padding: 1rem 1.5rem 0.5rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.025em;
+}
+
+.modal-title i {
+  color: #8B5CF6;
+  font-size: 1.1rem;
+  background: rgba(139, 92, 246, 0.2);
+  padding: 0.5rem;
+  border-radius: 10px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.modal-close-btn {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  border-radius: 12px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+
+.modal-close-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ffffff;
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+}
+
+/* Modal Content */
+.modal-content {
+  padding: 0.75rem 1.5rem 0.75rem 1.5rem;
+}
+
+/* Task Cards */
+.task-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.task-card {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.task-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.classification-card:hover {
+  box-shadow: 0 15px 35px rgba(139, 92, 246, 0.25);
+}
+
+.regression-card:hover {
+  box-shadow: 0 15px 35px rgba(34, 197, 94, 0.25);
+}
+
+/* Card Header */
+.card-header {
+  background: linear-gradient(135deg, 
+    rgba(139, 92, 246, 0.2) 0%, 
+    rgba(168, 85, 247, 0.1) 100%);
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.regression-card .card-header {
+  background: linear-gradient(135deg, 
+    rgba(34, 197, 94, 0.2) 0%, 
+    rgba(16, 185, 129, 0.1) 100%);
+}
+
+.card-icon {
+  background: rgba(139, 92, 246, 0.3);
+  padding: 0.6rem;
+  border-radius: 10px;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.regression-card .card-icon {
+  background: rgba(34, 197, 94, 0.3);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.card-icon i {
+  color: #ffffff;
+  font-size: 1.1rem;
+}
+
+.card-title {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.025em;
+}
+
+/* Card Content */
+.card-content {
+  padding: 0.75rem;
+}
+
+.card-description {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.card-description strong {
+  color: #A855F7;
+  font-weight: 700;
+}
+
+.regression-card .card-description strong {
+  color: #22c55e;
+}
+
+/* Examples */
+.card-examples {
+  margin-bottom: 0.75rem;
+}
+
+.examples-title {
+  color: #8B5CF6;
+  font-weight: 700;
+  font-size: 0.8rem;
+  margin: 0 0 0.4rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.regression-card .examples-title {
+  color: #22c55e;
+}
+
+.examples-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.examples-list li {
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  padding: 0.4rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.2s ease;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.examples-list li:hover {
+  color: #e2e8f0;
+}
+
+.example-icon {
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
+}
+
+/* Use Case */
+.card-use-case {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 10px;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.regression-card .card-use-case {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.card-use-case strong {
+  color: #8B5CF6;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.01em;
+}
+
+.regression-card .card-use-case strong {
+  color: #22c55e;
+}
+
+.card-use-case span {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.75rem;
+  line-height: 1.3;
+  font-weight: 400;
+}
+
+/* Modal Footer */
+.modal-footer {
+  padding: 0.75rem 1.5rem 1rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.help-tip {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 10px;
+  padding: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.help-tip i {
+  color: #3B82F6;
+  font-size: 1rem;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+}
+
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal-container {
+    margin: 0.75rem;
+    max-height: 90vh;
+    max-width: 95%;
+  }
+  
+  .modal-header {
+    padding: 1rem 1.25rem 0.75rem 1.25rem;
+  }
+  
+  .modal-title {
+    font-size: 1.1rem;
+  }
+  
+  .modal-content {
+    padding: 0.75rem 1.25rem 1rem 1.25rem;
+  }
+  
+  .modal-footer {
+    padding: 0.75rem 1.25rem 1rem 1.25rem;
+  }
+  
+  .task-cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .card-header {
+    padding: 0.875rem;
+  }
+  
+  .card-content {
+    padding: 0.875rem;
+  }
+  
+  .card-title {
+    font-size: 1rem;
+  }
+  
+  .card-description {
+    font-size: 0.8rem;
+  }
+  
+  .examples-list li {
+    font-size: 0.75rem;
+  }
+  
+  .help-tip {
+    font-size: 0.75rem;
+  }
 }
 
 .subtitle-text {

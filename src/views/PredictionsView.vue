@@ -136,6 +136,10 @@
               <i class="pi pi-calculator"></i>
               Datos para Predicción - {{ selectedModel.name }}
             </h3>
+            <div class="optional-fields-info">
+              <i class="pi pi-info-circle"></i>
+              <span>Se debe seleccionar al menos un valor. Los valores no ingresados se completarán automáticamente: valor medio para campos numéricos y moda para campos categóricos.</span>
+            </div>
           </div>
           <div class="card-content">
             <form @submit.prevent="makePrediction" class="prediction-form">
@@ -154,8 +158,7 @@
                       v-model="inputData[feature]"
                       type="text"
                       class="form-input"
-                      :placeholder="`Ingresa ${formatFeatureName(feature).toLowerCase()}`"
-                      required
+                      :placeholder="`Ingresa ${formatFeatureName(feature).toLowerCase()} (opcional)`"
                       @input="validateTextInput(feature, $event)"
                     />
                     <div class="input-hint">
@@ -171,8 +174,7 @@
                       type="number"
                       step="any"
                       class="form-input"
-                      :placeholder="`Ingresa ${formatFeatureName(feature).toLowerCase()}`"
-                      required
+                      :placeholder="`Ingresa ${formatFeatureName(feature).toLowerCase()} (opcional)`"
                       @input="validateNumericInput(feature, $event)"
                     />
                     <div class="input-hint">
@@ -187,7 +189,6 @@
                       v-model="inputData[feature]"
                       type="date"
                       class="form-input"
-                      required
                       @input="validateDateInput(feature, $event)"
                     />
                     <div class="input-hint">
@@ -202,7 +203,6 @@
                       v-model="inputData[feature]"
                       type="datetime-local"
                       class="form-input"
-                      required
                       @input="validateDateTimeInput(feature, $event)"
                     />
                     <div class="input-hint">
@@ -218,8 +218,7 @@
                       type="number"
                       step="any"
                       class="form-input"
-                      :placeholder="`Ingresa ${formatFeatureName(feature).toLowerCase()}`"
-                      required
+                      :placeholder="`Ingresa ${formatFeatureName(feature).toLowerCase()} (opcional)`"
                     />
                     <div class="input-hint">
                       <i class="pi pi-calculator"></i>
@@ -467,13 +466,13 @@ const loadAvailableModels = async () => {
     if (isPublicModel.value) {
       // Cargar modelo público específico
       response = await safeApiCall(
-        () => apiClient.get('/api/models/public/'),
+        () => apiClient.get('/models/public/'),
         'carga de modelos públicos',
       )
     } else {
       // Cargar modelos propios
       response = await safeApiCall(
-        () => apiClient.get('/api/models/my_models/'),
+        () => apiClient.get('/models/my_models/'),
         'carga de modelos propios',
       )
     }
@@ -537,7 +536,7 @@ const loadModelFeatures = async () => {
     console.log('Loading features for model ID:', selectedModelId.value)
 
     const response = await safeApiCall(
-      () => apiClient.get(`/api/models/info/${selectedModelId.value}/`),
+      () => apiClient.get(`/models/info/${selectedModelId.value}/`),
       'carga de información del modelo',
     )
 
@@ -600,13 +599,13 @@ const makePrediction = async () => {
       return
     }
 
-    // Validar que todos los campos estén llenos
-    const emptyFields = Object.entries(inputData.value).filter(
-      ([key, value]) => value === '' || value === null || value === undefined,
-    )
+    // Validar que no todos los valores estén vacíos o sean cero
+    const hasValidValues = Object.values(inputData.value).some(value => {
+      return value !== null && value !== undefined && value !== '' && value !== 0 && value !== '0'
+    })
 
-    if (emptyFields.length > 0) {
-      predictionError.value = 'Por favor, completa todos los campos requeridos'
+    if (!hasValidValues) {
+      predictionError.value = 'Por favor, proporciona al menos un valor válido para realizar la predicción'
       return
     }
 
@@ -628,7 +627,7 @@ const makePrediction = async () => {
     // El backend detecta automáticamente si es público o propio
     const response = await safeApiCall(
       () =>
-        apiClient.post(`/api/models/predict/${selectedModelId.value}/`, {
+        apiClient.post(`/models/predict/${selectedModelId.value}/`, {
           input_data: processedData,
         }),
       'predicción del modelo',
@@ -2251,5 +2250,30 @@ body {
 @keyframes blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
+}
+
+/* Optional Fields Info Styles */
+.optional-fields-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 0.5rem;
+  color: rgba(59, 130, 246, 0.9);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.optional-fields-info i {
+  color: rgba(59, 130, 246, 0.8);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.optional-fields-info span {
+  line-height: 1.4;
 }
 </style>

@@ -6,7 +6,7 @@ export const modelService = {
    */
   async getMyModels() {
     try {
-      const response = await apiClient.get('/api/models/my_models/')
+      const response = await apiClient.get('/models/my_models/')
       return {
         success: true,
         data: response.data,
@@ -25,7 +25,7 @@ export const modelService = {
    */
   async getModelById(id) {
     try {
-      const response = await apiClient.get(`/api/models/info/${id}/`)
+      const response = await apiClient.get(`/models/info/${id}/`)
       return {
         success: true,
         data: response.data,
@@ -44,7 +44,7 @@ export const modelService = {
    */
   async createModel(modelData) {
     try {
-      const response = await apiClient.post('/api/models/', modelData)
+      const response = await apiClient.post('/models/', modelData)
       return {
         success: true,
         data: response.data,
@@ -83,7 +83,7 @@ export const modelService = {
    */
   async updateModel(id, modelData) {
     try {
-      const response = await apiClient.put(`/api/models/${id}/`, modelData)
+      const response = await apiClient.put(`/models/${id}/`, modelData)
       return {
         success: true,
         data: response.data,
@@ -102,7 +102,7 @@ export const modelService = {
    */
   async deleteModel(id) {
     try {
-      await apiClient.delete(`/api/models/${id}/`)
+      await apiClient.delete(`/models/${id}/`)
       return {
         success: true,
       }
@@ -120,7 +120,7 @@ export const modelService = {
    */
   async getMyModelsCount() {
     try {
-      const response = await apiClient.get('/api/models/my_models/')
+      const response = await apiClient.get('/models/my_models/')
       return {
         success: true,
         count: response.data.count,
@@ -139,7 +139,7 @@ export const modelService = {
    */
   async getMyModelsStats() {
     try {
-      const response = await apiClient.get('/api/models/my_models/')
+      const response = await apiClient.get('/models/my_models/')
       const models = response.data.models || []
 
       const stats = {
