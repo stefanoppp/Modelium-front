@@ -387,7 +387,31 @@
                     class="input-data-item"
                   >
                     <span class="input-label">{{ formatFeatureName(key) }}</span>
-                    <span class="input-value">{{ value }}</span>
+                    <span class="input-value">{{ value !== null ? value : 'No proporcionado' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Valores Imputados (solo si existen) -->
+              <div v-if="predictionResult.imputed_values && Object.keys(predictionResult.imputed_values).length > 0" class="result-section">
+                <h4 class="section-title">
+                  <i class="pi pi-wrench"></i>
+                  Valores Utilizados por el Modelo
+                </h4>
+                <div class="imputed-values-info">
+                  <p class="imputed-description">
+                    <i class="pi pi-info-circle"></i>
+                    Para los datos no proporcionados, el modelo utilizó los siguientes valores calculados durante el entrenamiento:
+                  </p>
+                  <div class="imputed-data-grid">
+                    <div
+                      v-for="(value, key) in predictionResult.imputed_values"
+                      :key="key"
+                      class="imputed-data-item"
+                    >
+                      <span class="imputed-label">{{ formatFeatureName(key) }}</span>
+                      <span class="imputed-value">{{ value }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -600,8 +624,9 @@ const makePrediction = async () => {
     }
 
     // Validar que no todos los valores estén vacíos o sean cero
+    // Nota: null/undefined/'' son valores válidos que representan datos faltantes
     const hasValidValues = Object.values(inputData.value).some(value => {
-      return value !== null && value !== undefined && value !== '' && value !== 0 && value !== '0'
+      return value !== '' && value !== 0 && value !== '0'
     })
 
     if (!hasValidValues) {
@@ -614,8 +639,12 @@ const makePrediction = async () => {
     Object.entries(inputData.value).forEach(([key, value]) => {
       const type = getVariableType(key)
 
-      if (type === 'numeric') {
-        processedData[key] = Number(value)
+      // Preservar valores nulos/vacíos sin convertirlos a 0
+      if (value === null || value === undefined || value === '') {
+        processedData[key] = null
+      } else if (type === 'numeric') {
+        const numValue = Number(value)
+        processedData[key] = isNaN(numValue) ? null : numValue
       } else if (type === 'date' || type === 'datetime') {
         processedData[key] = value
       } else {
@@ -1758,6 +1787,55 @@ body {
   color: #fff;
   font-size: 1.1rem;
   font-weight: 700;
+}
+
+/* Estilos para valores imputados */
+.imputed-values-info {
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.imputed-description {
+  color: #c4b5fd;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.imputed-description i {
+  color: #a855f7;
+}
+
+.imputed-data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.imputed-data-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 8px;
+}
+
+.imputed-label {
+  color: #c4b5fd;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.imputed-value {
+  color: #e879f9;
+  font-weight: 600;
+  word-break: break-word;
 }
 
 .prediction-section {
