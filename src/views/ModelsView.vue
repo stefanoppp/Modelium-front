@@ -369,7 +369,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import TechButton from '@/components/ui/TechButton.vue'
 import NavBar from '@/components/layout/NavBar.vue'
@@ -396,6 +396,7 @@ const error = ref(null)
 const debugInfo = ref(null)
 const searchQuery = ref('')
 const currentPage = ref(1)
+const updateInterval = ref(null)
 
 // Computed properties
 const completedModels = computed(
@@ -573,10 +574,33 @@ const formatMetricValue = (value) => {
   return value
 }
 
+// Función para iniciar la actualización automática
+const startAutoUpdate = () => {
+  // Solo iniciar si hay modelos en entrenamiento
+  const hasTrainingModels = modelsData.value.models?.some(model => model.status === 'training')
+  if (hasTrainingModels && !updateInterval.value) {
+    console.log('Iniciando actualización automática para modelos en entrenamiento')
+    updateInterval.value = setInterval(() => {
+      loadModels(currentPage.value, false) // false = no mostrar loading
+    }, 3000) // Cada 3 segundos
+  }
+}
+
+// Función para detener la actualización automática
+const stopAutoUpdate = () => {
+  if (updateInterval.value) {
+    console.log('Deteniendo actualización automática')
+    clearInterval(updateInterval.value)
+    updateInterval.value = null
+  }
+}
+
 // Methods
-const loadModels = async (page = 1) => {
+const loadModels = async (page = 1, showLoading = true) => {
   try {
-    isLoading.value = true
+    if (showLoading) {
+      isLoading.value = true
+    }
     error.value = null
 
     // Obtener token del authService
@@ -607,11 +631,22 @@ const loadModels = async (page = 1) => {
     modelsData.value = data
     currentPage.value = page
     console.log('Modelos cargados exitosamente:', data)
+    
+    // Verificar si hay modelos en entrenamiento y manejar actualización automática
+    const hasTrainingModels = data.models?.some(model => model.status === 'training')
+    if (hasTrainingModels) {
+      startAutoUpdate()
+    } else {
+      stopAutoUpdate()
+    }
+    
   } catch (err) {
     error.value = err.message
     console.error('Error loading models:', err)
   } finally {
-    isLoading.value = false
+    if (showLoading) {
+      isLoading.value = false
+    }
   }
 }
 
@@ -718,6 +753,11 @@ watch(searchQuery, () => {
     // Si hay una búsqueda activa, no necesitamos recargar desde el servidor
     // porque el filtrado se hace en el frontend
   }
+})
+
+// Lifecycle hooks
+onUnmounted(() => {
+  stopAutoUpdate()
 })
 </script>
 

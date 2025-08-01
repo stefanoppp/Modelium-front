@@ -521,11 +521,37 @@ const loadAvailableModels = async () => {
       }
     } else {
       // Solo modelos completados pueden hacer predicciones
-      availableModels.value = data.models?.filter((model) => model.status === 'completed') || []
+      console.log('Todos los modelos recibidos:', data.models)
+      const completedModels = data.models?.filter((model) => {
+        console.log(`Modelo ${model.name}: status=${model.status}`)
+        return model.status === 'completed'
+      }) || []
+      console.log('Modelos completados filtrados:', completedModels)
+      availableModels.value = completedModels
+      
+      // Si no hay modelos completados, mostrar mensaje más específico
+      if (data.models && data.models.length > 0 && completedModels.length === 0) {
+        predictionError.value = 'No tienes modelos completados disponibles para predicciones. Los modelos deben estar en estado "completed" para poder hacer predicciones.'
+      }
     }
   } catch (err) {
     console.error('Error loading models:', err)
-    predictionError.value = 'Error al cargar los modelos disponibles'
+    console.error('Error details:', {
+      message: err.message,
+      response: err.response?.data,
+      status: err.response?.status,
+      isPublicModel: isPublicModel.value,
+      publicModelId: publicModelId.value
+    })
+    
+    // Mensaje de error más específico
+    if (err.response?.status === 401) {
+      predictionError.value = 'Error de autenticación. Por favor, inicia sesión nuevamente.'
+    } else if (err.response?.status === 404) {
+      predictionError.value = isPublicModel.value ? 'Modelo público no encontrado' : 'No se encontraron modelos'
+    } else {
+      predictionError.value = `Error al cargar los modelos: ${err.message || 'Error desconocido'}`
+    }
   } finally {
     isLoadingModels.value = false
   }

@@ -520,8 +520,8 @@ const loadModelStatus = async () => {
         animateProgress(newProgress)
       }
 
-      // Detener actualización automática si el modelo ya no está entrenando
-      if (newStatus.status !== 'training') {
+      // Detener actualización automática si el modelo ya no está entrenando ni pendiente
+      if (newStatus.status !== 'training' && newStatus.status !== 'pending') {
         stopAutoUpdate()
       }
 
@@ -550,8 +550,8 @@ const loadModelStatus = async () => {
 
 // Función para iniciar la actualización automática
 const startAutoUpdate = () => {
-  // Solo actualizar si el modelo está entrenando
-  if (modelStatus.value?.status === 'training') {
+  // Actualizar si el modelo está entrenando o pendiente
+  if (modelStatus.value?.status === 'training' || modelStatus.value?.status === 'pending') {
     updateInterval.value = setInterval(loadModelStatus, 2000) // Cada 2 segundos
   }
 }
